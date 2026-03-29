@@ -38,6 +38,7 @@ rules.ninja
 # Test outputs
 Testing/
 CTestTestfile.cmake
+tests/output/
 
 # External dependencies (large binaries)
 extern/*.a

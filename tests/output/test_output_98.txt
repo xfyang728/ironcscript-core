@@ -47,8 +47,8 @@ Executing script...
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x1e990428090
-[DEBUG] visitFunc_decl: created funcDecl = 0x1e98ffe40e0
+[DEBUG] visitFunc_decl: body = 0x1f049ba89c0
+[DEBUG] visitFunc_decl: created funcDecl = 0x1f049b341b0
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -233,23 +233,23 @@ Updated stack allocation for function main to 264 bytes
 Updated stack deallocation for function main at position 711 to 264 bytes
 [updateFunctionCallOffsets] Resolving time -> 0x7fff164c8bc0
 [updateFunctionCallOffsets] Replaced NOP with call to time at offset 21
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 95
 [updateFunctionCallOffsets] Resolving clock -> 0x7fff164ca5c0
 [updateFunctionCallOffsets] Replaced NOP with call to clock at offset 113
 [updateFunctionCallOffsets] Resolving clock -> 0x7fff164ca5c0
 [updateFunctionCallOffsets] Replaced NOP with call to clock at offset 354
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 512
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 562
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 612
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 683
 Code generation completed. Total code size: 720 bytes
 Running code...
-Allocated executable memory at: 0x1e990020000
+Allocated executable memory at: 0x1f0494e0000
 Code copied to executable memory successfully.
 Found 8 function call(s) to fix
 Fixed time call at offset: 15
@@ -266,7 +266,7 @@ Code size: 720 bytes
 ----------------------------------------
 Initializing Capstone disassembler...
 Architecture: 4, Mode: 8
-Capstone initialized successfully. Handle: 2102654649952
+Capstone initialized successfully. Handle: 2131540504032
 Disassembling 129 instructions...
 00000000: 55 	push rbp
 00000001: 48 89 e5 	mov rbp, rsp
@@ -285,7 +285,7 @@ Disassembling 129 instructions...
 00000054: 48 89 c1 	mov rcx, rax
 00000057: 8b 85 e8 ff ff ff 	mov eax, dword ptr [rbp - 0x18]
 0000005d: 89 c2 	mov edx, eax
-0000005f: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+0000005f: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 00000069: ff d0 	call rax
 0000006b: 89 85 d8 ff ff ff 	mov dword ptr [rbp - 0x28], eax
 00000071: 48 b8 c0 a5 4c 16 ff 7f 00 00 	movabs rax, 0x7fff164ca5c0
@@ -359,7 +359,7 @@ Disassembling 129 instructions...
 000001ee: 48 8b 85 58 ff ff ff 	mov rax, qword ptr [rbp - 0xa8]
 000001f5: 48 89 c1 	mov rcx, rax
 000001f8: f2 0f 10 8d 60 ff ff ff 	movsd xmm1, qword ptr [rbp - 0xa0]
-00000200: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000200: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 0000020a: ff d0 	call rax
 0000020c: 89 85 50 ff ff ff 	mov dword ptr [rbp - 0xb0], eax
 00000212: 48 8d 05 00 00 00 00 	lea rax, [rip]
@@ -368,7 +368,7 @@ Disassembling 129 instructions...
 00000227: 48 89 c1 	mov rcx, rax
 0000022a: 8b 85 c0 ff ff ff 	mov eax, dword ptr [rbp - 0x40]
 00000230: 89 c2 	mov edx, eax
-00000232: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000232: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 0000023c: ff d0 	call rax
 0000023e: 89 85 40 ff ff ff 	mov dword ptr [rbp - 0xc0], eax
 00000244: 48 8d 05 00 00 00 00 	lea rax, [rip]
@@ -377,7 +377,7 @@ Disassembling 129 instructions...
 00000259: 48 89 c1 	mov rcx, rax
 0000025c: 8b 85 80 ff ff ff 	mov eax, dword ptr [rbp - 0x80]
 00000262: 89 c2 	mov edx, eax
-00000264: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000264: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 0000026e: ff d0 	call rax
 00000270: 89 85 30 ff ff ff 	mov dword ptr [rbp - 0xd0], eax
 00000276: 48 8d 05 00 00 00 00 	lea rax, [rip]
@@ -390,7 +390,7 @@ Disassembling 129 instructions...
 000002a0: 48 89 c1 	mov rcx, rax
 000002a3: 8b 85 20 ff ff ff 	mov eax, dword ptr [rbp - 0xe0]
 000002a9: 89 c2 	mov edx, eax
-000002ab: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+000002ab: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 000002b5: ff d0 	call rax
 000002b7: 89 85 18 ff ff ff 	mov dword ptr [rbp - 0xe8], eax
 000002bd: 48 b8 00 00 00 00 00 00 00 00 	movabs rax, 0
@@ -402,10 +402,10 @@ Capstone handle closed.
 ----------------------------------------
 Disassembly completed.
 Attempting to execute JIT code...
-Executable memory address: 0x1e990020000
+Executable memory address: 0x1f0494e0000
 Found main function at offset: 0
-JIT function pointer: 0x1e990020000
-H‰…àÿÿÿH‹…àÿÿÿH‰Á‹…èÿÿÿ‰ÂH¸ì|lVöH‰…XÿÿÿH‹…XÿÿÿH‰Áò`ÿÿÿH¸ì|lVöH‰…HÿÿÿH‹…HÿÿÿH‰Á‹…Àÿÿÿ‰ÂH¸ì|lVöH‰…8ÿÿÿH‹…8ÿÿÿH‰Á‹…€ÿÿÿ‰ÂH¸ì|lVöH‰…(ÿÿÿ‹…€ÿÿÿ‹ÀÿÿÿH)È‰… ÿÿÿH‹…(ÿÿÿH‰Á‹… ÿÿÿ‰ÂH¸ì|lVöCode execution completed.
+JIT function pointer: 0x1f0494e0000
+H‰…àÿÿÿH‹…àÿÿÿH‰Á‹…èÿÿÿ‰ÂH¸ì|c¾öH‰…XÿÿÿH‹…XÿÿÿH‰Áò`ÿÿÿH¸ì|c¾öH‰…HÿÿÿH‹…HÿÿÿH‰Á‹…Àÿÿÿ‰ÂH¸ì|c¾öH‰…8ÿÿÿH‹…8ÿÿÿH‰Á‹…€ÿÿÿ‰ÂH¸ì|c¾öH‰…(ÿÿÿ‹…€ÿÿÿ‹ÀÿÿÿH)È‰… ÿÿÿH‹…(ÿÿÿH‰Á‹… ÿÿÿ‰ÂH¸ì|c¾öCode execution completed.
 main() return value: 0
 Freeing executable memory...
 Memory freed successfully.
@@ -413,5 +413,5 @@ Memory freed successfully.
 Script executed successfully.
 Return value: 0
 SymbolTable destructor called. Scope stack size: 1
-Deleting scope: 0x1e98ff44570
+Deleting scope: 0x1f049a94200
 SymbolTable destruction completed.

@@ -37,8 +37,8 @@ Executing script...
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x237f64da5f0
-[DEBUG] visitFunc_decl: created funcDecl = 0x237f64eab70
+[DEBUG] visitFunc_decl: body = 0x2b6a9338730
+[DEBUG] visitFunc_decl: created funcDecl = 0x2b6a934ab70
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -164,17 +164,17 @@ Updated stack deallocation for function main at position 415 to 264 bytes
 [updateFunctionCallOffsets] Replaced NOP with call to fopen at offset 59
 [updateFunctionCallOffsets] Resolving fscanf -> 0x7fff164abdd0
 [updateFunctionCallOffsets] Replaced NOP with call to fscanf at offset 146
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 198
 [updateFunctionCallOffsets] Resolving fscanf -> 0x7fff164abdd0
 [updateFunctionCallOffsets] Replaced NOP with call to fscanf at offset 275
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 325
 [updateFunctionCallOffsets] Resolving fclose -> 0x7fff164b1510
 [updateFunctionCallOffsets] Replaced NOP with call to fclose at offset 351
 Code generation completed. Total code size: 424 bytes
 Running code...
-Allocated executable memory at: 0x237f5d90000
+Allocated executable memory at: 0x2b6a8fb0000
 Code copied to executable memory successfully.
 Found 6 function call(s) to fix
 Fixed fopen call at offset: 3b
@@ -189,7 +189,7 @@ Code size: 424 bytes
 ----------------------------------------
 Initializing Capstone disassembler...
 Architecture: 4, Mode: 8
-Capstone initialized successfully. Handle: 2439374153296
+Capstone initialized successfully. Handle: 2983541778000
 Disassembling 78 instructions...
 00000000: 55 	push rbp
 00000001: 48 89 e5 	mov rbp, rsp
@@ -227,7 +227,7 @@ Disassembling 78 instructions...
 000000b9: 48 89 c1 	mov rcx, rax
 000000bc: 48 8d 85 f8 ff ff ff 	lea rax, [rbp - 8]
 000000c3: 48 89 c2 	mov rdx, rax
-000000c6: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+000000c6: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 000000d0: ff d0 	call rax
 000000d2: 89 85 5c ff ff ff 	mov dword ptr [rbp - 0xa4], eax
 000000d8: 48 8d 05 00 00 00 00 	lea rax, [rip]
@@ -250,7 +250,7 @@ Disassembling 78 instructions...
 0000013a: 48 89 c1 	mov rcx, rax
 0000013d: 8b 85 44 ff ff ff 	mov eax, dword ptr [rbp - 0xbc]
 00000143: 89 c2 	mov edx, eax
-00000145: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000145: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 0000014f: ff d0 	call rax
 00000151: 89 85 2c ff ff ff 	mov dword ptr [rbp - 0xd4], eax
 00000157: 8b 85 7c ff ff ff 	mov eax, dword ptr [rbp - 0x84]
@@ -274,6 +274,6 @@ Capstone handle closed.
 ----------------------------------------
 Disassembly completed.
 Attempting to execute JIT code...
-Executable memory address: 0x237f5d90000
+Executable memory address: 0x2b6a8fb0000
 Found main function at offset: 0
-JIT function pointer: 0x237f5d90000
+JIT function pointer: 0x2b6a8fb0000
