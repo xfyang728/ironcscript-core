@@ -1,0 +1,189 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ResolveNugetPackages>false</ResolveNugetPackages>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{ADFFA3D0-6DC6-3753-9CBC-41D122BCD8F4}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>ALL_BUILD</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>D:\MyCode\CScriptEngine\src\flex_bison;D:\MyCode\CScriptEngine\src;D:\MyCode\CScriptEngine\capstone_build_mingw;D:\MyCode\CScriptEngine\capstone_src\include;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\include;D:\MyCode\CScriptEngine\googletest-1.17.0\googlemock\include;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>D:\MyCode\CScriptEngine\src\flex_bison;D:\MyCode\CScriptEngine\src;D:\MyCode\CScriptEngine\capstone_build_mingw;D:\MyCode\CScriptEngine\capstone_src\include;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\include;D:\MyCode\CScriptEngine\googletest-1.17.0\googlemock\include;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>D:\MyCode\CScriptEngine\src\flex_bison;D:\MyCode\CScriptEngine\src;D:\MyCode\CScriptEngine\capstone_build_mingw;D:\MyCode\CScriptEngine\capstone_src\include;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\include;D:\MyCode\CScriptEngine\googletest-1.17.0\googlemock\include;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>D:\MyCode\CScriptEngine\src\flex_bison;D:\MyCode\CScriptEngine\src;D:\MyCode\CScriptEngine\capstone_build_mingw;D:\MyCode\CScriptEngine\capstone_src\include;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\include;D:\MyCode\CScriptEngine\googletest-1.17.0\googlemock\include;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule D:/MyCode/CScriptEngine/googletest-1.17.0/googletest/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+C:\msys64\mingw64\bin\cmake.exe -SD:/MyCode/CScriptEngine -BD:/MyCode/CScriptEngine --check-stamp-file D:/MyCode/CScriptEngine/googletest-1.17.0/googletest/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\msys64\mingw64\share\cmake\Modules\BasicConfigVersion-AnyNewerVersion.cmake.in;C:\msys64\mingw64\share\cmake\Modules\CMakePackageConfigHelpers.cmake;C:\msys64\mingw64\share\cmake\Modules\CheckCSourceCompiles.cmake;C:\msys64\mingw64\share\cmake\Modules\CheckIncludeFile.cmake;C:\msys64\mingw64\share\cmake\Modules\CheckLibraryExists.cmake;C:\msys64\mingw64\share\cmake\Modules\FindPackageHandleStandardArgs.cmake;C:\msys64\mingw64\share\cmake\Modules\FindPackageMessage.cmake;C:\msys64\mingw64\share\cmake\Modules\FindThreads.cmake;C:\msys64\mingw64\share\cmake\Modules\Internal\CheckSourceCompiles.cmake;C:\msys64\mingw64\share\cmake\Modules\WriteBasicConfigVersionFile.cmake;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\cmake\Config.cmake.in;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\cmake\gtest.pc.in;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\cmake\gtest_main.pc.in;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\cmake\internal_utils.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule D:/MyCode/CScriptEngine/googletest-1.17.0/googletest/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+C:\msys64\mingw64\bin\cmake.exe -SD:/MyCode/CScriptEngine -BD:/MyCode/CScriptEngine --check-stamp-file D:/MyCode/CScriptEngine/googletest-1.17.0/googletest/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\msys64\mingw64\share\cmake\Modules\BasicConfigVersion-AnyNewerVersion.cmake.in;C:\msys64\mingw64\share\cmake\Modules\CMakePackageConfigHelpers.cmake;C:\msys64\mingw64\share\cmake\Modules\CheckCSourceCompiles.cmake;C:\msys64\mingw64\share\cmake\Modules\CheckIncludeFile.cmake;C:\msys64\mingw64\share\cmake\Modules\CheckLibraryExists.cmake;C:\msys64\mingw64\share\cmake\Modules\FindPackageHandleStandardArgs.cmake;C:\msys64\mingw64\share\cmake\Modules\FindPackageMessage.cmake;C:\msys64\mingw64\share\cmake\Modules\FindThreads.cmake;C:\msys64\mingw64\share\cmake\Modules\Internal\CheckSourceCompiles.cmake;C:\msys64\mingw64\share\cmake\Modules\WriteBasicConfigVersionFile.cmake;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\cmake\Config.cmake.in;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\cmake\gtest.pc.in;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\cmake\gtest_main.pc.in;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\cmake\internal_utils.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule D:/MyCode/CScriptEngine/googletest-1.17.0/googletest/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+C:\msys64\mingw64\bin\cmake.exe -SD:/MyCode/CScriptEngine -BD:/MyCode/CScriptEngine --check-stamp-file D:/MyCode/CScriptEngine/googletest-1.17.0/googletest/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\msys64\mingw64\share\cmake\Modules\BasicConfigVersion-AnyNewerVersion.cmake.in;C:\msys64\mingw64\share\cmake\Modules\CMakePackageConfigHelpers.cmake;C:\msys64\mingw64\share\cmake\Modules\CheckCSourceCompiles.cmake;C:\msys64\mingw64\share\cmake\Modules\CheckIncludeFile.cmake;C:\msys64\mingw64\share\cmake\Modules\CheckLibraryExists.cmake;C:\msys64\mingw64\share\cmake\Modules\FindPackageHandleStandardArgs.cmake;C:\msys64\mingw64\share\cmake\Modules\FindPackageMessage.cmake;C:\msys64\mingw64\share\cmake\Modules\FindThreads.cmake;C:\msys64\mingw64\share\cmake\Modules\Internal\CheckSourceCompiles.cmake;C:\msys64\mingw64\share\cmake\Modules\WriteBasicConfigVersionFile.cmake;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\cmake\Config.cmake.in;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\cmake\gtest.pc.in;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\cmake\gtest_main.pc.in;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\cmake\internal_utils.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule D:/MyCode/CScriptEngine/googletest-1.17.0/googletest/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+C:\msys64\mingw64\bin\cmake.exe -SD:/MyCode/CScriptEngine -BD:/MyCode/CScriptEngine --check-stamp-file D:/MyCode/CScriptEngine/googletest-1.17.0/googletest/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\msys64\mingw64\share\cmake\Modules\BasicConfigVersion-AnyNewerVersion.cmake.in;C:\msys64\mingw64\share\cmake\Modules\CMakePackageConfigHelpers.cmake;C:\msys64\mingw64\share\cmake\Modules\CheckCSourceCompiles.cmake;C:\msys64\mingw64\share\cmake\Modules\CheckIncludeFile.cmake;C:\msys64\mingw64\share\cmake\Modules\CheckLibraryExists.cmake;C:\msys64\mingw64\share\cmake\Modules\FindPackageHandleStandardArgs.cmake;C:\msys64\mingw64\share\cmake\Modules\FindPackageMessage.cmake;C:\msys64\mingw64\share\cmake\Modules\FindThreads.cmake;C:\msys64\mingw64\share\cmake\Modules\Internal\CheckSourceCompiles.cmake;C:\msys64\mingw64\share\cmake\Modules\WriteBasicConfigVersionFile.cmake;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\cmake\Config.cmake.in;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\cmake\gtest.pc.in;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\cmake\gtest_main.pc.in;D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\cmake\internal_utils.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="D:\MyCode\CScriptEngine\ZERO_CHECK.vcxproj">
+      <Project>{2705FC71-DFBA-3B48-8CD8-572B26BFD27E}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\gtest.vcxproj">
+      <Project>{805D41C1-B61B-3CAB-9BCC-9390F8A7FACA}</Project>
+      <Name>gtest</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\MyCode\CScriptEngine\googletest-1.17.0\googletest\gtest_main.vcxproj">
+      <Project>{1D7F830B-E835-3C8D-9BE2-19A8060A395D}</Project>
+      <Name>gtest_main</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
