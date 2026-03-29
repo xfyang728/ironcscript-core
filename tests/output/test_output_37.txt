@@ -26,8 +26,8 @@ line 7:19 extraneous input ';' expecting {'import', 'include', 'register', 'try'
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x1f50a142a30
-[DEBUG] visitFunc_decl: created funcDecl = 0x1f50a1647e0
+[DEBUG] visitFunc_decl: body = 0x24f2279ff10
+[DEBUG] visitFunc_decl: created funcDecl = 0x24f227c44a0
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -81,7 +81,7 @@ Updated stack allocation for function main to 72 bytes
 Updated stack deallocation for function main at position 166 to 72 bytes
 Code generation completed. Total code size: 175 bytes
 Running code...
-Allocated executable memory at: 0x1f509a70000
+Allocated executable memory at: 0x24f224c0000
 Code copied to executable memory successfully.
 Found 0 function call(s) to fix
 
@@ -90,7 +90,7 @@ Code size: 175 bytes
 ----------------------------------------
 Initializing Capstone disassembler...
 Architecture: 4, Mode: 8
-Capstone initialized successfully. Handle: 2151947778528
+Capstone initialized successfully. Handle: 2538904173024
 Disassembling 32 instructions...
 00000000: 55 	push rbp
 00000001: 48 89 e5 	mov rbp, rsp
@@ -129,9 +129,9 @@ Capstone handle closed.
 ----------------------------------------
 Disassembly completed.
 Attempting to execute JIT code...
-Executable memory address: 0x1f509a70000
+Executable memory address: 0x24f224c0000
 Found main function at offset: 0
-JIT function pointer: 0x1f509a70000
+JIT function pointer: 0x24f224c0000
 Code execution completed.
 main() return value: 10
 Freeing executable memory...
@@ -140,5 +140,5 @@ Memory freed successfully.
 Script executed successfully.
 Return value: 10
 SymbolTable destructor called. Scope stack size: 1
-Deleting scope: 0x1f50a0f4870
+Deleting scope: 0x24f22754be0
 SymbolTable destruction completed.

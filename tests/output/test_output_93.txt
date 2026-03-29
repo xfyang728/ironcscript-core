@@ -33,8 +33,8 @@ Executing script...
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x2c604fd6f30
-[DEBUG] visitFunc_decl: created funcDecl = 0x2c60502cfa0
+[DEBUG] visitFunc_decl: body = 0x178d84c5250
+[DEBUG] visitFunc_decl: created funcDecl = 0x178d851d660
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -48,8 +48,8 @@ Executing script...
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x2c604fd77a0
-[DEBUG] visitFunc_decl: created funcDecl = 0x2c60502d8e0
+[DEBUG] visitFunc_decl: body = 0x178d84c53a0
+[DEBUG] visitFunc_decl: created funcDecl = 0x178d851cfe0
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -181,13 +181,13 @@ Updated stack deallocation for function write_file at position 370 to 152 bytes
 [updateFunctionCallOffsets] Replaced NOP with call to fprintf at offset 196
 [updateFunctionCallOffsets] Resolving fclose -> 0x7fff164b1510
 [updateFunctionCallOffsets] Replaced NOP with call to fclose at offset 222
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 264
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 330
 Code generation completed. Total code size: 416 bytes
 Running code...
-Allocated executable memory at: 0x2c604950000
+Allocated executable memory at: 0x178d8230000
 Code copied to executable memory successfully.
 Found 6 function call(s) to fix
 Fixed fopen call at offset: 3b
@@ -202,7 +202,7 @@ Code size: 416 bytes
 ----------------------------------------
 Initializing Capstone disassembler...
 Architecture: 4, Mode: 8
-Capstone initialized successfully. Handle: 3049510374272
+Capstone initialized successfully. Handle: 1618536467328
 Disassembling 77 instructions...
 00000000: 55 	push rbp
 00000001: 48 89 e5 	mov rbp, rsp
@@ -251,7 +251,7 @@ Disassembling 77 instructions...
 000000f7: 48 89 85 b0 ff ff ff 	mov qword ptr [rbp - 0x50], rax
 000000fe: 48 8b 85 b0 ff ff ff 	mov rax, qword ptr [rbp - 0x50]
 00000105: 48 89 c1 	mov rcx, rax
-00000108: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000108: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 00000112: ff d0 	call rax
 00000114: 89 85 a8 ff ff ff 	mov dword ptr [rbp - 0x58], eax
 0000011a: 48 b8 00 00 00 00 00 00 00 00 	movabs rax, 0
@@ -263,7 +263,7 @@ Disassembling 77 instructions...
 00000139: 48 89 85 a0 ff ff ff 	mov qword ptr [rbp - 0x60], rax
 00000140: 48 8b 85 a0 ff ff ff 	mov rax, qword ptr [rbp - 0x60]
 00000147: 48 89 c1 	mov rcx, rax
-0000014a: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+0000014a: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 00000154: ff d0 	call rax
 00000156: 89 85 98 ff ff ff 	mov dword ptr [rbp - 0x68], eax
 0000015c: 48 b8 ff ff ff ff ff ff ff ff 	movabs rax, 0xffffffffffffffff
@@ -286,10 +286,10 @@ Capstone handle closed.
 ----------------------------------------
 Disassembly completed.
 Attempting to execute JIT code...
-Executable memory address: 0x2c604950000
+Executable memory address: 0x178d8230000
 Found main function at offset: 379
-JIT function pointer: 0x2c60495017b
-H‰… ÿÿÿH‹… ÿÿÿH‰ÁH¸ì|lVöCode execution completed.
+JIT function pointer: 0x178d823017b
+H‰… ÿÿÿH‹… ÿÿÿH‰ÁH¸ì|c¾öCode execution completed.
 main() return value: -1
 Freeing executable memory...
 Memory freed successfully.
@@ -297,5 +297,5 @@ Memory freed successfully.
 Script executed successfully.
 Return value: -1
 SymbolTable destructor called. Scope stack size: 1
-Deleting scope: 0x2c604f55180
+Deleting scope: 0x178d8444780
 SymbolTable destruction completed.

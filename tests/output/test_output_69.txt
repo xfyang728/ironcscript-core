@@ -5,5 +5,5 @@ Script: D:\MyCode\IronCScript\ironcscript-core\tests\scripts\09_stdlib/test_stdl
 Executing script...
 Error: Cannot open file: D:\MyCode\IronCScript\ironcscript-core\tests\scripts\09_stdlib/test_stdlib.c
 SymbolTable destructor called. Scope stack size: 1
-Deleting scope: 0x19a52395080
+Deleting scope: 0x183cf404f90
 SymbolTable destruction completed.

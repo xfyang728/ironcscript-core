@@ -53,8 +53,8 @@ Executing script...
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x225bc44ad80
-[DEBUG] visitFunc_decl: created funcDecl = 0x225bc476130
+[DEBUG] visitFunc_decl: body = 0x1e3d391c460
+[DEBUG] visitFunc_decl: created funcDecl = 0x1e3d39465f0
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -278,29 +278,29 @@ Updated stack deallocation for function main at position 786 to 392 bytes
 [updateFunctionCallOffsets] Replaced NOP with call to fprintf at offset 196
 [updateFunctionCallOffsets] Resolving fclose -> 0x7fff164b1510
 [updateFunctionCallOffsets] Replaced NOP with call to fclose at offset 222
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 264
 [updateFunctionCallOffsets] Resolving fopen -> 0x7fff164ac1a0
 [updateFunctionCallOffsets] Replaced NOP with call to fopen at offset 330
 [updateFunctionCallOffsets] Resolving fscanf -> 0x7fff164abdd0
 [updateFunctionCallOffsets] Replaced NOP with call to fscanf at offset 417
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 469
 [updateFunctionCallOffsets] Resolving fscanf -> 0x7fff164abdd0
 [updateFunctionCallOffsets] Replaced NOP with call to fscanf at offset 546
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 596
 [updateFunctionCallOffsets] Resolving fclose -> 0x7fff164b1510
 [updateFunctionCallOffsets] Replaced NOP with call to fclose at offset 622
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 664
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 711
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 758
 Code generation completed. Total code size: 795 bytes
 Running code...
-Allocated executable memory at: 0x225bbf70000
+Allocated executable memory at: 0x1e3d33f0000
 Code copied to executable memory successfully.
 Found 14 function call(s) to fix
 Fixed fopen call at offset: 3b
@@ -323,7 +323,7 @@ Code size: 795 bytes
 ----------------------------------------
 Initializing Capstone disassembler...
 Architecture: 4, Mode: 8
-Capstone initialized successfully. Handle: 2361095614192
+Capstone initialized successfully. Handle: 2078018694896
 Disassembling 141 instructions...
 00000000: 55 	push rbp
 00000001: 48 89 e5 	mov rbp, rsp
@@ -372,7 +372,7 @@ Disassembling 141 instructions...
 000000f7: 48 89 85 4c ff ff ff 	mov qword ptr [rbp - 0xb4], rax
 000000fe: 48 8b 85 4c ff ff ff 	mov rax, qword ptr [rbp - 0xb4]
 00000105: 48 89 c1 	mov rcx, rax
-00000108: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000108: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 00000112: ff d0 	call rax
 00000114: 89 85 44 ff ff ff 	mov dword ptr [rbp - 0xbc], eax
 0000011a: 48 8d 05 00 00 00 00 	lea rax, [rip]
@@ -408,7 +408,7 @@ Disassembling 141 instructions...
 000001c8: 48 89 c1 	mov rcx, rax
 000001cb: 48 8d 85 f8 ff ff ff 	lea rax, [rbp - 8]
 000001d2: 48 89 c2 	mov rdx, rax
-000001d5: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+000001d5: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 000001df: ff d0 	call rax
 000001e1: 89 85 0c ff ff ff 	mov dword ptr [rbp - 0xf4], eax
 000001e7: 48 8d 05 00 00 00 00 	lea rax, [rip]
@@ -431,7 +431,7 @@ Disassembling 141 instructions...
 00000249: 48 89 c1 	mov rcx, rax
 0000024c: 8b 85 f4 fe ff ff 	mov eax, dword ptr [rbp - 0x10c]
 00000252: 89 c2 	mov edx, eax
-00000254: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000254: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 0000025e: ff d0 	call rax
 00000260: 89 85 dc fe ff ff 	mov dword ptr [rbp - 0x124], eax
 00000266: 8b 85 7c ff ff ff 	mov eax, dword ptr [rbp - 0x84]
@@ -443,7 +443,7 @@ Disassembling 141 instructions...
 00000287: 48 89 85 cc fe ff ff 	mov qword ptr [rbp - 0x134], rax
 0000028e: 48 8b 85 cc fe ff ff 	mov rax, qword ptr [rbp - 0x134]
 00000295: 48 89 c1 	mov rcx, rax
-00000298: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000298: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 000002a2: ff d0 	call rax
 000002a4: 89 85 c4 fe ff ff 	mov dword ptr [rbp - 0x13c], eax
 000002aa: e9 2a 00 00 00 	jmp 0x2d9
@@ -451,7 +451,7 @@ Disassembling 141 instructions...
 000002b6: 48 89 85 bc fe ff ff 	mov qword ptr [rbp - 0x144], rax
 000002bd: 48 8b 85 bc fe ff ff 	mov rax, qword ptr [rbp - 0x144]
 000002c4: 48 89 c1 	mov rcx, rax
-000002c7: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+000002c7: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 000002d1: ff d0 	call rax
 000002d3: 89 85 b4 fe ff ff 	mov dword ptr [rbp - 0x14c], eax
 000002d9: e9 2a 00 00 00 	jmp 0x308
@@ -459,7 +459,7 @@ Disassembling 141 instructions...
 000002e5: 48 89 85 ac fe ff ff 	mov qword ptr [rbp - 0x154], rax
 000002ec: 48 8b 85 ac fe ff ff 	mov rax, qword ptr [rbp - 0x154]
 000002f3: 48 89 c1 	mov rcx, rax
-000002f6: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+000002f6: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 00000300: ff d0 	call rax
 00000302: 89 85 a4 fe ff ff 	mov dword ptr [rbp - 0x15c], eax
 00000308: 48 b8 00 00 00 00 00 00 00 00 	movabs rax, 0
@@ -471,6 +471,6 @@ Capstone handle closed.
 ----------------------------------------
 Disassembly completed.
 Attempting to execute JIT code...
-Executable memory address: 0x225bbf70000
+Executable memory address: 0x1e3d33f0000
 Found main function at offset: 0
-JIT function pointer: 0x225bbf70000
+JIT function pointer: 0x1e3d33f0000

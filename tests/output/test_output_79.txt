@@ -36,9 +36,9 @@ line 58:16 no viable alternative at input 'unionValuev'
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x1b4ec12be10
+[DEBUG] visitFunc_decl: body = 0x2a7e99dab80
 [DEBUG] visitFunc_decl: found func_decl_args
-[DEBUG] visitFunc_decl: created funcDecl = 0x1b4ec126c10
+[DEBUG] visitFunc_decl: created funcDecl = 0x2a7e99d6c90
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -56,8 +56,8 @@ line 58:16 no viable alternative at input 'unionValuev'
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x1b4ec12b7b0
-[DEBUG] visitFunc_decl: created funcDecl = 0x1b4ec126c50
+[DEBUG] visitFunc_decl: body = 0x2a7e99dad00
+[DEBUG] visitFunc_decl: created funcDecl = 0x2a7e99d6d10
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -77,8 +77,8 @@ line 58:16 no viable alternative at input 'unionValuev'
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x1b4ec12bcf0
-[DEBUG] visitFunc_decl: created funcDecl = 0x1b4ec153f40
+[DEBUG] visitFunc_decl: body = 0x2a7e99dab20
+[DEBUG] visitFunc_decl: created funcDecl = 0x2a7e9a042c0
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -104,8 +104,8 @@ line 58:16 no viable alternative at input 'unionValuev'
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x1b4ec128840
-[DEBUG] visitFunc_decl: created funcDecl = 0x1b4ec153c40
+[DEBUG] visitFunc_decl: body = 0x2a7e99dbe10
+[DEBUG] visitFunc_decl: created funcDecl = 0x2a7e9a04300
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -132,8 +132,8 @@ line 58:16 no viable alternative at input 'unionValuev'
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x1b4ec12bf90
-[DEBUG] visitFunc_decl: created funcDecl = 0x1b4ec153d80
+[DEBUG] visitFunc_decl: body = 0x2a7e99db4b0
+[DEBUG] visitFunc_decl: created funcDecl = 0x2a7e9a03e40
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -157,8 +157,8 @@ line 58:16 no viable alternative at input 'unionValuev'
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x1b4ec128660
-[DEBUG] visitFunc_decl: created funcDecl = 0x1b4ec153e80
+[DEBUG] visitFunc_decl: body = 0x2a7e99dba80
+[DEBUG] visitFunc_decl: created funcDecl = 0x2a7e9a033c0
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -422,7 +422,7 @@ Updated stack allocation for function test_union to 56 bytes
 Updated stack deallocation for function test_union at position 839 to 56 bytes
 Code generation completed. Total code size: 1083 bytes
 Running code...
-Allocated executable memory at: 0x1b4eb9d0000
+Allocated executable memory at: 0x2a7e9220000
 Code copied to executable memory successfully.
 Found 0 function call(s) to fix
 
@@ -431,7 +431,7 @@ Code size: 1083 bytes
 ----------------------------------------
 Initializing Capstone disassembler...
 Architecture: 4, Mode: 8
-Capstone initialized successfully. Handle: 1876566557568
+Capstone initialized successfully. Handle: 2920202388352
 Disassembling 186 instructions...
 00000000: 55 	push rbp
 00000001: 48 89 e5 	mov rbp, rsp
@@ -624,6 +624,6 @@ Capstone handle closed.
 ----------------------------------------
 Disassembly completed.
 Attempting to execute JIT code...
-Executable memory address: 0x1b4eb9d0000
+Executable memory address: 0x2a7e9220000
 Found main function at offset: 848
-JIT function pointer: 0x1b4eb9d0350
+JIT function pointer: 0x2a7e9220350

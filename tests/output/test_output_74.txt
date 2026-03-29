@@ -27,8 +27,8 @@ Executing script...
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x21aeb41e440
-[DEBUG] visitFunc_decl: created funcDecl = 0x21aeb3ce0c0
+[DEBUG] visitFunc_decl: body = 0x23d1108f7c0
+[DEBUG] visitFunc_decl: created funcDecl = 0x23d1103e200
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -113,13 +113,13 @@ Updated stack deallocation for function main at position 276 to 136 bytes
 [updateFunctionCallOffsets] Replaced NOP with call to scanf at offset 62
 [updateFunctionCallOffsets] Resolving scanf -> 0x7fff164ad630
 [updateFunctionCallOffsets] Replaced NOP with call to scanf at offset 131
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 181
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 231
 Code generation completed. Total code size: 285 bytes
 Running code...
-Allocated executable memory at: 0x21aeb450000
+Allocated executable memory at: 0x23d10a40000
 Code copied to executable memory successfully.
 Found 4 function call(s) to fix
 Fixed scanf call at offset: 3e
@@ -132,7 +132,7 @@ Code size: 285 bytes
 ----------------------------------------
 Initializing Capstone disassembler...
 Architecture: 4, Mode: 8
-Capstone initialized successfully. Handle: 2314639236976
+Capstone initialized successfully. Handle: 2461301923696
 Disassembling 53 instructions...
 00000000: 55 	push rbp
 00000001: 48 89 e5 	mov rbp, rsp
@@ -167,7 +167,7 @@ Disassembling 53 instructions...
 000000aa: 48 89 c1 	mov rcx, rax
 000000ad: 8b 85 e8 ff ff ff 	mov eax, dword ptr [rbp - 0x18]
 000000b3: 89 c2 	mov edx, eax
-000000b5: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+000000b5: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 000000bf: ff d0 	call rax
 000000c1: 89 85 b0 ff ff ff 	mov dword ptr [rbp - 0x50], eax
 000000c7: 48 8d 05 00 00 00 00 	lea rax, [rip]
@@ -176,7 +176,7 @@ Disassembling 53 instructions...
 000000dc: 48 89 c1 	mov rcx, rax
 000000df: 8b 85 c8 ff ff ff 	mov eax, dword ptr [rbp - 0x38]
 000000e5: 89 c2 	mov edx, eax
-000000e7: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+000000e7: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 000000f1: ff d0 	call rax
 000000f3: 89 85 a0 ff ff ff 	mov dword ptr [rbp - 0x60], eax
 000000f9: 8b 85 e8 ff ff ff 	mov eax, dword ptr [rbp - 0x18]
@@ -192,10 +192,10 @@ Capstone handle closed.
 ----------------------------------------
 Disassembly completed.
 Attempting to execute JIT code...
-Executable memory address: 0x21aeb450000
+Executable memory address: 0x23d10a40000
 Found main function at offset: 0
-JIT function pointer: 0x21aeb450000
-H‰…¸ÿÿÿH‹…¸ÿÿÿH‰Á‹…èÿÿÿ‰ÂH¸ì|lVöH‰…¨ÿÿÿH‹…¨ÿÿÿH‰Á‹…Èÿÿÿ‰ÂH¸ì|lVöCode execution completed.
+JIT function pointer: 0x23d10a40000
+H‰…¸ÿÿÿH‹…¸ÿÿÿH‰Á‹…èÿÿÿ‰ÂH¸ì|c¾öH‰…¨ÿÿÿH‹…¨ÿÿÿH‰Á‹…Èÿÿÿ‰ÂH¸ì|c¾öCode execution completed.
 main() return value: 373995969
 Freeing executable memory...
 Memory freed successfully.
@@ -203,6 +203,6 @@ Memory freed successfully.
 Script executed successfully.
 Return value: 373995969
 SymbolTable destructor called. Scope stack size: 1
-Deleting scope: 0x21aeb375270
+Deleting scope: 0x23d10fe5450
 SymbolTable destruction completed.
 Exit code: 373995969 

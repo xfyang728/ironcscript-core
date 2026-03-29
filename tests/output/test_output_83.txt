@@ -27,8 +27,8 @@ Executing script...
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x20a6493ea70
-[DEBUG] visitFunc_decl: created funcDecl = 0x20a649092c0
+[DEBUG] visitFunc_decl: body = 0x13aa696e500
+[DEBUG] visitFunc_decl: created funcDecl = 0x13aa69391c0
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -50,5 +50,5 @@ Error: Function 'multiply' is not declared
 [DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
 Error: Semantic analysis failed
 SymbolTable destructor called. Scope stack size: 1
-Deleting scope: 0x20a648947a0
+Deleting scope: 0x13aa68c4250
 SymbolTable destruction completed.

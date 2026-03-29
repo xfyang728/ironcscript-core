@@ -19,8 +19,8 @@ Executing script...
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x2568f6e3720
-[DEBUG] visitFunc_decl: created funcDecl = 0x2568f6a2080
+[DEBUG] visitFunc_decl: body = 0x1d6251a4590
+[DEBUG] visitFunc_decl: created funcDecl = 0x1d625162580
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -64,7 +64,7 @@ Updated stack deallocation for function main at position 111 to 72 bytes
 [updateFunctionCallOffsets] Replaced NOP with call to scanf at offset 62
 Code generation completed. Total code size: 120 bytes
 Running code...
-Allocated executable memory at: 0x2568f1f0000
+Allocated executable memory at: 0x1d624ce0000
 Code copied to executable memory successfully.
 Found 1 function call(s) to fix
 Fixed scanf call at offset: 3e
@@ -74,7 +74,7 @@ Code size: 120 bytes
 ----------------------------------------
 Initializing Capstone disassembler...
 Architecture: 4, Mode: 8
-Capstone initialized successfully. Handle: 2570796599376
+Capstone initialized successfully. Handle: 2019256895568
 Disassembling 23 instructions...
 00000000: 55 	push rbp
 00000001: 48 89 e5 	mov rbp, rsp
@@ -104,9 +104,9 @@ Capstone handle closed.
 ----------------------------------------
 Disassembly completed.
 Attempting to execute JIT code...
-Executable memory address: 0x2568f1f0000
+Executable memory address: 0x1d624ce0000
 Found main function at offset: 0
-JIT function pointer: 0x2568f1f0000
+JIT function pointer: 0x1d624ce0000
 Code execution completed.
 main() return value: 373995977
 Freeing executable memory...
@@ -115,6 +115,6 @@ Memory freed successfully.
 Script executed successfully.
 Return value: 373995977
 SymbolTable destructor called. Scope stack size: 1
-Deleting scope: 0x2568f634e60
+Deleting scope: 0x1d6250f4fa0
 SymbolTable destruction completed.
 Exit code: 373995977 

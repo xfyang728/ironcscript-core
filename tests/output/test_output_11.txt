@@ -17,8 +17,8 @@ Executing script...
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x262b295ff80
-[DEBUG] visitFunc_decl: created funcDecl = 0x262b296a5f0
+[DEBUG] visitFunc_decl: body = 0x27a08a80220
+[DEBUG] visitFunc_decl: created funcDecl = 0x27a08a8a6b0
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -35,5 +35,5 @@ Error: Type mismatch: cannot assign double to float
 Error: Return type mismatch: expected int, got float
 Error: Semantic analysis failed
 SymbolTable destructor called. Scope stack size: 1
-Deleting scope: 0x262b2915040
+Deleting scope: 0x27a08a34550
 SymbolTable destruction completed.

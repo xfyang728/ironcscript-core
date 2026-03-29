@@ -41,9 +41,9 @@ line 70:22 extraneous input '>' expecting {'throw', INTEGER, DOUBLE, CHAR, STRIN
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x1dbb4c518b0
+[DEBUG] visitFunc_decl: body = 0x2290a7d1850
 [DEBUG] visitFunc_decl: found func_decl_args
-[DEBUG] visitFunc_decl: created funcDecl = 0x1dbb4c9f430
+[DEBUG] visitFunc_decl: created funcDecl = 0x2290a80f380
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -61,8 +61,8 @@ line 70:22 extraneous input '>' expecting {'throw', INTEGER, DOUBLE, CHAR, STRIN
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x1dbb4c519a0
-[DEBUG] visitFunc_decl: created funcDecl = 0x1dbb4c9fa30
+[DEBUG] visitFunc_decl: body = 0x2290a7d11f0
+[DEBUG] visitFunc_decl: created funcDecl = 0x2290a80f5c0
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -82,8 +82,8 @@ line 70:22 extraneous input '>' expecting {'throw', INTEGER, DOUBLE, CHAR, STRIN
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x1dbb4c520f0
-[DEBUG] visitFunc_decl: created funcDecl = 0x1dbb4c9f070
+[DEBUG] visitFunc_decl: body = 0x2290a7d1fd0
+[DEBUG] visitFunc_decl: created funcDecl = 0x2290a80f480
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -109,8 +109,8 @@ line 70:22 extraneous input '>' expecting {'throw', INTEGER, DOUBLE, CHAR, STRIN
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x1dbb4c53d40
-[DEBUG] visitFunc_decl: created funcDecl = 0x1dbb4c9f0b0
+[DEBUG] visitFunc_decl: body = 0x2290a7d3da0
+[DEBUG] visitFunc_decl: created funcDecl = 0x2290a80f880
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -137,8 +137,8 @@ line 70:22 extraneous input '>' expecting {'throw', INTEGER, DOUBLE, CHAR, STRIN
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x1dbb4c52bd0
-[DEBUG] visitFunc_decl: created funcDecl = 0x1dbb4c9eab0
+[DEBUG] visitFunc_decl: body = 0x2290a7d29f0
+[DEBUG] visitFunc_decl: created funcDecl = 0x2290a80f600
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -168,8 +168,8 @@ line 70:22 extraneous input '>' expecting {'throw', INTEGER, DOUBLE, CHAR, STRIN
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x1dbb4c54400
-[DEBUG] visitFunc_decl: created funcDecl = 0x1dbb4c9eb70
+[DEBUG] visitFunc_decl: body = 0x2290a7d43a0
+[DEBUG] visitFunc_decl: created funcDecl = 0x2290a80f840
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -189,8 +189,8 @@ line 70:22 extraneous input '>' expecting {'throw', INTEGER, DOUBLE, CHAR, STRIN
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x1dbb4c54c40
-[DEBUG] visitFunc_decl: created funcDecl = 0x1dbb4c9ebb0
+[DEBUG] visitFunc_decl: body = 0x2290a7d4430
+[DEBUG] visitFunc_decl: created funcDecl = 0x2290a80f8c0
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -218,8 +218,8 @@ line 70:22 extraneous input '>' expecting {'throw', INTEGER, DOUBLE, CHAR, STRIN
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x1dbb4ca1960
-[DEBUG] visitFunc_decl: created funcDecl = 0x1dbb4c9ebf0
+[DEBUG] visitFunc_decl: body = 0x2290a823150
+[DEBUG] visitFunc_decl: created funcDecl = 0x2290a80f940
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -312,5 +312,5 @@ Error: Identifier 'y' is not declared
 [DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
 Error: Semantic analysis failed
 SymbolTable destructor called. Scope stack size: 1
-Deleting scope: 0x1dbb4b75130
+Deleting scope: 0x2290a6f4d70
 SymbolTable destruction completed.

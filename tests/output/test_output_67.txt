@@ -53,8 +53,8 @@ Executing script...
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x1728f887df0
-[DEBUG] visitFunc_decl: created funcDecl = 0x1728f8c5720
+[DEBUG] visitFunc_decl: body = 0x289f3ea7970
+[DEBUG] visitFunc_decl: created funcDecl = 0x289f42b55e0
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -277,35 +277,35 @@ Updated stack allocation for function main to 344 bytes
 Updated stack deallocation for function main at position 902 to 344 bytes
 [updateFunctionCallOffsets] Resolving sqrt -> 0x7fff164d7a30
 [updateFunctionCallOffsets] Replaced NOP with call to sqrt at offset 115
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 191
 [updateFunctionCallOffsets] Resolving pow -> 0x7fff164d5e00
 [updateFunctionCallOffsets] Replaced NOP with call to pow at offset 225
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 309
 [updateFunctionCallOffsets] Resolving sin -> 0x7fff164d24a0
 [updateFunctionCallOffsets] Replaced NOP with call to sin at offset 335
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 411
 [updateFunctionCallOffsets] Resolving cos -> 0x7fff164d2110
 [updateFunctionCallOffsets] Replaced NOP with call to cos at offset 437
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 513
 [updateFunctionCallOffsets] Resolving tan -> 0x7fff164d7c50
 [updateFunctionCallOffsets] Replaced NOP with call to tan at offset 539
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 615
-[updateFunctionCallOffsets] Resolving abs -> 0x7ff6566c7d3e
+[updateFunctionCallOffsets] Resolving abs -> 0x7ff6be637d3e
 [updateFunctionCallOffsets] Replaced NOP with call to abs at offset 669
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 740
 [updateFunctionCallOffsets] Resolving fabs -> 0x7fff164d4270
 [updateFunctionCallOffsets] Replaced NOP with call to fabs at offset 798
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 874
 Code generation completed. Total code size: 911 bytes
 Running code...
-Allocated executable memory at: 0x1728f3d0000
+Allocated executable memory at: 0x289f3aa0000
 Code copied to executable memory successfully.
 Found 14 function call(s) to fix
 Fixed sqrt call at offset: 73
@@ -328,7 +328,7 @@ Code size: 911 bytes
 ----------------------------------------
 Initializing Capstone disassembler...
 Architecture: 4, Mode: 8
-Capstone initialized successfully. Handle: 1591545647024
+Capstone initialized successfully. Handle: 2791525666752
 Disassembling 137 instructions...
 00000000: 55 	push rbp
 00000001: 48 89 e5 	mov rbp, rsp
@@ -357,7 +357,7 @@ Disassembling 137 instructions...
 000000ac: 48 89 c1 	mov rcx, rax
 000000af: f2 0f 10 8d f0 ff ff ff 	movsd xmm1, qword ptr [rbp - 0x10]
 000000b7: f2 0f 10 95 c0 ff ff ff 	movsd xmm2, qword ptr [rbp - 0x40]
-000000bf: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+000000bf: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 000000c9: ff d0 	call rax
 000000cb: 89 85 b0 ff ff ff 	mov dword ptr [rbp - 0x50], eax
 000000d1: f2 0f 10 85 f0 ff ff ff 	movsd xmm0, qword ptr [rbp - 0x10]
@@ -374,7 +374,7 @@ Disassembling 137 instructions...
 0000011d: f2 0f 10 8d f0 ff ff ff 	movsd xmm1, qword ptr [rbp - 0x10]
 00000125: f2 0f 10 95 e0 ff ff ff 	movsd xmm2, qword ptr [rbp - 0x20]
 0000012d: f2 0f 10 9d a0 ff ff ff 	movsd xmm3, qword ptr [rbp - 0x60]
-00000135: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000135: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 0000013f: ff d0 	call rax
 00000141: 89 85 90 ff ff ff 	mov dword ptr [rbp - 0x70], eax
 00000147: f2 0f 10 85 d0 ff ff ff 	movsd xmm0, qword ptr [rbp - 0x30]
@@ -389,7 +389,7 @@ Disassembling 137 instructions...
 00000188: 48 89 c1 	mov rcx, rax
 0000018b: f2 0f 10 8d d0 ff ff ff 	movsd xmm1, qword ptr [rbp - 0x30]
 00000193: f2 0f 10 95 80 ff ff ff 	movsd xmm2, qword ptr [rbp - 0x80]
-0000019b: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+0000019b: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 000001a5: ff d0 	call rax
 000001a7: 89 85 70 ff ff ff 	mov dword ptr [rbp - 0x90], eax
 000001ad: f2 0f 10 85 d0 ff ff ff 	movsd xmm0, qword ptr [rbp - 0x30]
@@ -404,7 +404,7 @@ Disassembling 137 instructions...
 000001ee: 48 89 c1 	mov rcx, rax
 000001f1: f2 0f 10 8d d0 ff ff ff 	movsd xmm1, qword ptr [rbp - 0x30]
 000001f9: f2 0f 10 95 60 ff ff ff 	movsd xmm2, qword ptr [rbp - 0xa0]
-00000201: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000201: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 0000020b: ff d0 	call rax
 0000020d: 89 85 50 ff ff ff 	mov dword ptr [rbp - 0xb0], eax
 00000213: f2 0f 10 85 d0 ff ff ff 	movsd xmm0, qword ptr [rbp - 0x30]
@@ -419,7 +419,7 @@ Disassembling 137 instructions...
 00000254: 48 89 c1 	mov rcx, rax
 00000257: f2 0f 10 8d d0 ff ff ff 	movsd xmm1, qword ptr [rbp - 0x30]
 0000025f: f2 0f 10 95 40 ff ff ff 	movsd xmm2, qword ptr [rbp - 0xc0]
-00000267: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000267: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 00000271: ff d0 	call rax
 00000273: 89 85 30 ff ff ff 	mov dword ptr [rbp - 0xd0], eax
 00000279: 48 b8 fb ff ff ff ff ff ff ff 	movabs rax, 0xfffffffffffffffb
@@ -428,7 +428,7 @@ Disassembling 137 instructions...
 0000028f: 89 85 20 ff ff ff 	mov dword ptr [rbp - 0xe0], eax
 00000295: 8b 85 20 ff ff ff 	mov eax, dword ptr [rbp - 0xe0]
 0000029b: 89 c1 	mov ecx, eax
-0000029d: 48 b8 3e 7d 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7d3e
+0000029d: 48 b8 3e 7d 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637d3e
 000002a7: ff d0 	call rax
 000002a9: 89 85 18 ff ff ff 	mov dword ptr [rbp - 0xe8], eax
 000002af: 8b 85 18 ff ff ff 	mov eax, dword ptr [rbp - 0xe8]
@@ -441,7 +441,7 @@ Disassembling 137 instructions...
 000002d9: 89 c2 	mov edx, eax
 000002db: 8b 85 10 ff ff ff 	mov eax, dword ptr [rbp - 0xf0]
 000002e1: 41 89 c0 	mov r8d, eax
-000002e4: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+000002e4: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 000002ee: ff d0 	call rax
 000002f0: 89 85 00 ff ff ff 	mov dword ptr [rbp - 0x100], eax
 000002f6: f2 0f 10 05 00 00 00 00 	movsd xmm0, qword ptr [rip]
@@ -460,7 +460,7 @@ Disassembling 137 instructions...
 00000357: 48 89 c1 	mov rcx, rax
 0000035a: f2 0f 10 8d f0 fe ff ff 	movsd xmm1, qword ptr [rbp - 0x110]
 00000362: f2 0f 10 95 e0 fe ff ff 	movsd xmm2, qword ptr [rbp - 0x120]
-0000036a: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+0000036a: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 00000374: ff d0 	call rax
 00000376: 89 85 d0 fe ff ff 	mov dword ptr [rbp - 0x130], eax
 0000037c: 48 b8 00 00 00 00 00 00 00 00 	movabs rax, 0
@@ -472,10 +472,10 @@ Capstone handle closed.
 ----------------------------------------
 Disassembly completed.
 Attempting to execute JIT code...
-Executable memory address: 0x1728f3d0000
+Executable memory address: 0x289f3aa0000
 Found main function at offset: 0
-JIT function pointer: 0x1728f3d0000
-H‰…¸ÿÿÿH‹…¸ÿÿÿH‰Áòğÿÿÿò•ÀÿÿÿH¸ì|lVöH‰…˜ÿÿÿH‹…˜ÿÿÿH‰Áòğÿÿÿò•àÿÿÿò ÿÿÿH¸ì|lVöH‰…xÿÿÿH‹…xÿÿÿH‰ÁòĞÿÿÿò•€ÿÿÿH¸ì|lVöH‰…XÿÿÿH‹…XÿÿÿH‰ÁòĞÿÿÿò•`ÿÿÿH¸ì|lVöH‰…8ÿÿÿH‹…8ÿÿÿH‰ÁòĞÿÿÿò•@ÿÿÿH¸ì|lVöH‰…ÿÿÿH‹…ÿÿÿH‰Á‹… ÿÿÿ‰Â‹…ÿÿÿA‰ÀH¸ì|lVöH‰…ØşÿÿH‹…ØşÿÿH‰Áòğşÿÿò•àşÿÿH¸ì|lVöCode execution completed.
+JIT function pointer: 0x289f3aa0000
+H‰…¸ÿÿÿH‹…¸ÿÿÿH‰Áòğÿÿÿò•ÀÿÿÿH¸ì|c¾öH‰…˜ÿÿÿH‹…˜ÿÿÿH‰Áòğÿÿÿò•àÿÿÿò ÿÿÿH¸ì|c¾öH‰…xÿÿÿH‹…xÿÿÿH‰ÁòĞÿÿÿò•€ÿÿÿH¸ì|c¾öH‰…XÿÿÿH‹…XÿÿÿH‰ÁòĞÿÿÿò•`ÿÿÿH¸ì|c¾öH‰…8ÿÿÿH‹…8ÿÿÿH‰ÁòĞÿÿÿò•@ÿÿÿH¸ì|c¾öH‰…ÿÿÿH‹…ÿÿÿH‰Á‹… ÿÿÿ‰Â‹…ÿÿÿA‰ÀH¸ì|c¾öH‰…ØşÿÿH‹…ØşÿÿH‰Áòğşÿÿò•àşÿÿH¸ì|c¾öCode execution completed.
 main() return value: 0
 Freeing executable memory...
 Memory freed successfully.
@@ -483,5 +483,5 @@ Memory freed successfully.
 Script executed successfully.
 Return value: 0
 SymbolTable destructor called. Scope stack size: 1
-Deleting scope: 0x1728f7d4ca0
+Deleting scope: 0x289f3df4b60
 SymbolTable destruction completed.

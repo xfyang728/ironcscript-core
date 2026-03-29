@@ -37,8 +37,8 @@ Executing script...
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x20632c1a150
-[DEBUG] visitFunc_decl: created funcDecl = 0x20632c25e10
+[DEBUG] visitFunc_decl: body = 0x1ad8df59670
+[DEBUG] visitFunc_decl: created funcDecl = 0x1ad8df7f550
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -110,7 +110,7 @@ Updated stack allocation for function main to 104 bytes
 Updated stack deallocation for function main at position 325 to 104 bytes
 Code generation completed. Total code size: 334 bytes
 Running code...
-Allocated executable memory at: 0x20632960000
+Allocated executable memory at: 0x1ad8d7c0000
 Code copied to executable memory successfully.
 Found 0 function call(s) to fix
 
@@ -119,7 +119,7 @@ Code size: 334 bytes
 ----------------------------------------
 Initializing Capstone disassembler...
 Architecture: 4, Mode: 8
-Capstone initialized successfully. Handle: 2225644300880
+Capstone initialized successfully. Handle: 1844922346064
 Disassembling 51 instructions...
 00000000: 55 	push rbp
 00000001: 48 89 e5 	mov rbp, rsp
@@ -177,9 +177,9 @@ Capstone handle closed.
 ----------------------------------------
 Disassembly completed.
 Attempting to execute JIT code...
-Executable memory address: 0x20632960000
+Executable memory address: 0x1ad8d7c0000
 Found main function at offset: 0
-JIT function pointer: 0x20632960000
+JIT function pointer: 0x1ad8d7c0000
 Code execution completed.
 main() return value: 15
 Freeing executable memory...
@@ -188,5 +188,5 @@ Memory freed successfully.
 Script executed successfully.
 Return value: 15
 SymbolTable destructor called. Scope stack size: 1
-Deleting scope: 0x20632b74b40
+Deleting scope: 0x1ad8deb4910
 SymbolTable destruction completed.

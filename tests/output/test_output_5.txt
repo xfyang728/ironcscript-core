@@ -19,8 +19,8 @@ Executing script...
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x25c013c0780
-[DEBUG] visitFunc_decl: created funcDecl = 0x25c013e55b0
+[DEBUG] visitFunc_decl: body = 0x1f3aa7d0b10
+[DEBUG] visitFunc_decl: created funcDecl = 0x1f3aa7f5870
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -39,5 +39,5 @@ Error: Type mismatch: cannot assign bool to int
 [DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
 Error: Semantic analysis failed
 SymbolTable destructor called. Scope stack size: 1
-Deleting scope: 0x25c013753a0
+Deleting scope: 0x1f3aa784d10
 SymbolTable destruction completed.

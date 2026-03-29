@@ -15,8 +15,8 @@ Executing script...
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x2379c784110
-[DEBUG] visitFunc_decl: created funcDecl = 0x2379c748dc0
+[DEBUG] visitFunc_decl: body = 0x290db6e23d0
+[DEBUG] visitFunc_decl: created funcDecl = 0x290db6a94c0
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -32,8 +32,8 @@ Executing script...
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x2379c783e70
-[DEBUG] visitFunc_decl: created funcDecl = 0x2379c749280
+[DEBUG] visitFunc_decl: body = 0x290db6e2310
+[DEBUG] visitFunc_decl: created funcDecl = 0x290db6a8d00
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -76,7 +76,7 @@ Updated stack allocation for function main to 56 bytes
 Updated stack deallocation for function main at position 70 to 56 bytes
 Code generation completed. Total code size: 79 bytes
 Running code...
-Allocated executable memory at: 0x2379c7b0000
+Allocated executable memory at: 0x290daf70000
 Code copied to executable memory successfully.
 Found 0 function call(s) to fix
 
@@ -85,7 +85,7 @@ Code size: 79 bytes
 ----------------------------------------
 Initializing Capstone disassembler...
 Architecture: 4, Mode: 8
-Capstone initialized successfully. Handle: 2437871214432
+Capstone initialized successfully. Handle: 2821179613024
 Disassembling 18 instructions...
 00000000: 55 	push rbp
 00000001: 48 89 e5 	mov rbp, rsp
@@ -110,9 +110,9 @@ Capstone handle closed.
 ----------------------------------------
 Disassembly completed.
 Attempting to execute JIT code...
-Executable memory address: 0x2379c7b0000
+Executable memory address: 0x290daf70000
 Found main function at offset: 30
-JIT function pointer: 0x2379c7b001e
+JIT function pointer: 0x290daf7001e
 Code execution completed.
 main() return value: 42
 Freeing executable memory...
@@ -121,5 +121,5 @@ Memory freed successfully.
 Script executed successfully.
 Return value: 42
 SymbolTable destructor called. Scope stack size: 1
-Deleting scope: 0x2379c6d4700
+Deleting scope: 0x290db634930
 SymbolTable destruction completed.

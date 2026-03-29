@@ -21,8 +21,8 @@ Executing script...
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x1c787c6b4d0
-[DEBUG] visitFunc_decl: created funcDecl = 0x1c787c349e0
+[DEBUG] visitFunc_decl: body = 0x28ed569b050
+[DEBUG] visitFunc_decl: created funcDecl = 0x28ed5664e60
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -73,11 +73,11 @@ Updated stack allocation for function main to 120 bytes
 Updated stack deallocation for function main at position 125 to 120 bytes
 [updateFunctionCallOffsets] Resolving strcpy -> 0x7fff164daf70
 [updateFunctionCallOffsets] Replaced NOP with call to strcpy at offset 45
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 97
 Code generation completed. Total code size: 134 bytes
 Running code...
-Allocated executable memory at: 0x1c7874b0000
+Allocated executable memory at: 0x28ed51f0000
 Code copied to executable memory successfully.
 Found 2 function call(s) to fix
 Fixed strcpy call at offset: 2d
@@ -88,7 +88,7 @@ Code size: 134 bytes
 ----------------------------------------
 Initializing Capstone disassembler...
 Architecture: 4, Mode: 8
-Capstone initialized successfully. Handle: 1956487731040
+Capstone initialized successfully. Handle: 2812488750944
 Disassembling 25 instructions...
 00000000: 55 	push rbp
 00000001: 48 89 e5 	mov rbp, rsp
@@ -108,7 +108,7 @@ Disassembling 25 instructions...
 00000054: 48 89 c1 	mov rcx, rax
 00000057: 48 8d 85 f8 ff ff ff 	lea rax, [rbp - 8]
 0000005e: 48 89 c2 	mov rdx, rax
-00000061: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000061: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 0000006b: ff d0 	call rax
 0000006d: 89 85 ae ff ff ff 	mov dword ptr [rbp - 0x52], eax
 00000073: 48 b8 00 00 00 00 00 00 00 00 	movabs rax, 0
@@ -120,6 +120,6 @@ Capstone handle closed.
 ----------------------------------------
 Disassembly completed.
 Attempting to execute JIT code...
-Executable memory address: 0x1c7874b0000
+Executable memory address: 0x28ed51f0000
 Found main function at offset: 0
-JIT function pointer: 0x1c7874b0000
+JIT function pointer: 0x28ed51f0000

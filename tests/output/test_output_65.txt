@@ -59,8 +59,8 @@ Executing script...
 [DEBUG] visitStmt: entered
 [DEBUG] visitStmt: found return statement
 [DEBUG] visitFunc_decl: bodyResult has value: 1
-[DEBUG] visitFunc_decl: body = 0x24221986eb0
-[DEBUG] visitFunc_decl: created funcDecl = 0x242219a6a70
+[DEBUG] visitFunc_decl: body = 0x17b06d1bdf0
+[DEBUG] visitFunc_decl: created funcDecl = 0x17b06ce0510
 [DEBUG] visitProgram: result has value: 1
 [DEBUG] visitProgram: s is null: 0
 [DEBUG] visitProgram: added statement to block
@@ -317,47 +317,47 @@ Processing quad: RET (opcode: 17)   0
 Processing quad: ENDFUNC (opcode: 21)   main
 Updated stack allocation for function main to 392 bytes
 Updated stack deallocation for function main at position 954 to 392 bytes
-[updateFunctionCallOffsets] Resolving malloc -> 0x7ff6566c7c0a
+[updateFunctionCallOffsets] Resolving malloc -> 0x7ff6be637c0a
 [updateFunctionCallOffsets] Replaced NOP with call to malloc at offset 21
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 98
-[updateFunctionCallOffsets] Resolving memset -> 0x7ff6566c7c8a
+[updateFunctionCallOffsets] Resolving memset -> 0x7ff6be637c8a
 [updateFunctionCallOffsets] Replaced NOP with call to memset at offset 144
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 186
 [updateFunctionCallOffsets] Resolving strcpy -> 0x7fff164daf70
 [updateFunctionCallOffsets] Replaced NOP with call to strcpy at offset 238
 [updateFunctionCallOffsets] Resolving strlen -> 0x7fff164db7b0
 [updateFunctionCallOffsets] Replaced NOP with call to strlen at offset 266
-[updateFunctionCallOffsets] Resolving memcpy -> 0x7ff6566c7cba
+[updateFunctionCallOffsets] Resolving memcpy -> 0x7ff6be637cba
 [updateFunctionCallOffsets] Replaced NOP with call to memcpy at offset 336
 [updateFunctionCallOffsets] Resolving strlen -> 0x7fff164db7b0
 [updateFunctionCallOffsets] Replaced NOP with call to strlen at offset 378
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 439
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 501
 [updateFunctionCallOffsets] Resolving realloc -> 0x7fff1647d720
 [updateFunctionCallOffsets] Replaced NOP with call to realloc at offset 537
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 614
 [updateFunctionCallOffsets] Resolving strcat -> 0x7fff164daeb0
 [updateFunctionCallOffsets] Replaced NOP with call to strcat at offset 676
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 738
-[updateFunctionCallOffsets] Resolving free -> 0x7ff6566c7c62
+[updateFunctionCallOffsets] Resolving free -> 0x7ff6be637c62
 [updateFunctionCallOffsets] Replaced NOP with call to free at offset 764
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 806
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 853
-[updateFunctionCallOffsets] Resolving free -> 0x7ff6566c7c62
+[updateFunctionCallOffsets] Resolving free -> 0x7ff6be637c62
 [updateFunctionCallOffsets] Replaced NOP with call to free at offset 879
-[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6be637cec
 [updateFunctionCallOffsets] Replaced NOP with call to printf at offset 926
 Code generation completed. Total code size: 963 bytes
 Running code...
-Allocated executable memory at: 0x24221230000
+Allocated executable memory at: 0x17b06830000
 Code copied to executable memory successfully.
 Found 19 function call(s) to fix
 Fixed malloc call at offset: 15
@@ -385,13 +385,13 @@ Code size: 963 bytes
 ----------------------------------------
 Initializing Capstone disassembler...
 Architecture: 4, Mode: 8
-Capstone initialized successfully. Handle: 2483054866928
+Capstone initialized successfully. Handle: 1627906771600
 Disassembling 170 instructions...
 00000000: 55 	push rbp
 00000001: 48 89 e5 	mov rbp, rsp
 00000004: 48 81 ec 88 01 00 00 	sub rsp, 0x188
 0000000b: 48 b9 64 00 00 00 00 00 00 00 	movabs rcx, 0x64
-00000015: 48 b8 0a 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7c0a
+00000015: 48 b8 0a 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637c0a
 0000001f: ff d0 	call rax
 00000021: 89 85 c6 ff ff ff 	mov dword ptr [rbp - 0x3a], eax
 00000027: 8b 85 c6 ff ff ff 	mov eax, dword ptr [rbp - 0x3a]
@@ -405,21 +405,21 @@ Disassembling 170 instructions...
 00000057: 48 89 c1 	mov rcx, rax
 0000005a: 8b 85 be ff ff ff 	mov eax, dword ptr [rbp - 0x42]
 00000060: 89 c2 	mov edx, eax
-00000062: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000062: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 0000006c: ff d0 	call rax
 0000006e: 89 85 ae ff ff ff 	mov dword ptr [rbp - 0x52], eax
 00000074: 8b 85 be ff ff ff 	mov eax, dword ptr [rbp - 0x42]
 0000007a: 89 c1 	mov ecx, eax
 0000007c: 48 ba 00 00 00 00 00 00 00 00 	movabs rdx, 0
 00000086: 49 b8 64 00 00 00 00 00 00 00 	movabs r8, 0x64
-00000090: 48 b8 8a 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7c8a
+00000090: 48 b8 8a 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637c8a
 0000009a: ff d0 	call rax
 0000009c: 89 85 a6 ff ff ff 	mov dword ptr [rbp - 0x5a], eax
 000000a2: 48 8d 05 00 00 00 00 	lea rax, [rip]
 000000a9: 48 89 85 9e ff ff ff 	mov qword ptr [rbp - 0x62], rax
 000000b0: 48 8b 85 9e ff ff ff 	mov rax, qword ptr [rbp - 0x62]
 000000b7: 48 89 c1 	mov rcx, rax
-000000ba: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+000000ba: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 000000c4: ff d0 	call rax
 000000c6: 89 85 96 ff ff ff 	mov dword ptr [rbp - 0x6a], eax
 000000cc: 48 8d 05 00 00 00 00 	lea rax, [rip]
@@ -446,7 +446,7 @@ Disassembling 170 instructions...
 00000144: 48 89 c2 	mov rdx, rax
 00000147: 8b 85 76 ff ff ff 	mov eax, dword ptr [rbp - 0x8a]
 0000014d: 41 89 c0 	mov r8d, eax
-00000150: 48 b8 ba 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cba
+00000150: 48 b8 ba 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cba
 0000015a: ff d0 	call rax
 0000015c: 89 85 6e ff ff ff 	mov dword ptr [rbp - 0x92], eax
 00000162: 48 8d 05 00 00 00 00 	lea rax, [rip]
@@ -464,7 +464,7 @@ Disassembling 170 instructions...
 000001ac: 48 89 c1 	mov rcx, rax
 000001af: 8b 85 56 ff ff ff 	mov eax, dword ptr [rbp - 0xaa]
 000001b5: 89 c2 	mov edx, eax
-000001b7: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+000001b7: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 000001c1: ff d0 	call rax
 000001c3: 89 85 4e ff ff ff 	mov dword ptr [rbp - 0xb2], eax
 000001c9: 48 8d 05 00 00 00 00 	lea rax, [rip]
@@ -475,7 +475,7 @@ Disassembling 170 instructions...
 000001ea: 48 89 c1 	mov rcx, rax
 000001ed: 8b 85 3e ff ff ff 	mov eax, dword ptr [rbp - 0xc2]
 000001f3: 89 c2 	mov edx, eax
-000001f5: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+000001f5: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 000001ff: ff d0 	call rax
 00000201: 89 85 36 ff ff ff 	mov dword ptr [rbp - 0xca], eax
 00000207: 8b 85 be ff ff ff 	mov eax, dword ptr [rbp - 0x42]
@@ -495,7 +495,7 @@ Disassembling 170 instructions...
 0000025b: 48 89 c1 	mov rcx, rax
 0000025e: 8b 85 26 ff ff ff 	mov eax, dword ptr [rbp - 0xda]
 00000264: 89 c2 	mov edx, eax
-00000266: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000266: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 00000270: ff d0 	call rax
 00000272: 89 85 16 ff ff ff 	mov dword ptr [rbp - 0xea], eax
 00000278: 8b 85 26 ff ff ff 	mov eax, dword ptr [rbp - 0xda]
@@ -517,19 +517,19 @@ Disassembling 170 instructions...
 000002d7: 48 89 c1 	mov rcx, rax
 000002da: 8b 85 ee fe ff ff 	mov eax, dword ptr [rbp - 0x112]
 000002e0: 89 c2 	mov edx, eax
-000002e2: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+000002e2: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 000002ec: ff d0 	call rax
 000002ee: 89 85 e6 fe ff ff 	mov dword ptr [rbp - 0x11a], eax
 000002f4: 8b 85 26 ff ff ff 	mov eax, dword ptr [rbp - 0xda]
 000002fa: 89 c1 	mov ecx, eax
-000002fc: 48 b8 62 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7c62
+000002fc: 48 b8 62 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637c62
 00000306: ff d0 	call rax
 00000308: 89 85 de fe ff ff 	mov dword ptr [rbp - 0x122], eax
 0000030e: 48 8d 05 00 00 00 00 	lea rax, [rip]
 00000315: 48 89 85 d6 fe ff ff 	mov qword ptr [rbp - 0x12a], rax
 0000031c: 48 8b 85 d6 fe ff ff 	mov rax, qword ptr [rbp - 0x12a]
 00000323: 48 89 c1 	mov rcx, rax
-00000326: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000326: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 00000330: ff d0 	call rax
 00000332: 89 85 ce fe ff ff 	mov dword ptr [rbp - 0x132], eax
 00000338: e9 44 00 00 00 	jmp 0x381
@@ -537,12 +537,12 @@ Disassembling 170 instructions...
 00000344: 48 89 85 c6 fe ff ff 	mov qword ptr [rbp - 0x13a], rax
 0000034b: 48 8b 85 c6 fe ff ff 	mov rax, qword ptr [rbp - 0x13a]
 00000352: 48 89 c1 	mov rcx, rax
-00000355: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000355: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 0000035f: ff d0 	call rax
 00000361: 89 85 be fe ff ff 	mov dword ptr [rbp - 0x142], eax
 00000367: 8b 85 be ff ff ff 	mov eax, dword ptr [rbp - 0x42]
 0000036d: 89 c1 	mov ecx, eax
-0000036f: 48 b8 62 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7c62
+0000036f: 48 b8 62 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637c62
 00000379: ff d0 	call rax
 0000037b: 89 85 b6 fe ff ff 	mov dword ptr [rbp - 0x14a], eax
 00000381: e9 2a 00 00 00 	jmp 0x3b0
@@ -550,7 +550,7 @@ Disassembling 170 instructions...
 0000038d: 48 89 85 ae fe ff ff 	mov qword ptr [rbp - 0x152], rax
 00000394: 48 8b 85 ae fe ff ff 	mov rax, qword ptr [rbp - 0x152]
 0000039b: 48 89 c1 	mov rcx, rax
-0000039e: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+0000039e: 48 b8 ec 7c 63 be f6 7f 00 00 	movabs rax, 0x7ff6be637cec
 000003a8: ff d0 	call rax
 000003aa: 89 85 a6 fe ff ff 	mov dword ptr [rbp - 0x15a], eax
 000003b0: 48 b8 00 00 00 00 00 00 00 00 	movabs rax, 0
@@ -562,6 +562,6 @@ Capstone handle closed.
 ----------------------------------------
 Disassembly completed.
 Attempting to execute JIT code...
-Executable memory address: 0x24221230000
+Executable memory address: 0x17b06830000
 Found main function at offset: 0
-JIT function pointer: 0x24221230000
+JIT function pointer: 0x17b06830000
