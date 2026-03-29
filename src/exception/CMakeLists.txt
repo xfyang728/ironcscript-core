@@ -11,5 +11,4 @@ if(NOT CSE_EMBEDDED)
 
     add_library(Exception STATIC ${EXCEPTION_SOURCES})
     target_include_directories(Exception PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-    target_link_libraries(Exception PRIVATE CScriptEngineLib)
 endif()

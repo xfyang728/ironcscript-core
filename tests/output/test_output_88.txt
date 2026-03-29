@@ -1,0 +1,92 @@
+IronCScript v1.0.0
+Platform: x86-64
+Script: D:\MyCode\IronCScript\ironcscript-core\tests\scripts\08_enums/test_enum.c
+
+Executing script...
+[EXEC] JIT compiling script...
+[DEBUG] visitProgram: found 1 statements
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found func_decl
+[DEBUG] visitFunc_decl: entered
+[DEBUG] visitFunc_decl: retType = int
+[DEBUG] visitFunc_decl: name = main
+[DEBUG] visitFunc_decl: found block
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found enum_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found return statement
+[DEBUG] visitFunc_decl: bodyResult has value: 1
+[DEBUG] visitFunc_decl: body = 0x2cbe8092790
+[DEBUG] visitFunc_decl: created funcDecl = 0x2cbe809a760
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: s is null: 0
+[DEBUG] visitProgram: added statement to block
+[DEBUG] visitProgram: block has 1 statements
+[DEBUG] analyzeBlock: processing 1 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NFunctionDeclarationE
+[DEBUG] analyzeFunctionDeclaration: main
+[DEBUG] analyzeFunctionDeclaration: analyzing 0 arguments
+[DEBUG] analyzeFunctionDeclaration: analyzing body
+[DEBUG] analyzeBlock: processing 3 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse16NEnumDeclarationE
+[DEBUG] analyzeEnumDeclaration: name=Color
+[DEBUG] analyzeEnumDeclaration: registered enum type Color
+[DEBUG] analyzeEnumDeclaration: registered RED = 0
+[DEBUG] analyzeEnumDeclaration: registered GREEN = 5
+[DEBUG] analyzeEnumDeclaration: registered BLUE = 6
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+[DEBUG] analyzeFunctionDeclaration: main
+Generating code from intermediate representation...
+Processing quad: FUNC (opcode: 20) int  main
+Function main starts at offset 0
+Processing quad: ASSIGN (opcode: 11) 6  c
+Local variable size for function main updated to: 8 bytes
+Allocating new local variable c (type: Int) at offset 8
+Processing quad: RET (opcode: 17)   c
+Processing quad: ENDFUNC (opcode: 21)   main
+Updated stack allocation for function main to 40 bytes
+Updated stack deallocation for function main at position 33 to 40 bytes
+Code generation completed. Total code size: 42 bytes
+Running code...
+Allocated executable memory at: 0x2cbe7db0000
+Code copied to executable memory successfully.
+Found 0 function call(s) to fix
+
+Disassembling code after fix...
+Code size: 42 bytes
+----------------------------------------
+Initializing Capstone disassembler...
+Architecture: 4, Mode: 8
+Capstone initialized successfully. Handle: 3074794542384
+Disassembling 9 instructions...
+00000000: 55 	push rbp
+00000001: 48 89 e5 	mov rbp, rsp
+00000004: 48 81 ec 28 00 00 00 	sub rsp, 0x28
+0000000b: 48 b8 06 00 00 00 00 00 00 00 	movabs rax, 6
+00000015: 89 85 f8 ff ff ff 	mov dword ptr [rbp - 8], eax
+0000001b: 8b 85 f8 ff ff ff 	mov eax, dword ptr [rbp - 8]
+00000021: 48 81 c4 28 00 00 00 	add rsp, 0x28
+00000028: 5d 	pop rbp
+00000029: c3 	ret 
+Closing Capstone handle...
+Capstone handle closed.
+----------------------------------------
+Disassembly completed.
+Attempting to execute JIT code...
+Executable memory address: 0x2cbe7db0000
+Found main function at offset: 0
+JIT function pointer: 0x2cbe7db0000
+Code execution completed.
+main() return value: 6
+Freeing executable memory...
+Memory freed successfully.
+
+Script executed successfully.
+Return value: 6
+SymbolTable destructor called. Scope stack size: 1
+Deleting scope: 0x2cbe8044590
+SymbolTable destruction completed.

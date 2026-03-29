@@ -87,7 +87,7 @@ public:
         try {
             return callInt<Ret>(funcPtr, a0);
         } catch (const std::exception& e) {
-            // 处理 C++ 异常，将其转换为 CScript 可以处理的形式
+            // 处理 C++ 异常，将其转换为 IronCS 可以处理的形式
             // 这里简单处理，返回一个特殊值
             std::cerr << "Caught C++ exception: " << e.what() << std::endl;
             return getDefaultValue<Ret>();

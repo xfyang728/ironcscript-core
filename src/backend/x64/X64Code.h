@@ -1,6 +1,7 @@
 #ifndef CSE_X64CODE_H
 #define CSE_X64CODE_H
 
+#include <cstdint>
 #include "../BaseCodeGenerator.h"
 #include "../../platform/PlatformAbstraction.h"
 #include "../../platform/StandardLibrary.h"

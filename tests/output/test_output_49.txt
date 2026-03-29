@@ -1,0 +1,192 @@
+IronCScript v1.0.0
+Platform: x86-64
+Script: D:\MyCode\IronCScript\ironcscript-core\tests\scripts\05_arrays/test_array_simple.c
+
+Executing script...
+[EXEC] JIT compiling script...
+[DEBUG] visitProgram: found 1 statements
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found func_decl
+[DEBUG] visitFunc_decl: entered
+[DEBUG] visitFunc_decl: retType = int
+[DEBUG] visitFunc_decl: name = main
+[DEBUG] visitFunc_decl: found block
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found while_stmt
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found return statement
+[DEBUG] visitFunc_decl: bodyResult has value: 1
+[DEBUG] visitFunc_decl: body = 0x20632c1a150
+[DEBUG] visitFunc_decl: created funcDecl = 0x20632c25e10
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: s is null: 0
+[DEBUG] visitProgram: added statement to block
+[DEBUG] visitProgram: block has 1 statements
+[DEBUG] analyzeBlock: processing 1 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NFunctionDeclarationE
+[DEBUG] analyzeFunctionDeclaration: main
+[DEBUG] analyzeFunctionDeclaration: analyzing 0 arguments
+[DEBUG] analyzeFunctionDeclaration: analyzing body
+[DEBUG] analyzeBlock: processing 10 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse17NArrayDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse15NWhileStatementE
+[DEBUG] analyzeBlock: processing 2 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+[DEBUG] analyzeFunctionDeclaration: main
+Generating code from intermediate representation...
+Processing quad: FUNC (opcode: 20) int  main
+Function main starts at offset 0
+Processing quad: ARRAY (opcode: 34) 5 int arr
+Local variable size for function main updated to: 20 bytes
+Array arr allocated at offset 8 with 5 elements of size 4
+Processing quad: ARRAY_STORE (opcode: 36) 1 0 arr
+Processing quad: ARRAY_STORE (opcode: 36) 2 1 arr
+Processing quad: ARRAY_STORE (opcode: 36) 3 2 arr
+Processing quad: ARRAY_STORE (opcode: 36) 4 3 arr
+Processing quad: ARRAY_STORE (opcode: 36) 5 4 arr
+Processing quad: ASSIGN (opcode: 11) 0  sum
+Local variable size for function main updated to: 28 bytes
+Allocating new local variable sum (type: Int) at offset 28
+Processing quad: ASSIGN (opcode: 11) 0  i
+Local variable size for function main updated to: 36 bytes
+Allocating new local variable i (type: Int) at offset 36
+Processing quad: LABEL (opcode: 19)   t0
+Created label t0 at offset 178
+Created label: t0 at offset 178
+Processing quad: LT (opcode: 7) i 5 t2
+Local variable size for function main updated to: 44 bytes
+Allocating new local variable t2 (type: Int) at offset 44
+Processing quad: JMPF (opcode: 13) t2  t1
+Processing quad: ARRAY_LOAD (opcode: 35) arr i t3
+Local variable size for function main updated to: 52 bytes
+Allocating new local variable t3 (type: Int) at offset 52
+Processing quad: ADD (opcode: 0) sum t3 t4
+Local variable size for function main updated to: 60 bytes
+Allocating new local variable t4 (type: Int) at offset 60
+Processing quad: ASSIGN (opcode: 11) t4  sum
+Local variable sum already allocated at offset 28
+Processing quad: ADD (opcode: 0) i 1 t5
+Local variable size for function main updated to: 68 bytes
+Allocating new local variable t5 (type: Int) at offset 68
+Processing quad: ASSIGN (opcode: 11) t5  i
+Local variable i already allocated at offset 36
+Processing quad: JMP (opcode: 12)   t0
+Processing quad: LABEL (opcode: 19)   t1
+Created label t1 at offset 319
+Created label: t1 at offset 319
+Processing quad: RET (opcode: 17)   sum
+Processing quad: ENDFUNC (opcode: 21)   main
+Updated stack allocation for function main to 104 bytes
+Updated stack deallocation for function main at position 325 to 104 bytes
+Code generation completed. Total code size: 334 bytes
+Running code...
+Allocated executable memory at: 0x20632960000
+Code copied to executable memory successfully.
+Found 0 function call(s) to fix
+
+Disassembling code after fix...
+Code size: 334 bytes
+----------------------------------------
+Initializing Capstone disassembler...
+Architecture: 4, Mode: 8
+Capstone initialized successfully. Handle: 2225644300880
+Disassembling 51 instructions...
+00000000: 55 	push rbp
+00000001: 48 89 e5 	mov rbp, rsp
+00000004: 48 81 ec 68 00 00 00 	sub rsp, 0x68
+0000000b: 48 b8 01 00 00 00 00 00 00 00 	movabs rax, 1
+00000015: 48 b9 00 00 00 00 00 00 00 00 	movabs rcx, 0
+0000001f: 89 84 8d e8 ff ff ff 	mov dword ptr [rbp + rcx*4 - 0x18], eax
+00000026: 48 b8 02 00 00 00 00 00 00 00 	movabs rax, 2
+00000030: 48 b9 01 00 00 00 00 00 00 00 	movabs rcx, 1
+0000003a: 89 84 8d e8 ff ff ff 	mov dword ptr [rbp + rcx*4 - 0x18], eax
+00000041: 48 b8 03 00 00 00 00 00 00 00 	movabs rax, 3
+0000004b: 48 b9 02 00 00 00 00 00 00 00 	movabs rcx, 2
+00000055: 89 84 8d e8 ff ff ff 	mov dword ptr [rbp + rcx*4 - 0x18], eax
+0000005c: 48 b8 04 00 00 00 00 00 00 00 	movabs rax, 4
+00000066: 48 b9 03 00 00 00 00 00 00 00 	movabs rcx, 3
+00000070: 89 84 8d e8 ff ff ff 	mov dword ptr [rbp + rcx*4 - 0x18], eax
+00000077: 48 b8 05 00 00 00 00 00 00 00 	movabs rax, 5
+00000081: 48 b9 04 00 00 00 00 00 00 00 	movabs rcx, 4
+0000008b: 89 84 8d e8 ff ff ff 	mov dword ptr [rbp + rcx*4 - 0x18], eax
+00000092: 48 b8 00 00 00 00 00 00 00 00 	movabs rax, 0
+0000009c: 89 85 e4 ff ff ff 	mov dword ptr [rbp - 0x1c], eax
+000000a2: 48 b8 00 00 00 00 00 00 00 00 	movabs rax, 0
+000000ac: 89 85 dc ff ff ff 	mov dword ptr [rbp - 0x24], eax
+000000b2: 8b 85 dc ff ff ff 	mov eax, dword ptr [rbp - 0x24]
+000000b8: 48 b9 05 00 00 00 00 00 00 00 	movabs rcx, 5
+000000c2: 48 39 c8 	cmp rax, rcx
+000000c5: 0f 9c c0 	setl al
+000000c8: 48 0f be c0 	movsx rax, al
+000000cc: 89 85 d4 ff ff ff 	mov dword ptr [rbp - 0x2c], eax
+000000d2: 8b 85 d4 ff ff ff 	mov eax, dword ptr [rbp - 0x2c]
+000000d8: 48 85 c0 	test rax, rax
+000000db: 0f 84 5e 00 00 00 	je 0x13f
+000000e1: 8b 8d dc ff ff ff 	mov ecx, dword ptr [rbp - 0x24]
+000000e7: 8b 84 8d e8 ff ff ff 	mov eax, dword ptr [rbp + rcx*4 - 0x18]
+000000ee: 89 85 cc ff ff ff 	mov dword ptr [rbp - 0x34], eax
+000000f4: 8b 85 e4 ff ff ff 	mov eax, dword ptr [rbp - 0x1c]
+000000fa: 8b 8d cc ff ff ff 	mov ecx, dword ptr [rbp - 0x34]
+00000100: 48 01 c8 	add rax, rcx
+00000103: 89 85 c4 ff ff ff 	mov dword ptr [rbp - 0x3c], eax
+00000109: 8b 85 c4 ff ff ff 	mov eax, dword ptr [rbp - 0x3c]
+0000010f: 89 85 e4 ff ff ff 	mov dword ptr [rbp - 0x1c], eax
+00000115: 8b 85 dc ff ff ff 	mov eax, dword ptr [rbp - 0x24]
+0000011b: 48 b9 01 00 00 00 00 00 00 00 	movabs rcx, 1
+00000125: 48 01 c8 	add rax, rcx
+00000128: 89 85 bc ff ff ff 	mov dword ptr [rbp - 0x44], eax
+0000012e: 8b 85 bc ff ff ff 	mov eax, dword ptr [rbp - 0x44]
+00000134: 89 85 dc ff ff ff 	mov dword ptr [rbp - 0x24], eax
+0000013a: e9 73 ff ff ff 	jmp 0xb2
+0000013f: 8b 85 e4 ff ff ff 	mov eax, dword ptr [rbp - 0x1c]
+00000145: 48 81 c4 68 00 00 00 	add rsp, 0x68
+0000014c: 5d 	pop rbp
+0000014d: c3 	ret 
+Closing Capstone handle...
+Capstone handle closed.
+----------------------------------------
+Disassembly completed.
+Attempting to execute JIT code...
+Executable memory address: 0x20632960000
+Found main function at offset: 0
+JIT function pointer: 0x20632960000
+Code execution completed.
+main() return value: 15
+Freeing executable memory...
+Memory freed successfully.
+
+Script executed successfully.
+Return value: 15
+SymbolTable destructor called. Scope stack size: 1
+Deleting scope: 0x20632b74b40
+SymbolTable destruction completed.

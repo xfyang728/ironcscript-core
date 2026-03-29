@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
-#include "CScriptEngine.h"
+#include "IronCScript.h"
 
 namespace fs = std::filesystem;
 
@@ -33,7 +33,7 @@ void deleteTempScriptFile(const std::string& filePath) {
 
 int main() {
     // 创建脚本引擎
-    cse::CScriptEngine engine;
+    cse::IronCScript engine;
     
     // 测试模块系统
     std::cout << "Testing module system..." << std::endl;

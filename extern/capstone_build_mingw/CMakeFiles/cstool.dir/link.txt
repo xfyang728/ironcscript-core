@@ -1,3 +1,0 @@
-D:\vcpkg\downloads\tools\cmake-3.25.1-windows\cmake-3.25.1-windows-i386\bin\cmake.exe -E rm -f CMakeFiles\cstool.dir/objects.a
-C:\msys64\mingw64\bin\ar.exe qc CMakeFiles\cstool.dir/objects.a @CMakeFiles\cstool.dir\objects1
-C:\msys64\mingw64\bin\gcc.exe -O3 -DNDEBUG -Wl,--whole-archive CMakeFiles\cstool.dir/objects.a -Wl,--no-whole-archive -o cstool.exe -Wl,--out-implib,libcstool.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\cstool.dir\linkLibs.rsp

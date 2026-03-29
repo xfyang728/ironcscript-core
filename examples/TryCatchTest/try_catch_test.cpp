@@ -1,5 +1,5 @@
 #include <iostream>
-#include <CScriptEngine.h>
+#include <IronCScript.h>
 
 int divide(int a, int b) {
     if (b == 0) {
@@ -15,7 +15,7 @@ int main() {
     // 测试1: 基本的try-catch
     std::cout << "\nTest 1: Basic Try-Catch" << std::endl;
     {
-        cse::CScriptEngine engine;
+        cse::IronCScript engine;
         engine.registerNativeFunction("divide", divide);
 
         const char* testScript = R"(
@@ -45,7 +45,7 @@ int main() {
     // 测试2: 嵌套的try-catch
     std::cout << "\nTest 2: Nested Try-Catch" << std::endl;
     {
-        cse::CScriptEngine engine;
+        cse::IronCScript engine;
         engine.registerNativeFunction("divide", divide);
 
         const char* testScript = R"(
@@ -85,7 +85,7 @@ int main() {
     // 测试3: 多个catch块
     std::cout << "\nTest 3: Multiple Catch Blocks" << std::endl;
     {
-        cse::CScriptEngine engine;
+        cse::IronCScript engine;
 
         const char* testScript = R"(
             int main() {
@@ -119,7 +119,7 @@ int main() {
     // 测试4: 手动throw表达式
     std::cout << "\nTest 4: Manual Throw Expression" << std::endl;
     {
-        cse::CScriptEngine engine;
+        cse::IronCScript engine;
 
         const char* testScript = R"(
             int main() {

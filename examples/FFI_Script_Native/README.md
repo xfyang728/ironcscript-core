@@ -1,8 +1,8 @@
-# CScriptEngine FFI 示例
+# IronCScript FFI 示例
 
 ## 概述
 
-本目录展示了 CScriptEngine 的 FFI（外部函数接口）功能：
+本目录展示了 IronCScript 的 FFI（外部函数接口）功能：
 
 | 功能 | 描述 | 状态 |
 |------|------|------|
@@ -41,7 +41,7 @@ int main() {
 ### 示例代码 (main.cpp)
 
 ```cpp
-#include <CScriptEngine.h>
+#include <IronCScript.h>
 
 extern "C" {
 
@@ -56,7 +56,7 @@ int add_int(int a, int b) {
 }
 
 int main() {
-    cse::CScriptEngine engine;
+    cse::IronCScript engine;
 
     // 注册 Native 函数
     engine.registerNativeFunction("add_double", add_double);
@@ -162,11 +162,11 @@ script.csec.riscv64  ← RISC-V 平台缓存
 
 ```bash
 cd build
-./CScriptEngineTests.exe
+./IronCScriptTests.exe
 ```
 
 运行 FFI 相关测试：
 
 ```bash
-./CScriptEngineTests.exe --gtest_filter=*FFI*
+./IronCScriptTests.exe --gtest_filter=*FFI*
 ```

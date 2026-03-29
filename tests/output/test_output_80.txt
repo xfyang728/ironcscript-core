@@ -1,0 +1,316 @@
+IronCScript v1.0.0
+Platform: x86-64
+Script: D:\MyCode\IronCScript\ironcscript-core\tests\scripts\10_advanced/test_detailed.c
+
+Executing script...
+[EXEC] JIT compiling script...
+line 58:16 no viable alternative at input 'unionValuev'
+line 68:16 no viable alternative at input 'structPoint*'
+line 69:7 extraneous input '>' expecting {'throw', INTEGER, DOUBLE, CHAR, STRING, IDENTIFIER, '+', '-', '*', '!', '&', '~', '('}
+line 69:10 mismatched input '=' expecting ';'
+line 70:14 extraneous input '>' expecting {'throw', INTEGER, DOUBLE, CHAR, STRING, IDENTIFIER, '+', '-', '*', '!', '&', '~', '('}
+line 70:22 extraneous input '>' expecting {'throw', INTEGER, DOUBLE, CHAR, STRING, IDENTIFIER, '+', '-', '*', '!', '&', '~', '('}
+[DEBUG] visitProgram: found 10 statements
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found func_decl
+[DEBUG] visitFunc_decl: entered
+[DEBUG] visitFunc_decl: retType = int
+[DEBUG] visitFunc_decl: name = test_switch_case
+[DEBUG] visitFunc_decl: found block
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found switch_stmt
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found break statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found break statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found break statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found break statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found return statement
+[DEBUG] visitFunc_decl: bodyResult has value: 1
+[DEBUG] visitFunc_decl: body = 0x1dbb4c518b0
+[DEBUG] visitFunc_decl: found func_decl_args
+[DEBUG] visitFunc_decl: created funcDecl = 0x1dbb4c9f430
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: s is null: 0
+[DEBUG] visitProgram: added statement to block
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found func_decl
+[DEBUG] visitFunc_decl: entered
+[DEBUG] visitFunc_decl: retType = int
+[DEBUG] visitFunc_decl: name = test_array
+[DEBUG] visitFunc_decl: found block
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found return statement
+[DEBUG] visitFunc_decl: bodyResult has value: 1
+[DEBUG] visitFunc_decl: body = 0x1dbb4c519a0
+[DEBUG] visitFunc_decl: created funcDecl = 0x1dbb4c9fa30
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: s is null: 0
+[DEBUG] visitProgram: added statement to block
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found func_decl
+[DEBUG] visitFunc_decl: entered
+[DEBUG] visitFunc_decl: retType = int
+[DEBUG] visitFunc_decl: name = test_pointer
+[DEBUG] visitFunc_decl: found block
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found pointer assignment
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found return statement
+[DEBUG] visitFunc_decl: bodyResult has value: 1
+[DEBUG] visitFunc_decl: body = 0x1dbb4c520f0
+[DEBUG] visitFunc_decl: created funcDecl = 0x1dbb4c9f070
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: s is null: 0
+[DEBUG] visitProgram: added statement to block
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found struct_decl
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: s is null: 0
+[DEBUG] visitProgram: added statement to block
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found func_decl
+[DEBUG] visitFunc_decl: entered
+[DEBUG] visitFunc_decl: retType = int
+[DEBUG] visitFunc_decl: name = test_struct
+[DEBUG] visitFunc_decl: found block
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found return statement
+[DEBUG] visitFunc_decl: bodyResult has value: 1
+[DEBUG] visitFunc_decl: body = 0x1dbb4c53d40
+[DEBUG] visitFunc_decl: created funcDecl = 0x1dbb4c9f0b0
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: s is null: 0
+[DEBUG] visitProgram: added statement to block
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: returning nullptr
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: s is null: 1
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found func_decl
+[DEBUG] visitFunc_decl: entered
+[DEBUG] visitFunc_decl: retType = int
+[DEBUG] visitFunc_decl: name = test_union
+[DEBUG] visitFunc_decl: found block
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: returning nullptr
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: returning nullptr
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found return statement
+[DEBUG] visitFunc_decl: bodyResult has value: 1
+[DEBUG] visitFunc_decl: body = 0x1dbb4c52bd0
+[DEBUG] visitFunc_decl: created funcDecl = 0x1dbb4c9eab0
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: s is null: 0
+[DEBUG] visitProgram: added statement to block
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found func_decl
+[DEBUG] visitFunc_decl: entered
+[DEBUG] visitFunc_decl: retType = int
+[DEBUG] visitFunc_decl: name = test_struct_pointer
+[DEBUG] visitFunc_decl: found block
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: returning nullptr
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: returning nullptr
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found return statement
+[DEBUG] visitFunc_decl: bodyResult has value: 1
+[DEBUG] visitFunc_decl: body = 0x1dbb4c54400
+[DEBUG] visitFunc_decl: created funcDecl = 0x1dbb4c9eb70
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: s is null: 0
+[DEBUG] visitProgram: added statement to block
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found func_decl
+[DEBUG] visitFunc_decl: entered
+[DEBUG] visitFunc_decl: retType = int
+[DEBUG] visitFunc_decl: name = test_array_pointer
+[DEBUG] visitFunc_decl: found block
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found return statement
+[DEBUG] visitFunc_decl: bodyResult has value: 1
+[DEBUG] visitFunc_decl: body = 0x1dbb4c54c40
+[DEBUG] visitFunc_decl: created funcDecl = 0x1dbb4c9ebb0
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: s is null: 0
+[DEBUG] visitProgram: added statement to block
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found func_decl
+[DEBUG] visitFunc_decl: entered
+[DEBUG] visitFunc_decl: retType = int
+[DEBUG] visitFunc_decl: name = main
+[DEBUG] visitFunc_decl: found block
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found return statement
+[DEBUG] visitFunc_decl: bodyResult has value: 1
+[DEBUG] visitFunc_decl: body = 0x1dbb4ca1960
+[DEBUG] visitFunc_decl: created funcDecl = 0x1dbb4c9ebf0
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: s is null: 0
+[DEBUG] visitProgram: added statement to block
+[DEBUG] visitProgram: block has 9 statements
+[DEBUG] analyzeBlock: processing 9 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NFunctionDeclarationE
+[DEBUG] analyzeFunctionDeclaration: test_switch_case
+[DEBUG] analyzeFunctionDeclaration: analyzing 1 arguments
+[DEBUG] analyzeFunctionDeclaration: analyzing body
+[DEBUG] analyzeBlock: processing 3 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse16NSwitchStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NFunctionDeclarationE
+[DEBUG] analyzeFunctionDeclaration: test_array
+[DEBUG] analyzeFunctionDeclaration: analyzing 0 arguments
+[DEBUG] analyzeFunctionDeclaration: analyzing body
+[DEBUG] analyzeBlock: processing 3 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse17NArrayDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NFunctionDeclarationE
+[DEBUG] analyzeFunctionDeclaration: test_pointer
+[DEBUG] analyzeFunctionDeclaration: analyzing 0 arguments
+[DEBUG] analyzeFunctionDeclaration: analyzing body
+[DEBUG] analyzeBlock: processing 4 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse19NPointerDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse18NStructDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NFunctionDeclarationE
+[DEBUG] analyzeFunctionDeclaration: test_struct
+[DEBUG] analyzeFunctionDeclaration: analyzing 0 arguments
+[DEBUG] analyzeFunctionDeclaration: analyzing body
+[DEBUG] analyzeBlock: processing 4 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NFunctionDeclarationE
+[DEBUG] analyzeFunctionDeclaration: test_union
+[DEBUG] analyzeFunctionDeclaration: analyzing 0 arguments
+[DEBUG] analyzeFunctionDeclaration: analyzing body
+[DEBUG] analyzeBlock: processing 3 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NFunctionDeclarationE
+[DEBUG] analyzeFunctionDeclaration: test_struct_pointer
+[DEBUG] analyzeFunctionDeclaration: analyzing 0 arguments
+[DEBUG] analyzeFunctionDeclaration: analyzing body
+[DEBUG] analyzeBlock: processing 7 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse19NPointerDeclarationE
+Error: Type mismatch: cannot assign struct Point* to Point*
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+Error: Identifier 'x' is not declared
+Error: Type mismatch in binary operation: Point* and int
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+Error: Identifier 'x' is not declared
+Error: Type mismatch in binary operation: Point* and int
+Error: Type mismatch in binary operation: int and Point*
+Error: Identifier 'y' is not declared
+[DEBUG] analyzeBlock: processing statement type: N3cse20NFunctionDeclarationE
+[DEBUG] analyzeFunctionDeclaration: test_array_pointer
+[DEBUG] analyzeFunctionDeclaration: analyzing 0 arguments
+[DEBUG] analyzeFunctionDeclaration: analyzing body
+[DEBUG] analyzeBlock: processing 4 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse17NArrayDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse19NPointerDeclarationE
+[DEBUG] inferType: array type, returning int*
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NFunctionDeclarationE
+[DEBUG] analyzeFunctionDeclaration: main
+[DEBUG] analyzeFunctionDeclaration: analyzing 0 arguments
+[DEBUG] analyzeFunctionDeclaration: analyzing body
+[DEBUG] analyzeBlock: processing 8 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+Error: Semantic analysis failed
+SymbolTable destructor called. Scope stack size: 1
+Deleting scope: 0x1dbb4b75130
+SymbolTable destruction completed.

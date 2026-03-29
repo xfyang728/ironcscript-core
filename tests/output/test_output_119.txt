@@ -1,0 +1,228 @@
+Starting IronCScript...
+Opening D:\MyCode\IronCScript\tests\scripts\test_scanf_two_ints.c...
+File opened successfully.
+Parsing script with ANTLR...
+[DEBUG] visitProgram: found 1 statements
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found func_decl
+[DEBUG] visitFunc_decl: entered
+[DEBUG] visitFunc_decl: retType = int
+[DEBUG] visitFunc_decl: name = main
+[DEBUG] visitFunc_decl: found block
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found return statement
+[DEBUG] visitFunc_decl: bodyResult has value: 1
+[DEBUG] visitFunc_decl: body = 0x149a21334f0
+[DEBUG] visitFunc_decl: created funcDecl = 0x149a21284c0
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: result type: PN3cse20NFunctionDeclarationE
+[DEBUG] visitProgram: s is null: 0
+[DEBUG] visitProgram: added statement to block
+[DEBUG] visitProgram: block has 1 statements
+Parsing completed. Program block: 0x149a21336d0
+Performing semantic analysis...
+[DEBUG] analyzeBlock: processing 1 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NFunctionDeclarationE
+[DEBUG] analyzeFunctionDeclaration: main
+[DEBUG] analyzeFunctionDeclaration: analyzing 0 arguments
+[DEBUG] analyzeFunctionDeclaration: analyzing body
+[DEBUG] analyzeBlock: processing 5 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+Semantic analysis completed successfully.
+Generating intermediate code...
+[DEBUG] analyzeFunctionDeclaration: main
+Generated quads: 14
+=== Quad List ===
+FUNC   main
+ASSIGN %d  t0
+ADDRESS_OF a  t1
+ASSIGN t1  rdx
+ASSIGN t0  rcx
+CALL scanf  t2
+ASSIGN %d  t3
+ADDRESS_OF b  t4
+ASSIGN t4  rdx
+ASSIGN t3  rcx
+CALL scanf  t5
+ADD a b t6
+RET   t6
+ENDFUNC   main
+=================
+Generating code from IR...
+Target platform: x86-64
+Generating code from intermediate representation...
+Processing quad: FUNC (opcode: 20)   main
+Function main starts at offset 0
+Processing quad: ASSIGN (opcode: 11) %d  t0
+Local variable size for function main updated to: 8 bytes
+Allocating new local variable t0 (type: Int) at offset 8
+Processing quad: ADDRESS_OF (opcode: 37) a  t1
+Local variable size for function main updated to: 16 bytes
+Allocating new local variable t1 (type: Int) at offset 16
+Local variable size for function main updated to: 24 bytes
+Allocating new local variable a (type: Int) at offset 24
+Processing quad: ASSIGN (opcode: 11) t1  rdx
+Processing quad: ASSIGN (opcode: 11) t0  rcx
+Processing quad: CALL (opcode: 15) scanf  t2
+Local variable size for function main updated to: 32 bytes
+Allocating new local variable t2 (type: Int) at offset 32
+Processing quad: ASSIGN (opcode: 11) %d  t3
+Local variable size for function main updated to: 40 bytes
+Allocating new local variable t3 (type: Int) at offset 40
+Processing quad: ADDRESS_OF (opcode: 37) b  t4
+Local variable size for function main updated to: 48 bytes
+Allocating new local variable t4 (type: Int) at offset 48
+Local variable size for function main updated to: 56 bytes
+Allocating new local variable b (type: Int) at offset 56
+Processing quad: ASSIGN (opcode: 11) t4  rdx
+Processing quad: ASSIGN (opcode: 11) t3  rcx
+Processing quad: CALL (opcode: 15) scanf  t5
+Local variable size for function main updated to: 64 bytes
+Allocating new local variable t5 (type: Int) at offset 64
+Processing quad: ADD (opcode: 0) a b t6
+Local variable size for function main updated to: 72 bytes
+Allocating new local variable t6 (type: Int) at offset 72
+Processing quad: RET (opcode: 17)   t6
+Processing quad: ENDFUNC (opcode: 21)   main
+Updated stack allocation for function main to 104 bytes
+Updated stack deallocation for function main at position 188 to 104 bytes
+Updated stack allocation for function main to 104 bytes (including array space)
+Updated stack deallocation for function main at position 188 to 104 bytes (including array space)
+Code generation completed. Total code size: 197 bytes
+formatCode: codeSize=197, dataSize=16
+  RIP: instrPos=17, dataOffset=0, instrLen=7, calculated_offset=0xad
+  RIP: instrPos=87, dataOffset=8, instrLen=7, calculated_offset=0x6f
+Formatted code size: 213 bytes
+Disassembling code (213 bytes):
+00000000: e8 01 00 00 00                               call	6
+00000005: c3                                           ret	
+00000006: 55                                           push	rbp
+00000007: 48 89 e5                                     mov	rbp, rsp
+0000000a: 48 81 ec 68 00 00 00                         sub	rsp, 0x68
+00000011: 48 8d 05 ad 00 00 00                         lea	rax, [rip + 0xad]
+00000018: 48 89 85 f8 ff ff ff                         mov	qword ptr [rbp - 8], rax
+0000001f: 48 89 e8                                     mov	rax, rbp
+00000022: 48 81 c0 e8 ff ff ff                         add	rax, -0x18
+00000029: 48 89 85 f0 ff ff ff                         mov	qword ptr [rbp - 0x10], rax
+00000030: 48 8b 85 f0 ff ff ff                         mov	rax, qword ptr [rbp - 0x10]
+00000037: 48 89 c2                                     mov	rdx, rax
+0000003a: 48 8b 85 f8 ff ff ff                         mov	rax, qword ptr [rbp - 8]
+00000041: 48 89 c1                                     mov	rcx, rax
+00000044: 90                                           nop	
+00000045: 90                                           nop	
+00000046: 90                                           nop	
+00000047: 90                                           nop	
+00000048: 90                                           nop	
+00000049: 90                                           nop	
+0000004a: 90                                           nop	
+0000004b: 90                                           nop	
+0000004c: 90                                           nop	
+0000004d: 90                                           nop	
+0000004e: 90                                           nop	
+0000004f: 90                                           nop	
+00000050: 48 89 85 e0 ff ff ff                         mov	qword ptr [rbp - 0x20], rax
+00000057: 48 8d 05 6f 00 00 00                         lea	rax, [rip + 0x6f]
+0000005e: 48 89 85 d8 ff ff ff                         mov	qword ptr [rbp - 0x28], rax
+00000065: 48 89 e8                                     mov	rax, rbp
+00000068: 48 81 c0 c8 ff ff ff                         add	rax, -0x38
+0000006f: 48 89 85 d0 ff ff ff                         mov	qword ptr [rbp - 0x30], rax
+00000076: 48 8b 85 d0 ff ff ff                         mov	rax, qword ptr [rbp - 0x30]
+0000007d: 48 89 c2                                     mov	rdx, rax
+00000080: 48 8b 85 d8 ff ff ff                         mov	rax, qword ptr [rbp - 0x28]
+00000087: 48 89 c1                                     mov	rcx, rax
+0000008a: 90                                           nop	
+0000008b: 90                                           nop	
+0000008c: 90                                           nop	
+0000008d: 90                                           nop	
+0000008e: 90                                           nop	
+0000008f: 90                                           nop	
+00000090: 90                                           nop	
+00000091: 90                                           nop	
+00000092: 90                                           nop	
+00000093: 90                                           nop	
+00000094: 90                                           nop	
+00000095: 90                                           nop	
+00000096: 48 89 85 c0 ff ff ff                         mov	qword ptr [rbp - 0x40], rax
+0000009d: 48 8b 85 e8 ff ff ff                         mov	rax, qword ptr [rbp - 0x18]
+000000a4: 48 8b 8d c8 ff ff ff                         mov	rcx, qword ptr [rbp - 0x38]
+000000ab: 48 01 c8                                     add	rax, rcx
+000000ae: 48 89 85 b8 ff ff ff                         mov	qword ptr [rbp - 0x48], rax
+000000b5: 48 8b 85 b8 ff ff ff                         mov	rax, qword ptr [rbp - 0x48]
+000000bc: 48 81 c4 68 00 00 00                         add	rsp, 0x68
+000000c3: 5d                                           pop	rbp
+000000c4: c3                                           ret	
+000000c5: 25 64 00 00 00                               and	eax, 0x64
+000000ca: 00 00                                        add	byte ptr [rax], al
+000000cc: 00 25 64 00 00 00                            add	byte ptr [rip + 0x64], ah
+000000d2: 00 00                                        add	byte ptr [rax], al
+Code generation completed.
+Running code...
+Running code...
+Found 2 function call(s) to fix
+Fixed scanf call at offset: 44
+Fixed scanf call at offset: 8a
+
+Disassembling code after fix...
+Code size: 213 bytes
+----------------------------------------
+00000000: e8 01 00 00 00 	call 6
+00000005: c3 	ret 
+00000006: 55 	push rbp
+00000007: 48 89 e5 	mov rbp, rsp
+0000000a: 48 81 ec 68 00 00 00 	sub rsp, 0x68
+00000011: 48 8d 05 ad 00 00 00 	lea rax, [rip + 0xad]
+00000018: 48 89 85 f8 ff ff ff 	mov qword ptr [rbp - 8], rax
+0000001f: 48 89 e8 	mov rax, rbp
+00000022: 48 81 c0 e8 ff ff ff 	add rax, -0x18
+00000029: 48 89 85 f0 ff ff ff 	mov qword ptr [rbp - 0x10], rax
+00000030: 48 8b 85 f0 ff ff ff 	mov rax, qword ptr [rbp - 0x10]
+00000037: 48 89 c2 	mov rdx, rax
+0000003a: 48 8b 85 f8 ff ff ff 	mov rax, qword ptr [rbp - 8]
+00000041: 48 89 c1 	mov rcx, rax
+00000044: 48 b8 30 d6 4a 16 ff 7f 00 00 	movabs rax, 0x7fff164ad630
+0000004e: ff d0 	call rax
+00000050: 48 89 85 e0 ff ff ff 	mov qword ptr [rbp - 0x20], rax
+00000057: 48 8d 05 6f 00 00 00 	lea rax, [rip + 0x6f]
+0000005e: 48 89 85 d8 ff ff ff 	mov qword ptr [rbp - 0x28], rax
+00000065: 48 89 e8 	mov rax, rbp
+00000068: 48 81 c0 c8 ff ff ff 	add rax, -0x38
+0000006f: 48 89 85 d0 ff ff ff 	mov qword ptr [rbp - 0x30], rax
+00000076: 48 8b 85 d0 ff ff ff 	mov rax, qword ptr [rbp - 0x30]
+0000007d: 48 89 c2 	mov rdx, rax
+00000080: 48 8b 85 d8 ff ff ff 	mov rax, qword ptr [rbp - 0x28]
+00000087: 48 89 c1 	mov rcx, rax
+0000008a: 48 b8 30 d6 4a 16 ff 7f 00 00 	movabs rax, 0x7fff164ad630
+00000094: ff d0 	call rax
+00000096: 48 89 85 c0 ff ff ff 	mov qword ptr [rbp - 0x40], rax
+0000009d: 48 8b 85 e8 ff ff ff 	mov rax, qword ptr [rbp - 0x18]
+000000a4: 48 8b 8d c8 ff ff ff 	mov rcx, qword ptr [rbp - 0x38]
+000000ab: 48 01 c8 	add rax, rcx
+000000ae: 48 89 85 b8 ff ff ff 	mov qword ptr [rbp - 0x48], rax
+000000b5: 48 8b 85 b8 ff ff ff 	mov rax, qword ptr [rbp - 0x48]
+000000bc: 48 81 c4 68 00 00 00 	add rsp, 0x68
+000000c3: 5d 	pop rbp
+000000c4: c3 	ret 
+000000c5: 25 64 00 00 00 	and eax, 0x64
+000000ca: 00 00 	add byte ptr [rax], al
+000000cc: 00 25 64 00 00 00 	add byte ptr [rip + 0x64], ah
+000000d2: 00 00 	add byte ptr [rax], al
+----------------------------------------
+Disassembly completed.
+Code execution completed.
+main() return value: 30
+Return value: 30
+Code execution completed.
+File closed.

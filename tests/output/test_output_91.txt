@@ -1,0 +1,95 @@
+IronCScript v1.0.0
+Platform: x86-64
+Script: D:\MyCode\IronCScript\ironcscript-core\tests\scripts\07_structs/test_struct2.c
+
+Executing script...
+[EXEC] JIT compiling script...
+[DEBUG] visitProgram: found 1 statements
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found func_decl
+[DEBUG] visitFunc_decl: entered
+[DEBUG] visitFunc_decl: retType = int
+[DEBUG] visitFunc_decl: name = main
+[DEBUG] visitFunc_decl: found block
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found struct_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found return statement
+[DEBUG] visitFunc_decl: bodyResult has value: 1
+[DEBUG] visitFunc_decl: body = 0x1cb7775b6a0
+[DEBUG] visitFunc_decl: created funcDecl = 0x1cb777473f0
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: s is null: 0
+[DEBUG] visitProgram: added statement to block
+[DEBUG] visitProgram: block has 1 statements
+[DEBUG] analyzeBlock: processing 1 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NFunctionDeclarationE
+[DEBUG] analyzeFunctionDeclaration: main
+[DEBUG] analyzeFunctionDeclaration: analyzing 0 arguments
+[DEBUG] analyzeFunctionDeclaration: analyzing body
+[DEBUG] analyzeBlock: processing 4 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse18NStructDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+[DEBUG] analyzeFunctionDeclaration: main
+Generating code from intermediate representation...
+Processing quad: FUNC (opcode: 20) int  main
+Function main starts at offset 0
+Processing quad: MEMBER_STORE (opcode: 44) p x 10
+Local variable size for function main updated to: 8 bytes
+Allocating new local variable p (type: Int) at offset 8
+Processing quad: MEMBER_ACCESS (opcode: 43) p x t0
+Local variable size for function main updated to: 16 bytes
+Allocating new local variable t0 (type: Int) at offset 16
+Processing quad: RET (opcode: 17)   t0
+Processing quad: ENDFUNC (opcode: 21)   main
+Updated stack allocation for function main to 56 bytes
+Updated stack deallocation for function main at position 47 to 56 bytes
+Code generation completed. Total code size: 56 bytes
+Running code...
+Allocated executable memory at: 0x1cb77120000
+Code copied to executable memory successfully.
+Found 0 function call(s) to fix
+
+Disassembling code after fix...
+Code size: 56 bytes
+----------------------------------------
+Initializing Capstone disassembler...
+Architecture: 4, Mode: 8
+Capstone initialized successfully. Handle: 1973394028080
+Disassembling 11 instructions...
+00000000: 55 	push rbp
+00000001: 48 89 e5 	mov rbp, rsp
+00000004: 48 81 ec 38 00 00 00 	sub rsp, 0x38
+0000000b: 48 b8 0a 00 00 00 00 00 00 00 	movabs rax, 0xa
+00000015: 48 89 85 f8 ff ff ff 	mov qword ptr [rbp - 8], rax
+0000001c: 48 8b 85 f8 ff ff ff 	mov rax, qword ptr [rbp - 8]
+00000023: 89 85 f0 ff ff ff 	mov dword ptr [rbp - 0x10], eax
+00000029: 8b 85 f0 ff ff ff 	mov eax, dword ptr [rbp - 0x10]
+0000002f: 48 81 c4 38 00 00 00 	add rsp, 0x38
+00000036: 5d 	pop rbp
+00000037: c3 	ret 
+Closing Capstone handle...
+Capstone handle closed.
+----------------------------------------
+Disassembly completed.
+Attempting to execute JIT code...
+Executable memory address: 0x1cb77120000
+Found main function at offset: 0
+JIT function pointer: 0x1cb77120000
+Code execution completed.
+main() return value: 10
+Freeing executable memory...
+Memory freed successfully.
+
+Script executed successfully.
+Return value: 10
+SymbolTable destructor called. Scope stack size: 1
+Deleting scope: 0x1cb776d5210
+SymbolTable destruction completed.

@@ -1,5 +1,5 @@
 #include <iostream>
-#include <CScriptEngine.h>
+#include <IronCScript.h>
 
 int divide(int a, int b) {
     if (b == 0) {
@@ -14,7 +14,7 @@ int main() {
     // 测试1: 基本异常处理
     std::cout << "\nTest 1: Basic Exception Handling" << std::endl;
     {
-        cse::CScriptEngine engine;
+        cse::IronCScript engine;
         engine.registerNativeFunction("divide", divide);
 
         const char* testScript = R"(
@@ -41,7 +41,7 @@ int main() {
     // 测试2: 未捕获的异常
     std::cout << "\nTest 2: Uncaught Exception" << std::endl;
     {
-        cse::CScriptEngine engine;
+        cse::IronCScript engine;
         engine.registerNativeFunction("divide", divide);
 
         const char* testScript = R"(
@@ -63,7 +63,7 @@ int main() {
     // 测试3: 资源清理
     std::cout << "\nTest 3: Resource Cleanup" << std::endl;
     {
-        cse::CScriptEngine engine;
+        cse::IronCScript engine;
 
         const char* testScript = R"(
             int main() {
@@ -89,7 +89,7 @@ int main() {
     // 测试4: 嵌套异常
     std::cout << "\nTest 4: Nested Exceptions" << std::endl;
     {
-        cse::CScriptEngine engine;
+        cse::IronCScript engine;
         engine.registerNativeFunction("divide", divide);
 
         const char* testScript = R"(

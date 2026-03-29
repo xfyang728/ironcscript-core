@@ -1,0 +1,9 @@
+IronCScript v1.0.0
+Platform: x86-64
+Script: D:\MyCode\IronCScript\ironcscript-core\tests\scripts\09_stdlib/test_system_functions.c
+
+Executing script...
+Error: Cannot open file: D:\MyCode\IronCScript\ironcscript-core\tests\scripts\09_stdlib/test_system_functions.c
+SymbolTable destructor called. Scope stack size: 1
+Deleting scope: 0x1dfb2185270
+SymbolTable destruction completed.

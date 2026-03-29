@@ -1,5 +1,5 @@
 
-// Generated from d:/MyCode/CScriptEngine/src/frontend/parser/CScript.g4 by ANTLR 4.13.2
+// Generated from D:/MyCode/IronCScript/ironcscript-core/src/frontend/parser/CScript.g4 by ANTLR 4.13.2
 
 #pragma once
 
@@ -21,6 +21,15 @@ public:
 
   virtual void enterStmt(CScriptParser::StmtContext * /*ctx*/) override { }
   virtual void exitStmt(CScriptParser::StmtContext * /*ctx*/) override { }
+
+  virtual void enterImport_stmt(CScriptParser::Import_stmtContext * /*ctx*/) override { }
+  virtual void exitImport_stmt(CScriptParser::Import_stmtContext * /*ctx*/) override { }
+
+  virtual void enterInclude_stmt(CScriptParser::Include_stmtContext * /*ctx*/) override { }
+  virtual void exitInclude_stmt(CScriptParser::Include_stmtContext * /*ctx*/) override { }
+
+  virtual void enterRegister_callback_stmt(CScriptParser::Register_callback_stmtContext * /*ctx*/) override { }
+  virtual void exitRegister_callback_stmt(CScriptParser::Register_callback_stmtContext * /*ctx*/) override { }
 
   virtual void enterBlock(CScriptParser::BlockContext * /*ctx*/) override { }
   virtual void exitBlock(CScriptParser::BlockContext * /*ctx*/) override { }
@@ -129,6 +138,12 @@ public:
 
   virtual void enterDo_while_stmt(CScriptParser::Do_while_stmtContext * /*ctx*/) override { }
   virtual void exitDo_while_stmt(CScriptParser::Do_while_stmtContext * /*ctx*/) override { }
+
+  virtual void enterTry_catch_stmt(CScriptParser::Try_catch_stmtContext * /*ctx*/) override { }
+  virtual void exitTry_catch_stmt(CScriptParser::Try_catch_stmtContext * /*ctx*/) override { }
+
+  virtual void enterCatch_block(CScriptParser::Catch_blockContext * /*ctx*/) override { }
+  virtual void exitCatch_block(CScriptParser::Catch_blockContext * /*ctx*/) override { }
 
   virtual void enterSwitch_stmt(CScriptParser::Switch_stmtContext * /*ctx*/) override { }
   virtual void exitSwitch_stmt(CScriptParser::Switch_stmtContext * /*ctx*/) override { }

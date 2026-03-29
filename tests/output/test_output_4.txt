@@ -1,0 +1,115 @@
+IronCScript v1.0.0
+Platform: x86-64
+Script: D:\MyCode\IronCScript\ironcscript-core\tests\scripts\01_basic/test_simple.c
+
+Executing script...
+[EXEC] JIT compiling script...
+[DEBUG] visitProgram: found 1 statements
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found func_decl
+[DEBUG] visitFunc_decl: entered
+[DEBUG] visitFunc_decl: retType = int
+[DEBUG] visitFunc_decl: name = main
+[DEBUG] visitFunc_decl: found block
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found return statement
+[DEBUG] visitFunc_decl: bodyResult has value: 1
+[DEBUG] visitFunc_decl: body = 0x28ea8540530
+[DEBUG] visitFunc_decl: created funcDecl = 0x28ea8505930
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: s is null: 0
+[DEBUG] visitProgram: added statement to block
+[DEBUG] visitProgram: block has 1 statements
+[DEBUG] analyzeBlock: processing 1 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NFunctionDeclarationE
+[DEBUG] analyzeFunctionDeclaration: main
+[DEBUG] analyzeFunctionDeclaration: analyzing 0 arguments
+[DEBUG] analyzeFunctionDeclaration: analyzing body
+[DEBUG] analyzeBlock: processing 3 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+[DEBUG] analyzeFunctionDeclaration: main
+Generating code from intermediate representation...
+Dead code eliminated: ASSIGN 3.140000  t0
+Processing quad: FUNC (opcode: 20) int  main
+Function main starts at offset 0
+Processing quad: ASSIGN (opcode: 11) -3.140000  t2
+Local variable size for function main updated to: 8 bytes
+Allocating new local variable t2 (type: Double) at offset 8
+Processing quad: ASSIGN (opcode: 11) t2  x
+Local variable size for function main updated to: 16 bytes
+Allocating new local variable x (type: Double) at offset 16
+Processing quad: ASSIGN (opcode: 11) %f
+  t3
+Local variable size for function main updated to: 24 bytes
+Allocating new local variable t3 (type: Pointer) at offset 24
+Processing quad: ASSIGN (opcode: 11) t3  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=t3, paramReg=1, xmmReg=-1
+Processing quad: ASSIGN (opcode: 11) x  param_1
+[DEBUG] ASSIGN: result=param_1, arg1=x, paramReg=-1, xmmReg=1
+Processing quad: CALL (opcode: 15) printf 2 t4
+Local variable size for function main updated to: 32 bytes
+Allocating new local variable t4 (type: Int) at offset 32
+Processing quad: RET (opcode: 17)   0
+Processing quad: ENDFUNC (opcode: 21)   main
+Updated stack allocation for function main to 72 bytes
+Updated stack deallocation for function main at position 103 to 72 bytes
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Replaced NOP with call to printf at offset 75
+Code generation completed. Total code size: 112 bytes
+Running code...
+Allocated executable memory at: 0x28ea8030000
+Code copied to executable memory successfully.
+Found 1 function call(s) to fix
+Fixed printf call at offset: 4b
+
+Disassembling code after fix...
+Code size: 112 bytes
+----------------------------------------
+Initializing Capstone disassembler...
+Architecture: 4, Mode: 8
+Capstone initialized successfully. Handle: 2811732772960
+Disassembling 19 instructions...
+00000000: 55 	push rbp
+00000001: 48 89 e5 	mov rbp, rsp
+00000004: 48 81 ec 48 00 00 00 	sub rsp, 0x48
+0000000b: f2 0f 10 05 00 00 00 00 	movsd xmm0, qword ptr [rip]
+00000013: f2 0f 11 85 f8 ff ff ff 	movsd qword ptr [rbp - 8], xmm0
+0000001b: f2 0f 10 85 f8 ff ff ff 	movsd xmm0, qword ptr [rbp - 8]
+00000023: f2 0f 11 85 f0 ff ff ff 	movsd qword ptr [rbp - 0x10], xmm0
+0000002b: 48 8d 05 00 00 00 00 	lea rax, [rip]
+00000032: 48 89 85 e8 ff ff ff 	mov qword ptr [rbp - 0x18], rax
+00000039: 48 8b 85 e8 ff ff ff 	mov rax, qword ptr [rbp - 0x18]
+00000040: 48 89 c1 	mov rcx, rax
+00000043: f2 0f 10 8d f0 ff ff ff 	movsd xmm1, qword ptr [rbp - 0x10]
+0000004b: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000055: ff d0 	call rax
+00000057: 89 85 e0 ff ff ff 	mov dword ptr [rbp - 0x20], eax
+0000005d: 48 b8 00 00 00 00 00 00 00 00 	movabs rax, 0
+00000067: 48 81 c4 48 00 00 00 	add rsp, 0x48
+0000006e: 5d 	pop rbp
+0000006f: c3 	ret 
+Closing Capstone handle...
+Capstone handle closed.
+----------------------------------------
+Disassembly completed.
+Attempting to execute JIT code...
+Executable memory address: 0x28ea8030000
+Found main function at offset: 0
+JIT function pointer: 0x28ea8030000
+HâÖËˇˇˇHãÖËˇˇˇHâ¡ÚçˇˇˇH∏Ï|lVˆCode execution completed.
+main() return value: 0
+Freeing executable memory...
+Memory freed successfully.
+
+Script executed successfully.
+Return value: 0
+SymbolTable destructor called. Scope stack size: 1
+Deleting scope: 0x28ea8494900
+SymbolTable destruction completed.

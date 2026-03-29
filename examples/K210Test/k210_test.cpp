@@ -1,4 +1,4 @@
-#include "CScriptEngine.h"
+#include "IronCScript.h"
 #include "bytecode/vm/k210/K210VM.h"
 #include "bytecode/BytecodeFormat.h"
 #include <iostream>
@@ -75,7 +75,7 @@ void nativeDumpConstants(cse::BytecodeVM* vm) {
 }
 
 void printUsage(const char* programName) {
-    std::cout << "K210 CScript Runner v1.0" << std::endl;
+    std::cout << "K210 IronCS Runner v1.0" << std::endl;
     std::cout << "Usage: " << programName << " <bytecode_file>" << std::endl;
     std::cout << std::endl;
     std::cout << "Arguments:" << std::endl;
@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
 
     std::string bytecodePath = argv[1];
 
-    std::cout << "K210 CScript Runner" << std::endl;
+    std::cout << "K210 IronCS Runner" << std::endl;
     std::cout << "Bytecode: " << bytecodePath << std::endl;
     std::cout << std::endl;
 

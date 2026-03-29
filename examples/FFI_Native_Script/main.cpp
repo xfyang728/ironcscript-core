@@ -3,7 +3,7 @@
 #include <string>
 #include <functional>
 
-#include <CScriptEngine.h>
+#include <IronCScript.h>
 
 extern "C" {
 
@@ -19,7 +19,7 @@ int main() {
     std::cout << std::endl;
 
     {
-        cse::CScriptEngine engine;
+        cse::IronCScript engine;
 
         std::string testScriptPath = "test_script.c";
 
@@ -55,7 +55,7 @@ int main() {
     std::cout << std::endl;
 
     {
-        cse::CScriptEngine engine;
+        cse::IronCScript engine;
 
         std::string testScriptPath = "test_script.c";
 
@@ -103,7 +103,7 @@ int main() {
     std::cout << "=== Checking Script Function Retrieval ===" << std::endl;
 
     {
-        cse::CScriptEngine engine;
+        cse::IronCScript engine;
         engine.registerNativeFunction("nativeCallback", nativeCallback);
 
         std::string script = R"(

@@ -6,7 +6,7 @@
 #include <cmath>
 #include <chrono>
 
-#include <CScriptEngine.h>
+#include <IronCScript.h>
 
 extern "C" {
 
@@ -236,8 +236,8 @@ extern int string_length(const char* str);
 extern void print_string(const char* str);
 
 int main() {
-    print_string("Hello from CScriptEngine!");
-    int len = string_length("CScript");
+    print_string("Hello from IronCScript!");
+    int len = string_length("IronCS");
     return len;
 }
 )";
@@ -334,7 +334,7 @@ int main() {
     std::cout << "Expected: add_double(1.5, 2.5) + multiply_double(3.0, 4.0) + add_int(10, 20)" << std::endl;
 
     {
-        cse::CScriptEngine engine;
+        cse::IronCScript engine;
         engine.registerNativeFunction("add_double", add_double);
         engine.registerNativeFunction("multiply_double", multiply_double);
         engine.registerNativeFunction("add_int", add_int);
@@ -351,7 +351,7 @@ int main() {
     std::cout << testStringScript << std::endl;
 
     {
-        cse::CScriptEngine engine;
+        cse::IronCScript engine;
         engine.registerNativeFunction("string_length", string_length);
         engine.registerNativeFunction("print_string", print_string);
 
@@ -367,7 +367,7 @@ int main() {
     std::cout << testArrayScript << std::endl;
 
     {
-        cse::CScriptEngine engine;
+        cse::IronCScript engine;
         engine.registerNativeFunction("array_sum", array_sum);
         engine.registerNativeFunction("array_average", array_average);
 
@@ -383,7 +383,7 @@ int main() {
     std::cout << testStructScript << std::endl;
 
     {
-        cse::CScriptEngine engine;
+        cse::IronCScript engine;
         engine.registerNativeFunction("process_point", process_point);
 
         if (engine.execute(testStructScript)) {
@@ -404,7 +404,7 @@ int main() {
     std::cout << "Flow: Script defines my_callback -> registers with Native -> Native calls it back" << std::endl;
 
     {
-        cse::CScriptEngine engine;
+        cse::IronCScript engine;
         engine.registerNativeFunction("registerIntCallback", registerIntCallback);
         engine.registerNativeFunction("callScriptCallback", callScriptCallback);
 
@@ -463,7 +463,7 @@ int main() {
             }
         )";
 
-        cse::CScriptEngine engine;
+        cse::IronCScript engine;
         engine.registerNativeFunction("add_double_per", add_double_per);
         engine.setCacheEnabled(true);
 
@@ -496,7 +496,7 @@ int main() {
             }
         )";
 
-        cse::CScriptEngine engine;
+        cse::IronCScript engine;
         engine.registerNativeFunction("add_double_per", add_double_per);
         engine.setCacheEnabled(true);
 
@@ -522,7 +522,7 @@ int main() {
     std::cout << R"(
     Summary:
     --------
-    This demo showed two-way communication between CScriptEngine scripts
+    This demo showed two-way communication between IronCScript scripts
     and Native C++ code:
 
     1. Script -> Native (extern):
@@ -539,7 +539,7 @@ int main() {
     ----------
     - src/backend/FFIRegistry.h      : Native function registration
     - src/backend/ScriptFunctionRegistry.h : Script function registration
-    - src/frontend/parser/CScript.g4  : Grammar with extern/register support
+    - src/frontend/parser/IronCS.g4  : Grammar with extern/register support
     - docs/design/ffi_best_practices.md : Complete FFI design documentation
 
     Next Steps:

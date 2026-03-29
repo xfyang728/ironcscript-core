@@ -1,0 +1,21 @@
+{
+    "version": 4,
+    "configurations": [
+        {
+            "name": "Default",
+            "defines": [],
+            "compilerPath": "C:/Users/yang/Downloads/Compressed/KendryteIDE/LocalPackage/toolchain/bin/riscv64-unknown-elf-g++",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64",
+            "compileCommands": "d:/MyCode/k210/kendryte_camera-screen-standalone/.vscode/compile_commands.backup.json",
+            "includePath": [
+                "C:/Users/yang/Downloads/Compressed/KendryteIDE/LocalPackage/toolchain/riscv64-unknown-elf/include",
+                "C:/Users/yang/Downloads/Compressed/KendryteIDE/LocalPackage/toolchain/lib/gcc/riscv64-unknown-elf/8.2.0/include",
+                "C:/Users/yang/Downloads/Compressed/KendryteIDE/LocalPackage/toolchain/lib/gcc/riscv64-unknown-elf/8.2.0/include-fixed",
+                "C:/Users/yang/Downloads/Compressed/KendryteIDE/LocalPackage/toolchain/riscv64-unknown-elf/include/c++/8.2.0",
+                "C:/Users/yang/Downloads/Compressed/KendryteIDE/LocalPackage/toolchain/riscv64-unknown-elf/include/c++/8.2.0/riscv64-unknown-elf"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,82 @@
+Starting IronCScript...
+Opening .\tests\scripts\test_return42.c...
+File opened successfully.
+Parsing script with ANTLR...
+Parsing completed. Program block: 0x185310d0470
+Performing semantic analysis...
+[DEBUG] analyzeBlock: processing 1 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NFunctionDeclarationE
+[DEBUG] analyzeFunctionDeclaration: main
+[DEBUG] analyzeFunctionDeclaration: analyzing 0 arguments
+[DEBUG] analyzeFunctionDeclaration: analyzing body
+[DEBUG] analyzeBlock: processing 1 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+Semantic analysis completed successfully.
+Generating intermediate code...
+Generated quads: 4
+=== Quad List ===
+FUNC   main
+ASSIGN 42  t0
+RET   t0
+ENDFUNC   main
+=================
+Generating code from IR...
+Generating code from intermediate representation...
+Dead code elimination: removed 0 dead quad(s)
+Processing quad: FUNC (opcode: 20)   main
+Created function main at offset 0
+Stack allocation position for main at 4
+Functions in m_Functions after adding main: main 
+Processing quad: ASSIGN (opcode: 11) 42  t0
+Local variable size for function main updated to: 8 bytes
+Allocating new local variable t0 (type: Int) at offset 8
+Processing quad: RET (opcode: 17)   t0
+Processing quad: ENDFUNC (opcode: 21)   main
+Updated stack allocation for function main to 40 bytes
+Updated stack deallocation for function main at position 41 to 40 bytes
+Updated stack allocation for function main to 40 bytes (including array space)
+Updated stack deallocation for function main at position 41 to 40 bytes (including array space)
+Code generation completed. Total code size: 50 bytes
+Formatted code size: 50 bytes
+Disassembling code...
+Code size: 50 bytes
+----------------------------------------
+00000000: e8 01 00 00 00 	call 6
+00000005: c3 	ret 
+00000006: 55 	push rbp
+00000007: 48 89 e5 	mov rbp, rsp
+0000000a: 48 81 ec 28 00 00 00 	sub rsp, 0x28
+00000011: 48 b8 2a 00 00 00 00 00 00 00 	movabs rax, 0x2a
+0000001b: 48 89 85 f8 ff ff ff 	mov qword ptr [rbp - 8], rax
+00000022: 48 8b 85 f8 ff ff ff 	mov rax, qword ptr [rbp - 8]
+00000029: 48 81 c4 28 00 00 00 	add rsp, 0x28
+00000030: 5d 	pop rbp
+00000031: c3 	ret 
+----------------------------------------
+Disassembly completed.
+Code generation completed.
+Running code...
+Running code...
+Found 0 function call(s) to fix
+
+Disassembling code after fix...
+Code size: 50 bytes
+----------------------------------------
+00000000: e8 01 00 00 00 	call 6
+00000005: c3 	ret 
+00000006: 55 	push rbp
+00000007: 48 89 e5 	mov rbp, rsp
+0000000a: 48 81 ec 28 00 00 00 	sub rsp, 0x28
+00000011: 48 b8 2a 00 00 00 00 00 00 00 	movabs rax, 0x2a
+0000001b: 48 89 85 f8 ff ff ff 	mov qword ptr [rbp - 8], rax
+00000022: 48 8b 85 f8 ff ff ff 	mov rax, qword ptr [rbp - 8]
+00000029: 48 81 c4 28 00 00 00 	add rsp, 0x28
+00000030: 5d 	pop rbp
+00000031: c3 	ret 
+----------------------------------------
+Disassembly completed.
+Code execution completed.
+main() return value: 42
+Return value: 42
+Code execution completed.
+File closed.

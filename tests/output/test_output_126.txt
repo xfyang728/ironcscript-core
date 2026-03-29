@@ -1,0 +1,885 @@
+Starting IronCScript...
+Opening D:\MyCode\IronCScript\tests\scripts\test_file_functions.c...
+File opened successfully.
+Parsing script with ANTLR...
+[DEBUG] visitProgram: found 1 statements
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found func_decl
+[DEBUG] visitFunc_decl: entered
+[DEBUG] visitFunc_decl: retType = int
+[DEBUG] visitFunc_decl: name = main
+[DEBUG] visitFunc_decl: found block
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found if_stmt
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found if_stmt
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found return statement
+[DEBUG] visitFunc_decl: bodyResult has value: 1
+[DEBUG] visitFunc_decl: body = 0x2181d1ae9f0
+[DEBUG] visitFunc_decl: created funcDecl = 0x2181d243c90
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: result type: PN3cse20NFunctionDeclarationE
+[DEBUG] visitProgram: s is null: 0
+[DEBUG] visitProgram: added statement to block
+[DEBUG] visitProgram: block has 1 statements
+Parsing completed. Program block: 0x2181d1ae5d0
+Performing semantic analysis...
+[DEBUG] analyzeBlock: processing 1 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NFunctionDeclarationE
+[DEBUG] analyzeFunctionDeclaration: main
+[DEBUG] analyzeFunctionDeclaration: analyzing 0 arguments
+[DEBUG] analyzeFunctionDeclaration: analyzing body
+[DEBUG] analyzeBlock: processing 6 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse19NPointerDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse17NArrayDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NVariableDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse12NIfStatementE
+[DEBUG] analyzeBlock: processing 6 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse12NIfStatementE
+[DEBUG] analyzeBlock: processing 6 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] inferType: array type, returning char*
+[DEBUG] inferType: array type, returning char*
+[DEBUG] inferType: array type, returning char*
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] inferType: array type, returning char*
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] inferType: array type, returning char*
+[DEBUG] inferType: array type, returning char*
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing 1 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing 1 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+Semantic analysis completed successfully.
+Generating intermediate code...
+[DEBUG] analyzeFunctionDeclaration: main
+Generated quads: 74
+=== Quad List ===
+FUNC   main
+ARRAY 100  buffer
+ASSIGN test_file.txt  t0
+ASSIGN w  t1
+ASSIGN t1  rdx
+ASSIGN t0  rcx
+CALL fopen  t2
+ASSIGN t2  fp
+JMPF fp  t3
+ASSIGN Hello, File!
+  t5
+ASSIGN t5  rdx
+ASSIGN fp  rcx
+CALL fprintf  t6
+ASSIGN Value: %d
+  t7
+ASSIGN 42  t8
+ASSIGN t8  r8
+ASSIGN t7  rdx
+ASSIGN fp  rcx
+CALL fprintf  t9
+ASSIGN fp  rcx
+CALL fclose  t10
+ASSIGN File written successfully
+  t11
+ASSIGN t11  rcx
+CALL printf  t12
+ASSIGN test_file.txt  t13
+ASSIGN r  t14
+ASSIGN t14  rdx
+ASSIGN t13  rcx
+CALL fopen  t15
+ASSIGN t15  fp
+JMPF fp  t16
+ASSIGN %s %s %s  t18
+ASSIGN buffer  stack
+ASSIGN buffer  r9
+ASSIGN buffer  r8
+ASSIGN t18  rdx
+ASSIGN fp  rcx
+CALL fscanf  t19
+ASSIGN First line: %s
+  t20
+ASSIGN buffer  rdx
+ASSIGN t20  rcx
+CALL printf  t21
+ASSIGN %s %s %d  t22
+ADDRESS_OF value  t23
+ASSIGN t23  stack
+ASSIGN buffer  r9
+ASSIGN buffer  r8
+ASSIGN t22  rdx
+ASSIGN fp  rcx
+CALL fscanf  t24
+ASSIGN Value: %d
+  t25
+ASSIGN value  rdx
+ASSIGN t25  rcx
+CALL printf  t26
+ASSIGN fp  rcx
+CALL fclose  t27
+ASSIGN File read successfully
+  t28
+ASSIGN t28  rcx
+CALL printf  t29
+JMP   t17
+LABEL   t16
+ASSIGN Failed to open file for reading
+  t30
+ASSIGN t30  rcx
+CALL printf  t31
+LABEL   t17
+JMP   t4
+LABEL   t3
+ASSIGN Failed to open file for writing
+  t32
+ASSIGN t32  rcx
+CALL printf  t33
+LABEL   t4
+ASSIGN 0  t34
+RET   t34
+ENDFUNC   main
+=================
+Generating code from IR...
+Target platform: x86-64
+Generating code from intermediate representation...
+Processing quad: FUNC (opcode: 20)   main
+Function main starts at offset 0
+Processing quad: ARRAY (opcode: 34) 100  buffer
+Local variable size for function main updated to: 8 bytes
+Allocating new local variable buffer (type: Int) at offset 8
+Local variable size for function main updated to: 808 bytes
+Processing quad: ASSIGN (opcode: 11) test_file.txt  t0
+Local variable size for function main updated to: 816 bytes
+Allocating new local variable t0 (type: Int) at offset 816
+Processing quad: ASSIGN (opcode: 11) w  t1
+Local variable size for function main updated to: 824 bytes
+Allocating new local variable t1 (type: Int) at offset 824
+Processing quad: ASSIGN (opcode: 11) t1  rdx
+Processing quad: ASSIGN (opcode: 11) t0  rcx
+Processing quad: CALL (opcode: 15) fopen  t2
+Local variable size for function main updated to: 832 bytes
+Allocating new local variable t2 (type: Int) at offset 832
+Processing quad: ASSIGN (opcode: 11) t2  fp
+Local variable size for function main updated to: 840 bytes
+Allocating new local variable fp (type: Int) at offset 840
+Processing quad: JMPF (opcode: 13) fp  t3
+Processing quad: ASSIGN (opcode: 11) Hello, File!
+  t5
+Local variable size for function main updated to: 848 bytes
+Allocating new local variable t5 (type: Int) at offset 848
+Processing quad: ASSIGN (opcode: 11) t5  rdx
+Processing quad: ASSIGN (opcode: 11) fp  rcx
+Processing quad: CALL (opcode: 15) fprintf  t6
+Local variable size for function main updated to: 856 bytes
+Allocating new local variable t6 (type: Int) at offset 856
+Processing quad: ASSIGN (opcode: 11) Value: %d
+  t7
+Local variable size for function main updated to: 864 bytes
+Allocating new local variable t7 (type: Int) at offset 864
+Processing quad: ASSIGN (opcode: 11) 42  t8
+Local variable size for function main updated to: 872 bytes
+Allocating new local variable t8 (type: Int) at offset 872
+Processing quad: ASSIGN (opcode: 11) t8  r8
+Processing quad: ASSIGN (opcode: 11) t7  rdx
+Processing quad: ASSIGN (opcode: 11) fp  rcx
+Processing quad: CALL (opcode: 15) fprintf  t9
+Local variable size for function main updated to: 880 bytes
+Allocating new local variable t9 (type: Int) at offset 880
+Processing quad: ASSIGN (opcode: 11) fp  rcx
+Processing quad: CALL (opcode: 15) fclose  t10
+Local variable size for function main updated to: 888 bytes
+Allocating new local variable t10 (type: Int) at offset 888
+Processing quad: ASSIGN (opcode: 11) File written successfully
+  t11
+Local variable size for function main updated to: 896 bytes
+Allocating new local variable t11 (type: Int) at offset 896
+Processing quad: ASSIGN (opcode: 11) t11  rcx
+Processing quad: CALL (opcode: 15) printf  t12
+Local variable size for function main updated to: 904 bytes
+Allocating new local variable t12 (type: Int) at offset 904
+Processing quad: ASSIGN (opcode: 11) test_file.txt  t13
+Local variable size for function main updated to: 912 bytes
+Allocating new local variable t13 (type: Int) at offset 912
+Processing quad: ASSIGN (opcode: 11) r  t14
+Local variable size for function main updated to: 920 bytes
+Allocating new local variable t14 (type: Int) at offset 920
+Processing quad: ASSIGN (opcode: 11) t14  rdx
+Processing quad: ASSIGN (opcode: 11) t13  rcx
+Processing quad: CALL (opcode: 15) fopen  t15
+Local variable size for function main updated to: 928 bytes
+Allocating new local variable t15 (type: Int) at offset 928
+Processing quad: ASSIGN (opcode: 11) t15  fp
+Local variable fp already allocated at offset 840
+Processing quad: JMPF (opcode: 13) fp  t16
+Processing quad: ASSIGN (opcode: 11) %s %s %s  t18
+Local variable size for function main updated to: 936 bytes
+Allocating new local variable t18 (type: Int) at offset 936
+Processing quad: ASSIGN (opcode: 11) buffer  stack
+Processing quad: ASSIGN (opcode: 11) buffer  r9
+Processing quad: ASSIGN (opcode: 11) buffer  r8
+Processing quad: ASSIGN (opcode: 11) t18  rdx
+Processing quad: ASSIGN (opcode: 11) fp  rcx
+Processing quad: CALL (opcode: 15) fscanf  t19
+Local variable size for function main updated to: 944 bytes
+Allocating new local variable t19 (type: Int) at offset 944
+Processing quad: ASSIGN (opcode: 11) First line: %s
+  t20
+Local variable size for function main updated to: 952 bytes
+Allocating new local variable t20 (type: Int) at offset 952
+Processing quad: ASSIGN (opcode: 11) buffer  rdx
+Processing quad: ASSIGN (opcode: 11) t20  rcx
+Processing quad: CALL (opcode: 15) printf  t21
+Local variable size for function main updated to: 960 bytes
+Allocating new local variable t21 (type: Int) at offset 960
+Processing quad: ASSIGN (opcode: 11) %s %s %d  t22
+Local variable size for function main updated to: 968 bytes
+Allocating new local variable t22 (type: Int) at offset 968
+Processing quad: ADDRESS_OF (opcode: 37) value  t23
+Local variable size for function main updated to: 976 bytes
+Allocating new local variable t23 (type: Int) at offset 976
+Local variable size for function main updated to: 984 bytes
+Allocating new local variable value (type: Int) at offset 984
+Processing quad: ASSIGN (opcode: 11) t23  stack
+Processing quad: ASSIGN (opcode: 11) buffer  r9
+Processing quad: ASSIGN (opcode: 11) buffer  r8
+Processing quad: ASSIGN (opcode: 11) t22  rdx
+Processing quad: ASSIGN (opcode: 11) fp  rcx
+Processing quad: CALL (opcode: 15) fscanf  t24
+Local variable size for function main updated to: 992 bytes
+Allocating new local variable t24 (type: Int) at offset 992
+Processing quad: ASSIGN (opcode: 11) Value: %d
+  t25
+Local variable size for function main updated to: 1000 bytes
+Allocating new local variable t25 (type: Int) at offset 1000
+Processing quad: ASSIGN (opcode: 11) value  rdx
+Processing quad: ASSIGN (opcode: 11) t25  rcx
+Processing quad: CALL (opcode: 15) printf  t26
+Local variable size for function main updated to: 1008 bytes
+Allocating new local variable t26 (type: Int) at offset 1008
+Processing quad: ASSIGN (opcode: 11) fp  rcx
+Processing quad: CALL (opcode: 15) fclose  t27
+Local variable size for function main updated to: 1016 bytes
+Allocating new local variable t27 (type: Int) at offset 1016
+Processing quad: ASSIGN (opcode: 11) File read successfully
+  t28
+Local variable size for function main updated to: 1024 bytes
+Allocating new local variable t28 (type: Int) at offset 1024
+Processing quad: ASSIGN (opcode: 11) t28  rcx
+Processing quad: CALL (opcode: 15) printf  t29
+Local variable size for function main updated to: 1032 bytes
+Allocating new local variable t29 (type: Int) at offset 1032
+Processing quad: JMP (opcode: 12)   t17
+Processing quad: LABEL (opcode: 19)   t16
+Created label t16 at offset 780
+Processing quad: ASSIGN (opcode: 11) Failed to open file for reading
+  t30
+Local variable size for function main updated to: 1040 bytes
+Allocating new local variable t30 (type: Int) at offset 1040
+Processing quad: ASSIGN (opcode: 11) t30  rcx
+Processing quad: CALL (opcode: 15) printf  t31
+Local variable size for function main updated to: 1048 bytes
+Allocating new local variable t31 (type: Int) at offset 1048
+Processing quad: LABEL (opcode: 19)   t17
+Created label t17 at offset 823
+Processing quad: JMP (opcode: 12)   t4
+Processing quad: LABEL (opcode: 19)   t3
+Created label t3 at offset 828
+Processing quad: ASSIGN (opcode: 11) Failed to open file for writing
+  t32
+Local variable size for function main updated to: 1056 bytes
+Allocating new local variable t32 (type: Int) at offset 1056
+Processing quad: ASSIGN (opcode: 11) t32  rcx
+Processing quad: CALL (opcode: 15) printf  t33
+Local variable size for function main updated to: 1064 bytes
+Allocating new local variable t33 (type: Int) at offset 1064
+Processing quad: LABEL (opcode: 19)   t4
+Created label t4 at offset 871
+Processing quad: ASSIGN (opcode: 11) 0  t34
+Local variable size for function main updated to: 1072 bytes
+Allocating new local variable t34 (type: Int) at offset 1072
+Processing quad: RET (opcode: 17)   t34
+Processing quad: ENDFUNC (opcode: 21)   main
+Updated stack allocation for function main to 1112 bytes
+Updated stack deallocation for function main at position 901 to 1112 bytes
+Updated stack allocation for function main to 1112 bytes (including array space)
+Updated stack deallocation for function main at position 901 to 1112 bytes (including array space)
+Code generation completed. Total code size: 910 bytes
+formatCode: codeSize=910, dataSize=280
+  RIP: instrPos=17, dataOffset=0, instrLen=7, calculated_offset=0x376
+  RIP: instrPos=31, dataOffset=16, instrLen=7, calculated_offset=0x378
+  RIP: instrPos=114, dataOffset=24, instrLen=7, calculated_offset=0x32d
+  RIP: instrPos=167, dataOffset=40, instrLen=7, calculated_offset=0x308
+  RIP: instrPos=276, dataOffset=56, instrLen=7, calculated_offset=0x2ab
+  RIP: instrPos=319, dataOffset=88, instrLen=7, calculated_offset=0x2a0
+  RIP: instrPos=333, dataOffset=104, instrLen=7, calculated_offset=0x2a2
+  RIP: instrPos=416, dataOffset=112, instrLen=7, calculated_offset=0x257
+  RIP: instrPos=501, dataOffset=128, instrLen=7, calculated_offset=0x212
+  RIP: instrPos=554, dataOffset=144, instrLen=7, calculated_offset=0x1ed
+  RIP: instrPos=656, dataOffset=160, instrLen=7, calculated_offset=0x197
+  RIP: instrPos=738, dataOffset=176, instrLen=7, calculated_offset=0x155
+  RIP: instrPos=786, dataOffset=200, instrLen=7, calculated_offset=0x13d
+  RIP: instrPos=834, dataOffset=240, instrLen=7, calculated_offset=0x135
+Formatted code size: 1190 bytes
+Disassembling code (1190 bytes):
+00000000: e8 01 00 00 00                               call	6
+00000005: c3                                           ret	
+00000006: 55                                           push	rbp
+00000007: 48 89 e5                                     mov	rbp, rsp
+0000000a: 48 81 ec 58 04 00 00                         sub	rsp, 0x458
+00000011: 48 8d 05 76 03 00 00                         lea	rax, [rip + 0x376]
+00000018: 48 89 85 d0 fc ff ff                         mov	qword ptr [rbp - 0x330], rax
+0000001f: 48 8d 05 78 03 00 00                         lea	rax, [rip + 0x378]
+00000026: 48 89 85 c8 fc ff ff                         mov	qword ptr [rbp - 0x338], rax
+0000002d: 48 8b 85 c8 fc ff ff                         mov	rax, qword ptr [rbp - 0x338]
+00000034: 48 89 c2                                     mov	rdx, rax
+00000037: 48 8b 85 d0 fc ff ff                         mov	rax, qword ptr [rbp - 0x330]
+0000003e: 48 89 c1                                     mov	rcx, rax
+00000041: 90                                           nop	
+00000042: 90                                           nop	
+00000043: 90                                           nop	
+00000044: 90                                           nop	
+00000045: 90                                           nop	
+00000046: 90                                           nop	
+00000047: 90                                           nop	
+00000048: 90                                           nop	
+00000049: 90                                           nop	
+0000004a: 90                                           nop	
+0000004b: 90                                           nop	
+0000004c: 90                                           nop	
+0000004d: 48 89 85 c0 fc ff ff                         mov	qword ptr [rbp - 0x340], rax
+00000054: 48 8b 85 c0 fc ff ff                         mov	rax, qword ptr [rbp - 0x340]
+0000005b: 48 89 85 b8 fc ff ff                         mov	qword ptr [rbp - 0x348], rax
+00000062: 48 8b 85 b8 fc ff ff                         mov	rax, qword ptr [rbp - 0x348]
+00000069: 48 85 c0                                     test	rax, rax
+0000006c: 0f 84 d0 02 00 00                            je	0x342
+00000072: 48 8d 05 2d 03 00 00                         lea	rax, [rip + 0x32d]
+00000079: 48 89 85 b0 fc ff ff                         mov	qword ptr [rbp - 0x350], rax
+00000080: 48 8b 85 b0 fc ff ff                         mov	rax, qword ptr [rbp - 0x350]
+00000087: 48 89 c2                                     mov	rdx, rax
+0000008a: 48 8b 85 b8 fc ff ff                         mov	rax, qword ptr [rbp - 0x348]
+00000091: 48 89 c1                                     mov	rcx, rax
+00000094: 90                                           nop	
+00000095: 90                                           nop	
+00000096: 90                                           nop	
+00000097: 90                                           nop	
+00000098: 90                                           nop	
+00000099: 90                                           nop	
+0000009a: 90                                           nop	
+0000009b: 90                                           nop	
+0000009c: 90                                           nop	
+0000009d: 90                                           nop	
+0000009e: 90                                           nop	
+0000009f: 90                                           nop	
+000000a0: 48 89 85 a8 fc ff ff                         mov	qword ptr [rbp - 0x358], rax
+000000a7: 48 8d 05 08 03 00 00                         lea	rax, [rip + 0x308]
+000000ae: 48 89 85 a0 fc ff ff                         mov	qword ptr [rbp - 0x360], rax
+000000b5: 48 b8 2a 00 00 00 00 00 00 00                movabs	rax, 0x2a
+000000bf: 48 89 85 98 fc ff ff                         mov	qword ptr [rbp - 0x368], rax
+000000c6: 48 8b 85 98 fc ff ff                         mov	rax, qword ptr [rbp - 0x368]
+000000cd: 49 89 c0                                     mov	r8, rax
+000000d0: 48 8b 85 a0 fc ff ff                         mov	rax, qword ptr [rbp - 0x360]
+000000d7: 48 89 c2                                     mov	rdx, rax
+000000da: 48 8b 85 b8 fc ff ff                         mov	rax, qword ptr [rbp - 0x348]
+000000e1: 48 89 c1                                     mov	rcx, rax
+000000e4: 90                                           nop	
+000000e5: 90                                           nop	
+000000e6: 90                                           nop	
+000000e7: 90                                           nop	
+000000e8: 90                                           nop	
+000000e9: 90                                           nop	
+000000ea: 90                                           nop	
+000000eb: 90                                           nop	
+000000ec: 90                                           nop	
+000000ed: 90                                           nop	
+000000ee: 90                                           nop	
+000000ef: 90                                           nop	
+000000f0: 48 89 85 90 fc ff ff                         mov	qword ptr [rbp - 0x370], rax
+000000f7: 48 8b 85 b8 fc ff ff                         mov	rax, qword ptr [rbp - 0x348]
+000000fe: 48 89 c1                                     mov	rcx, rax
+00000101: 90                                           nop	
+00000102: 90                                           nop	
+00000103: 90                                           nop	
+00000104: 90                                           nop	
+00000105: 90                                           nop	
+00000106: 90                                           nop	
+00000107: 90                                           nop	
+00000108: 90                                           nop	
+00000109: 90                                           nop	
+0000010a: 90                                           nop	
+0000010b: 90                                           nop	
+0000010c: 90                                           nop	
+0000010d: 48 89 85 88 fc ff ff                         mov	qword ptr [rbp - 0x378], rax
+00000114: 48 8d 05 ab 02 00 00                         lea	rax, [rip + 0x2ab]
+0000011b: 48 89 85 80 fc ff ff                         mov	qword ptr [rbp - 0x380], rax
+00000122: 48 8b 85 80 fc ff ff                         mov	rax, qword ptr [rbp - 0x380]
+00000129: 48 89 c1                                     mov	rcx, rax
+0000012c: 90                                           nop	
+0000012d: 90                                           nop	
+0000012e: 90                                           nop	
+0000012f: 90                                           nop	
+00000130: 90                                           nop	
+00000131: 90                                           nop	
+00000132: 90                                           nop	
+00000133: 90                                           nop	
+00000134: 90                                           nop	
+00000135: 90                                           nop	
+00000136: 90                                           nop	
+00000137: 90                                           nop	
+00000138: 48 89 85 78 fc ff ff                         mov	qword ptr [rbp - 0x388], rax
+0000013f: 48 8d 05 a0 02 00 00                         lea	rax, [rip + 0x2a0]
+00000146: 48 89 85 70 fc ff ff                         mov	qword ptr [rbp - 0x390], rax
+0000014d: 48 8d 05 a2 02 00 00                         lea	rax, [rip + 0x2a2]
+00000154: 48 89 85 68 fc ff ff                         mov	qword ptr [rbp - 0x398], rax
+0000015b: 48 8b 85 68 fc ff ff                         mov	rax, qword ptr [rbp - 0x398]
+00000162: 48 89 c2                                     mov	rdx, rax
+00000165: 48 8b 85 70 fc ff ff                         mov	rax, qword ptr [rbp - 0x390]
+0000016c: 48 89 c1                                     mov	rcx, rax
+0000016f: 90                                           nop	
+00000170: 90                                           nop	
+00000171: 90                                           nop	
+00000172: 90                                           nop	
+00000173: 90                                           nop	
+00000174: 90                                           nop	
+00000175: 90                                           nop	
+00000176: 90                                           nop	
+00000177: 90                                           nop	
+00000178: 90                                           nop	
+00000179: 90                                           nop	
+0000017a: 90                                           nop	
+0000017b: 48 89 85 60 fc ff ff                         mov	qword ptr [rbp - 0x3a0], rax
+00000182: 48 8b 85 60 fc ff ff                         mov	rax, qword ptr [rbp - 0x3a0]
+00000189: 48 89 85 b8 fc ff ff                         mov	qword ptr [rbp - 0x348], rax
+00000190: 48 8b 85 b8 fc ff ff                         mov	rax, qword ptr [rbp - 0x348]
+00000197: 48 85 c0                                     test	rax, rax
+0000019a: 0f 84 72 01 00 00                            je	0x312
+000001a0: 48 8d 05 57 02 00 00                         lea	rax, [rip + 0x257]
+000001a7: 48 89 85 58 fc ff ff                         mov	qword ptr [rbp - 0x3a8], rax
+000001ae: 48 8d 85 d0 fc ff ff                         lea	rax, [rbp - 0x330]
+000001b5: 48 89 44 24 20                               mov	qword ptr [rsp + 0x20], rax
+000001ba: 48 8d 85 d0 fc ff ff                         lea	rax, [rbp - 0x330]
+000001c1: 49 89 c1                                     mov	r9, rax
+000001c4: 48 8d 85 d0 fc ff ff                         lea	rax, [rbp - 0x330]
+000001cb: 49 89 c0                                     mov	r8, rax
+000001ce: 48 8b 85 58 fc ff ff                         mov	rax, qword ptr [rbp - 0x3a8]
+000001d5: 48 89 c2                                     mov	rdx, rax
+000001d8: 48 8b 85 b8 fc ff ff                         mov	rax, qword ptr [rbp - 0x348]
+000001df: 48 89 c1                                     mov	rcx, rax
+000001e2: 90                                           nop	
+000001e3: 90                                           nop	
+000001e4: 90                                           nop	
+000001e5: 90                                           nop	
+000001e6: 90                                           nop	
+000001e7: 90                                           nop	
+000001e8: 90                                           nop	
+000001e9: 90                                           nop	
+000001ea: 90                                           nop	
+000001eb: 90                                           nop	
+000001ec: 90                                           nop	
+000001ed: 90                                           nop	
+000001ee: 48 89 85 50 fc ff ff                         mov	qword ptr [rbp - 0x3b0], rax
+000001f5: 48 8d 05 12 02 00 00                         lea	rax, [rip + 0x212]
+000001fc: 48 89 85 48 fc ff ff                         mov	qword ptr [rbp - 0x3b8], rax
+00000203: 48 8d 85 d0 fc ff ff                         lea	rax, [rbp - 0x330]
+0000020a: 48 89 c2                                     mov	rdx, rax
+0000020d: 48 8b 85 48 fc ff ff                         mov	rax, qword ptr [rbp - 0x3b8]
+00000214: 48 89 c1                                     mov	rcx, rax
+00000217: 90                                           nop	
+00000218: 90                                           nop	
+00000219: 90                                           nop	
+0000021a: 90                                           nop	
+0000021b: 90                                           nop	
+0000021c: 90                                           nop	
+0000021d: 90                                           nop	
+0000021e: 90                                           nop	
+0000021f: 90                                           nop	
+00000220: 90                                           nop	
+00000221: 90                                           nop	
+00000222: 90                                           nop	
+00000223: 48 89 85 40 fc ff ff                         mov	qword ptr [rbp - 0x3c0], rax
+0000022a: 48 8d 05 ed 01 00 00                         lea	rax, [rip + 0x1ed]
+00000231: 48 89 85 38 fc ff ff                         mov	qword ptr [rbp - 0x3c8], rax
+00000238: 48 89 e8                                     mov	rax, rbp
+0000023b: 48 81 c0 28 fc ff ff                         add	rax, -0x3d8
+00000242: 48 89 85 30 fc ff ff                         mov	qword ptr [rbp - 0x3d0], rax
+00000249: 48 8b 85 30 fc ff ff                         mov	rax, qword ptr [rbp - 0x3d0]
+00000250: 48 89 44 24 20                               mov	qword ptr [rsp + 0x20], rax
+00000255: 48 8d 85 d0 fc ff ff                         lea	rax, [rbp - 0x330]
+0000025c: 49 89 c1                                     mov	r9, rax
+0000025f: 48 8d 85 d0 fc ff ff                         lea	rax, [rbp - 0x330]
+00000266: 49 89 c0                                     mov	r8, rax
+00000269: 48 8b 85 38 fc ff ff                         mov	rax, qword ptr [rbp - 0x3c8]
+00000270: 48 89 c2                                     mov	rdx, rax
+00000273: 48 8b 85 b8 fc ff ff                         mov	rax, qword ptr [rbp - 0x348]
+0000027a: 48 89 c1                                     mov	rcx, rax
+0000027d: 90                                           nop	
+0000027e: 90                                           nop	
+0000027f: 90                                           nop	
+00000280: 90                                           nop	
+00000281: 90                                           nop	
+00000282: 90                                           nop	
+00000283: 90                                           nop	
+00000284: 90                                           nop	
+00000285: 90                                           nop	
+00000286: 90                                           nop	
+00000287: 90                                           nop	
+00000288: 90                                           nop	
+00000289: 48 89 85 20 fc ff ff                         mov	qword ptr [rbp - 0x3e0], rax
+00000290: 48 8d 05 97 01 00 00                         lea	rax, [rip + 0x197]
+00000297: 48 89 85 18 fc ff ff                         mov	qword ptr [rbp - 0x3e8], rax
+0000029e: 48 8b 85 28 fc ff ff                         mov	rax, qword ptr [rbp - 0x3d8]
+000002a5: 48 89 c2                                     mov	rdx, rax
+000002a8: 48 8b 85 18 fc ff ff                         mov	rax, qword ptr [rbp - 0x3e8]
+000002af: 48 89 c1                                     mov	rcx, rax
+000002b2: 90                                           nop	
+000002b3: 90                                           nop	
+000002b4: 90                                           nop	
+000002b5: 90                                           nop	
+000002b6: 90                                           nop	
+000002b7: 90                                           nop	
+000002b8: 90                                           nop	
+000002b9: 90                                           nop	
+000002ba: 90                                           nop	
+000002bb: 90                                           nop	
+000002bc: 90                                           nop	
+000002bd: 90                                           nop	
+000002be: 48 89 85 10 fc ff ff                         mov	qword ptr [rbp - 0x3f0], rax
+000002c5: 48 8b 85 b8 fc ff ff                         mov	rax, qword ptr [rbp - 0x348]
+000002cc: 48 89 c1                                     mov	rcx, rax
+000002cf: 90                                           nop	
+000002d0: 90                                           nop	
+000002d1: 90                                           nop	
+000002d2: 90                                           nop	
+000002d3: 90                                           nop	
+000002d4: 90                                           nop	
+000002d5: 90                                           nop	
+000002d6: 90                                           nop	
+000002d7: 90                                           nop	
+000002d8: 90                                           nop	
+000002d9: 90                                           nop	
+000002da: 90                                           nop	
+000002db: 48 89 85 08 fc ff ff                         mov	qword ptr [rbp - 0x3f8], rax
+000002e2: 48 8d 05 55 01 00 00                         lea	rax, [rip + 0x155]
+000002e9: 48 89 85 00 fc ff ff                         mov	qword ptr [rbp - 0x400], rax
+000002f0: 48 8b 85 00 fc ff ff                         mov	rax, qword ptr [rbp - 0x400]
+000002f7: 48 89 c1                                     mov	rcx, rax
+000002fa: 90                                           nop	
+000002fb: 90                                           nop	
+000002fc: 90                                           nop	
+000002fd: 90                                           nop	
+000002fe: 90                                           nop	
+000002ff: 90                                           nop	
+00000300: 90                                           nop	
+00000301: 90                                           nop	
+00000302: 90                                           nop	
+00000303: 90                                           nop	
+00000304: 90                                           nop	
+00000305: 90                                           nop	
+00000306: 48 89 85 f8 fb ff ff                         mov	qword ptr [rbp - 0x408], rax
+0000030d: e9 2b 00 00 00                               jmp	0x33d
+00000312: 48 8d 05 3d 01 00 00                         lea	rax, [rip + 0x13d]
+00000319: 48 89 85 f0 fb ff ff                         mov	qword ptr [rbp - 0x410], rax
+00000320: 48 8b 85 f0 fb ff ff                         mov	rax, qword ptr [rbp - 0x410]
+00000327: 48 89 c1                                     mov	rcx, rax
+0000032a: 90                                           nop	
+0000032b: 90                                           nop	
+0000032c: 90                                           nop	
+0000032d: 90                                           nop	
+0000032e: 90                                           nop	
+0000032f: 90                                           nop	
+00000330: 90                                           nop	
+00000331: 90                                           nop	
+00000332: 90                                           nop	
+00000333: 90                                           nop	
+00000334: 90                                           nop	
+00000335: 90                                           nop	
+00000336: 48 89 85 e8 fb ff ff                         mov	qword ptr [rbp - 0x418], rax
+0000033d: e9 2b 00 00 00                               jmp	0x36d
+00000342: 48 8d 05 35 01 00 00                         lea	rax, [rip + 0x135]
+00000349: 48 89 85 e0 fb ff ff                         mov	qword ptr [rbp - 0x420], rax
+00000350: 48 8b 85 e0 fb ff ff                         mov	rax, qword ptr [rbp - 0x420]
+00000357: 48 89 c1                                     mov	rcx, rax
+0000035a: 90                                           nop	
+0000035b: 90                                           nop	
+0000035c: 90                                           nop	
+0000035d: 90                                           nop	
+0000035e: 90                                           nop	
+0000035f: 90                                           nop	
+00000360: 90                                           nop	
+00000361: 90                                           nop	
+00000362: 90                                           nop	
+00000363: 90                                           nop	
+00000364: 90                                           nop	
+00000365: 90                                           nop	
+00000366: 48 89 85 d8 fb ff ff                         mov	qword ptr [rbp - 0x428], rax
+0000036d: 48 b8 00 00 00 00 00 00 00 00                movabs	rax, 0
+00000377: 48 89 85 d0 fb ff ff                         mov	qword ptr [rbp - 0x430], rax
+0000037e: 48 8b 85 d0 fb ff ff                         mov	rax, qword ptr [rbp - 0x430]
+00000385: 48 81 c4 58 04 00 00                         add	rsp, 0x458
+0000038c: 5d                                           pop	rbp
+0000038d: c3                                           ret	
+0000038e: 74 65                                        je	0x3f5
+00000390: 73 74                                        jae	0x406
+00000392: 5f                                           pop	rdi
+00000393: 66 69 6c 65 2e 74 78                         imul	bp, word ptr [rbp + riz*2 + 0x2e], 0x7874
+0000039a: 74 00                                        je	0x39c
+0000039c: 00 00                                        add	byte ptr [rax], al
+0000039e: 77 00                                        ja	0x3a0
+000003a0: 00 00                                        add	byte ptr [rax], al
+000003a2: 00 00                                        add	byte ptr [rax], al
+000003a4: 00 00                                        add	byte ptr [rax], al
+000003a6: 48 65 6c                                     insb	byte ptr [rdi], dx
+000003a9: 6c                                           insb	byte ptr [rdi], dx
+000003aa: 6f                                           outsd	dx, dword ptr [rsi]
+000003ab: 2c 20                                        sub	al, 0x20
+000003ad: 46 69 6c 65 21 0a 00 00 00                   imul	r13d, dword ptr [rbp + r12*2 + 0x21], 0xa
+000003b6: 56                                           push	rsi
+Code generation completed.
+Running code...
+Running code...
+Found 14 function call(s) to fix
+Fixed fopen call at offset: 41
+Fixed fprintf call at offset: 94
+Fixed fprintf call at offset: e4
+Fixed fclose call at offset: 101
+Fixed printf call at offset: 12c
+Fixed fopen call at offset: 16f
+Fixed fscanf call at offset: 1e2
+Fixed printf call at offset: 217
+Fixed fscanf call at offset: 27d
+Fixed printf call at offset: 2b2
+Fixed fclose call at offset: 2cf
+Fixed printf call at offset: 2fa
+Fixed printf call at offset: 32a
+Fixed printf call at offset: 35a
+
+Disassembling code after fix...
+Code size: 1190 bytes
+----------------------------------------
+00000000: e8 01 00 00 00 	call 6
+00000005: c3 	ret 
+00000006: 55 	push rbp
+00000007: 48 89 e5 	mov rbp, rsp
+0000000a: 48 81 ec 58 04 00 00 	sub rsp, 0x458
+00000011: 48 8d 05 76 03 00 00 	lea rax, [rip + 0x376]
+00000018: 48 89 85 d0 fc ff ff 	mov qword ptr [rbp - 0x330], rax
+0000001f: 48 8d 05 78 03 00 00 	lea rax, [rip + 0x378]
+00000026: 48 89 85 c8 fc ff ff 	mov qword ptr [rbp - 0x338], rax
+0000002d: 48 8b 85 c8 fc ff ff 	mov rax, qword ptr [rbp - 0x338]
+00000034: 48 89 c2 	mov rdx, rax
+00000037: 48 8b 85 d0 fc ff ff 	mov rax, qword ptr [rbp - 0x330]
+0000003e: 48 89 c1 	mov rcx, rax
+00000041: 48 b8 a0 c1 4a 16 ff 7f 00 00 	movabs rax, 0x7fff164ac1a0
+0000004b: ff d0 	call rax
+0000004d: 48 89 85 c0 fc ff ff 	mov qword ptr [rbp - 0x340], rax
+00000054: 48 8b 85 c0 fc ff ff 	mov rax, qword ptr [rbp - 0x340]
+0000005b: 48 89 85 b8 fc ff ff 	mov qword ptr [rbp - 0x348], rax
+00000062: 48 8b 85 b8 fc ff ff 	mov rax, qword ptr [rbp - 0x348]
+00000069: 48 85 c0 	test rax, rax
+0000006c: 0f 84 d0 02 00 00 	je 0x342
+00000072: 48 8d 05 2d 03 00 00 	lea rax, [rip + 0x32d]
+00000079: 48 89 85 b0 fc ff ff 	mov qword ptr [rbp - 0x350], rax
+00000080: 48 8b 85 b0 fc ff ff 	mov rax, qword ptr [rbp - 0x350]
+00000087: 48 89 c2 	mov rdx, rax
+0000008a: 48 8b 85 b8 fc ff ff 	mov rax, qword ptr [rbp - 0x348]
+00000091: 48 89 c1 	mov rcx, rax
+00000094: 48 b8 80 bb 4a 16 ff 7f 00 00 	movabs rax, 0x7fff164abb80
+0000009e: ff d0 	call rax
+000000a0: 48 89 85 a8 fc ff ff 	mov qword ptr [rbp - 0x358], rax
+000000a7: 48 8d 05 08 03 00 00 	lea rax, [rip + 0x308]
+000000ae: 48 89 85 a0 fc ff ff 	mov qword ptr [rbp - 0x360], rax
+000000b5: 48 b8 2a 00 00 00 00 00 00 00 	movabs rax, 0x2a
+000000bf: 48 89 85 98 fc ff ff 	mov qword ptr [rbp - 0x368], rax
+000000c6: 48 8b 85 98 fc ff ff 	mov rax, qword ptr [rbp - 0x368]
+000000cd: 49 89 c0 	mov r8, rax
+000000d0: 48 8b 85 a0 fc ff ff 	mov rax, qword ptr [rbp - 0x360]
+000000d7: 48 89 c2 	mov rdx, rax
+000000da: 48 8b 85 b8 fc ff ff 	mov rax, qword ptr [rbp - 0x348]
+000000e1: 48 89 c1 	mov rcx, rax
+000000e4: 48 b8 80 bb 4a 16 ff 7f 00 00 	movabs rax, 0x7fff164abb80
+000000ee: ff d0 	call rax
+000000f0: 48 89 85 90 fc ff ff 	mov qword ptr [rbp - 0x370], rax
+000000f7: 48 8b 85 b8 fc ff ff 	mov rax, qword ptr [rbp - 0x348]
+000000fe: 48 89 c1 	mov rcx, rax
+00000101: 48 b8 10 15 4b 16 ff 7f 00 00 	movabs rax, 0x7fff164b1510
+0000010b: ff d0 	call rax
+0000010d: 48 89 85 88 fc ff ff 	mov qword ptr [rbp - 0x378], rax
+00000114: 48 8d 05 ab 02 00 00 	lea rax, [rip + 0x2ab]
+0000011b: 48 89 85 80 fc ff ff 	mov qword ptr [rbp - 0x380], rax
+00000122: 48 8b 85 80 fc ff ff 	mov rax, qword ptr [rbp - 0x380]
+00000129: 48 89 c1 	mov rcx, rax
+0000012c: 48 b8 80 d2 4a 16 ff 7f 00 00 	movabs rax, 0x7fff164ad280
+00000136: ff d0 	call rax
+00000138: 48 89 85 78 fc ff ff 	mov qword ptr [rbp - 0x388], rax
+0000013f: 48 8d 05 a0 02 00 00 	lea rax, [rip + 0x2a0]
+00000146: 48 89 85 70 fc ff ff 	mov qword ptr [rbp - 0x390], rax
+0000014d: 48 8d 05 a2 02 00 00 	lea rax, [rip + 0x2a2]
+00000154: 48 89 85 68 fc ff ff 	mov qword ptr [rbp - 0x398], rax
+0000015b: 48 8b 85 68 fc ff ff 	mov rax, qword ptr [rbp - 0x398]
+00000162: 48 89 c2 	mov rdx, rax
+00000165: 48 8b 85 70 fc ff ff 	mov rax, qword ptr [rbp - 0x390]
+0000016c: 48 89 c1 	mov rcx, rax
+0000016f: 48 b8 a0 c1 4a 16 ff 7f 00 00 	movabs rax, 0x7fff164ac1a0
+00000179: ff d0 	call rax
+0000017b: 48 89 85 60 fc ff ff 	mov qword ptr [rbp - 0x3a0], rax
+00000182: 48 8b 85 60 fc ff ff 	mov rax, qword ptr [rbp - 0x3a0]
+00000189: 48 89 85 b8 fc ff ff 	mov qword ptr [rbp - 0x348], rax
+00000190: 48 8b 85 b8 fc ff ff 	mov rax, qword ptr [rbp - 0x348]
+00000197: 48 85 c0 	test rax, rax
+0000019a: 0f 84 72 01 00 00 	je 0x312
+000001a0: 48 8d 05 57 02 00 00 	lea rax, [rip + 0x257]
+000001a7: 48 89 85 58 fc ff ff 	mov qword ptr [rbp - 0x3a8], rax
+000001ae: 48 8d 85 d0 fc ff ff 	lea rax, [rbp - 0x330]
+000001b5: 48 89 44 24 20 	mov qword ptr [rsp + 0x20], rax
+000001ba: 48 8d 85 d0 fc ff ff 	lea rax, [rbp - 0x330]
+000001c1: 49 89 c1 	mov r9, rax
+000001c4: 48 8d 85 d0 fc ff ff 	lea rax, [rbp - 0x330]
+000001cb: 49 89 c0 	mov r8, rax
+000001ce: 48 8b 85 58 fc ff ff 	mov rax, qword ptr [rbp - 0x3a8]
+000001d5: 48 89 c2 	mov rdx, rax
+000001d8: 48 8b 85 b8 fc ff ff 	mov rax, qword ptr [rbp - 0x348]
+000001df: 48 89 c1 	mov rcx, rax
+000001e2: 48 b8 d0 bd 4a 16 ff 7f 00 00 	movabs rax, 0x7fff164abdd0
+000001ec: ff d0 	call rax
+000001ee: 48 89 85 50 fc ff ff 	mov qword ptr [rbp - 0x3b0], rax
+000001f5: 48 8d 05 12 02 00 00 	lea rax, [rip + 0x212]
+000001fc: 48 89 85 48 fc ff ff 	mov qword ptr [rbp - 0x3b8], rax
+00000203: 48 8d 85 d0 fc ff ff 	lea rax, [rbp - 0x330]
+0000020a: 48 89 c2 	mov rdx, rax
+0000020d: 48 8b 85 48 fc ff ff 	mov rax, qword ptr [rbp - 0x3b8]
+00000214: 48 89 c1 	mov rcx, rax
+00000217: 48 b8 80 d2 4a 16 ff 7f 00 00 	movabs rax, 0x7fff164ad280
+00000221: ff d0 	call rax
+00000223: 48 89 85 40 fc ff ff 	mov qword ptr [rbp - 0x3c0], rax
+0000022a: 48 8d 05 ed 01 00 00 	lea rax, [rip + 0x1ed]
+00000231: 48 89 85 38 fc ff ff 	mov qword ptr [rbp - 0x3c8], rax
+00000238: 48 89 e8 	mov rax, rbp
+0000023b: 48 81 c0 28 fc ff ff 	add rax, -0x3d8
+00000242: 48 89 85 30 fc ff ff 	mov qword ptr [rbp - 0x3d0], rax
+00000249: 48 8b 85 30 fc ff ff 	mov rax, qword ptr [rbp - 0x3d0]
+00000250: 48 89 44 24 20 	mov qword ptr [rsp + 0x20], rax
+00000255: 48 8d 85 d0 fc ff ff 	lea rax, [rbp - 0x330]
+0000025c: 49 89 c1 	mov r9, rax
+0000025f: 48 8d 85 d0 fc ff ff 	lea rax, [rbp - 0x330]
+00000266: 49 89 c0 	mov r8, rax
+00000269: 48 8b 85 38 fc ff ff 	mov rax, qword ptr [rbp - 0x3c8]
+00000270: 48 89 c2 	mov rdx, rax
+00000273: 48 8b 85 b8 fc ff ff 	mov rax, qword ptr [rbp - 0x348]
+0000027a: 48 89 c1 	mov rcx, rax
+0000027d: 48 b8 d0 bd 4a 16 ff 7f 00 00 	movabs rax, 0x7fff164abdd0
+00000287: ff d0 	call rax
+00000289: 48 89 85 20 fc ff ff 	mov qword ptr [rbp - 0x3e0], rax
+00000290: 48 8d 05 97 01 00 00 	lea rax, [rip + 0x197]
+00000297: 48 89 85 18 fc ff ff 	mov qword ptr [rbp - 0x3e8], rax
+0000029e: 48 8b 85 28 fc ff ff 	mov rax, qword ptr [rbp - 0x3d8]
+000002a5: 48 89 c2 	mov rdx, rax
+000002a8: 48 8b 85 18 fc ff ff 	mov rax, qword ptr [rbp - 0x3e8]
+000002af: 48 89 c1 	mov rcx, rax
+000002b2: 48 b8 80 d2 4a 16 ff 7f 00 00 	movabs rax, 0x7fff164ad280
+000002bc: ff d0 	call rax
+000002be: 48 89 85 10 fc ff ff 	mov qword ptr [rbp - 0x3f0], rax
+000002c5: 48 8b 85 b8 fc ff ff 	mov rax, qword ptr [rbp - 0x348]
+000002cc: 48 89 c1 	mov rcx, rax
+000002cf: 48 b8 10 15 4b 16 ff 7f 00 00 	movabs rax, 0x7fff164b1510
+000002d9: ff d0 	call rax
+000002db: 48 89 85 08 fc ff ff 	mov qword ptr [rbp - 0x3f8], rax
+000002e2: 48 8d 05 55 01 00 00 	lea rax, [rip + 0x155]
+000002e9: 48 89 85 00 fc ff ff 	mov qword ptr [rbp - 0x400], rax
+000002f0: 48 8b 85 00 fc ff ff 	mov rax, qword ptr [rbp - 0x400]
+000002f7: 48 89 c1 	mov rcx, rax
+000002fa: 48 b8 80 d2 4a 16 ff 7f 00 00 	movabs rax, 0x7fff164ad280
+00000304: ff d0 	call rax
+00000306: 48 89 85 f8 fb ff ff 	mov qword ptr [rbp - 0x408], rax
+0000030d: e9 2b 00 00 00 	jmp 0x33d
+00000312: 48 8d 05 3d 01 00 00 	lea rax, [rip + 0x13d]
+00000319: 48 89 85 f0 fb ff ff 	mov qword ptr [rbp - 0x410], rax
+00000320: 48 8b 85 f0 fb ff ff 	mov rax, qword ptr [rbp - 0x410]
+00000327: 48 89 c1 	mov rcx, rax
+0000032a: 48 b8 80 d2 4a 16 ff 7f 00 00 	movabs rax, 0x7fff164ad280
+00000334: ff d0 	call rax
+00000336: 48 89 85 e8 fb ff ff 	mov qword ptr [rbp - 0x418], rax
+0000033d: e9 2b 00 00 00 	jmp 0x36d
+00000342: 48 8d 05 35 01 00 00 	lea rax, [rip + 0x135]
+00000349: 48 89 85 e0 fb ff ff 	mov qword ptr [rbp - 0x420], rax
+00000350: 48 8b 85 e0 fb ff ff 	mov rax, qword ptr [rbp - 0x420]
+00000357: 48 89 c1 	mov rcx, rax
+0000035a: 48 b8 80 d2 4a 16 ff 7f 00 00 	movabs rax, 0x7fff164ad280
+00000364: ff d0 	call rax
+00000366: 48 89 85 d8 fb ff ff 	mov qword ptr [rbp - 0x428], rax
+0000036d: 48 b8 00 00 00 00 00 00 00 00 	movabs rax, 0
+00000377: 48 89 85 d0 fb ff ff 	mov qword ptr [rbp - 0x430], rax
+0000037e: 48 8b 85 d0 fb ff ff 	mov rax, qword ptr [rbp - 0x430]
+00000385: 48 81 c4 58 04 00 00 	add rsp, 0x458
+0000038c: 5d 	pop rbp
+0000038d: c3 	ret 
+0000038e: 74 65 	je 0x3f5
+00000390: 73 74 	jae 0x406
+00000392: 5f 	pop rdi
+00000393: 66 69 6c 65 2e 74 78 	imul bp, word ptr [rbp + riz*2 + 0x2e], 0x7874
+0000039a: 74 00 	je 0x39c
+0000039c: 00 00 	add byte ptr [rax], al
+0000039e: 77 00 	ja 0x3a0
+000003a0: 00 00 	add byte ptr [rax], al
+000003a2: 00 00 	add byte ptr [rax], al
+000003a4: 00 00 	add byte ptr [rax], al
+000003a6: 48 65 6c 	insb byte ptr [rdi], dx
+000003a9: 6c 	insb byte ptr [rdi], dx
+000003aa: 6f 	outsd dx, dword ptr [rsi]
+000003ab: 2c 20 	sub al, 0x20
+000003ad: 46 69 6c 65 21 0a 00 00 00 	imul r13d, dword ptr [rbp + r12*2 + 0x21], 0xa
+000003b6: 56 	push rsi
+----------------------------------------
+Disassembly completed.
+File written successfully
+First line: Value:
+Value: 0
+File read successfully
+Code execution completed.
+main() return value: 0
+Return value: 0
+Code execution completed.
+File closed.

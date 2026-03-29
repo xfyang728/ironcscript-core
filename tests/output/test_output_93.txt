@@ -1,0 +1,301 @@
+IronCScript v1.0.0
+Platform: x86-64
+Script: D:\MyCode\IronCScript\ironcscript-core\tests\scripts\09_stdlib/stdio/test_file_write.c
+
+Executing script...
+[EXEC] JIT compiling script...
+[DEBUG] visitProgram: found 2 statements
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found func_decl
+[DEBUG] visitFunc_decl: entered
+[DEBUG] visitFunc_decl: retType = int
+[DEBUG] visitFunc_decl: name = write_file
+[DEBUG] visitFunc_decl: found block
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found if_stmt
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found return statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found return statement
+[DEBUG] visitFunc_decl: bodyResult has value: 1
+[DEBUG] visitFunc_decl: body = 0x2c604fd6f30
+[DEBUG] visitFunc_decl: created funcDecl = 0x2c60502cfa0
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: s is null: 0
+[DEBUG] visitProgram: added statement to block
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found func_decl
+[DEBUG] visitFunc_decl: entered
+[DEBUG] visitFunc_decl: retType = int
+[DEBUG] visitFunc_decl: name = main
+[DEBUG] visitFunc_decl: found block
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found return statement
+[DEBUG] visitFunc_decl: bodyResult has value: 1
+[DEBUG] visitFunc_decl: body = 0x2c604fd77a0
+[DEBUG] visitFunc_decl: created funcDecl = 0x2c60502d8e0
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: s is null: 0
+[DEBUG] visitProgram: added statement to block
+[DEBUG] visitProgram: block has 2 statements
+[DEBUG] analyzeBlock: processing 2 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NFunctionDeclarationE
+[DEBUG] analyzeFunctionDeclaration: write_file
+[DEBUG] analyzeFunctionDeclaration: analyzing 0 arguments
+[DEBUG] analyzeFunctionDeclaration: analyzing body
+[DEBUG] analyzeBlock: processing 3 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse19NPointerDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse12NIfStatementE
+[DEBUG] analyzeBlock: processing 5 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+[DEBUG] analyzeBlock: processing 2 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NFunctionDeclarationE
+[DEBUG] analyzeFunctionDeclaration: main
+[DEBUG] analyzeFunctionDeclaration: analyzing 0 arguments
+[DEBUG] analyzeFunctionDeclaration: analyzing body
+[DEBUG] analyzeBlock: processing 1 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+[DEBUG] analyzeFunctionDeclaration: write_file
+[DEBUG] analyzeFunctionDeclaration: main
+Generating code from intermediate representation...
+Processing quad: FUNC (opcode: 20) int  write_file
+Function write_file starts at offset 0
+Processing quad: ASSIGN (opcode: 11) test_file.txt  t0
+Local variable size for function write_file updated to: 8 bytes
+Allocating new local variable t0 (type: Pointer) at offset 8
+Processing quad: ASSIGN (opcode: 11) w  t1
+Local variable size for function write_file updated to: 16 bytes
+Allocating new local variable t1 (type: Pointer) at offset 16
+Processing quad: ASSIGN (opcode: 11) t0  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=t0, paramReg=1, xmmReg=-1
+Processing quad: ASSIGN (opcode: 11) t1  param_1
+[DEBUG] ASSIGN: result=param_1, arg1=t1, paramReg=2, xmmReg=-1
+Processing quad: CALL (opcode: 15) fopen 2 t2
+Local variable size for function write_file updated to: 24 bytes
+Allocating new local variable t2 (type: Int) at offset 24
+Processing quad: ASSIGN (opcode: 11) t2  fp
+Local variable size for function write_file updated to: 32 bytes
+Allocating new local variable fp (type: Int) at offset 32
+Processing quad: JMPF (opcode: 13) fp  t3
+Processing quad: ASSIGN (opcode: 11) Hello, File!
+  t5
+Local variable size for function write_file updated to: 40 bytes
+Allocating new local variable t5 (type: Pointer) at offset 40
+Processing quad: ASSIGN (opcode: 11) fp  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=fp, paramReg=1, xmmReg=-1
+Processing quad: ASSIGN (opcode: 11) t5  param_1
+[DEBUG] ASSIGN: result=param_1, arg1=t5, paramReg=2, xmmReg=-1
+Processing quad: CALL (opcode: 15) fprintf 2 t6
+Local variable size for function write_file updated to: 48 bytes
+Allocating new local variable t6 (type: Int) at offset 48
+Processing quad: ASSIGN (opcode: 11) Value: %d
+  t7
+Local variable size for function write_file updated to: 56 bytes
+Allocating new local variable t7 (type: Pointer) at offset 56
+Processing quad: ASSIGN (opcode: 11) fp  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=fp, paramReg=1, xmmReg=-1
+Processing quad: ASSIGN (opcode: 11) t7  param_1
+[DEBUG] ASSIGN: result=param_1, arg1=t7, paramReg=2, xmmReg=-1
+Processing quad: ASSIGN (opcode: 11) 42  param_2
+[DEBUG] ASSIGN: result=param_2, arg1=42, paramReg=8, xmmReg=-1
+Processing quad: CALL (opcode: 15) fprintf 3 t8
+Local variable size for function write_file updated to: 64 bytes
+Allocating new local variable t8 (type: Int) at offset 64
+Processing quad: ASSIGN (opcode: 11) fp  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=fp, paramReg=1, xmmReg=-1
+Processing quad: CALL (opcode: 15) fclose 1 t9
+Local variable size for function write_file updated to: 72 bytes
+Allocating new local variable t9 (type: Int) at offset 72
+Processing quad: ASSIGN (opcode: 11) File written successfully
+  t10
+Local variable size for function write_file updated to: 80 bytes
+Allocating new local variable t10 (type: Pointer) at offset 80
+Processing quad: ASSIGN (opcode: 11) t10  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=t10, paramReg=1, xmmReg=-1
+Processing quad: CALL (opcode: 15) printf 1 t11
+Local variable size for function write_file updated to: 88 bytes
+Allocating new local variable t11 (type: Int) at offset 88
+Processing quad: RET (opcode: 17)   0
+Processing quad: JMP (opcode: 12)   t4
+Processing quad: LABEL (opcode: 19)   t3
+Created label t3 at offset 306
+Created label: t3 at offset 306
+Processing quad: ASSIGN (opcode: 11) Failed to open file for writing
+  t12
+Local variable size for function write_file updated to: 96 bytes
+Allocating new local variable t12 (type: Pointer) at offset 96
+Processing quad: ASSIGN (opcode: 11) t12  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=t12, paramReg=1, xmmReg=-1
+Processing quad: CALL (opcode: 15) printf 1 t13
+Local variable size for function write_file updated to: 104 bytes
+Allocating new local variable t13 (type: Int) at offset 104
+Processing quad: ASSIGN (opcode: 11) -1  t15
+Local variable size for function write_file updated to: 112 bytes
+Allocating new local variable t15 (type: Int) at offset 112
+Processing quad: RET (opcode: 17)   t15
+Processing quad: LABEL (opcode: 19)   t4
+Created label t4 at offset 379
+Created label: t4 at offset 379
+Processing quad: ENDFUNC (opcode: 21)   write_file
+Processing quad: FUNC (opcode: 20) int  main
+Function main starts at offset 379
+Processing quad: CALL (opcode: 15) write_file 0 t16
+Internal function call: write_file
+Local variable size for function main updated to: 8 bytes
+Allocating new local variable t16 (type: Int) at offset 8
+Processing quad: RET (opcode: 17)   t16
+Processing quad: ENDFUNC (opcode: 21)   main
+Updated stack allocation for function main to 40 bytes
+Updated stack deallocation for function main at position 407 to 40 bytes
+Updated stack allocation for function write_file to 152 bytes
+Updated stack deallocation for function write_file at position 292 to 152 bytes
+Updated stack deallocation for function write_file at position 370 to 152 bytes
+[updateFunctionCallOffsets] Resolving fopen -> 0x7fff164ac1a0
+[updateFunctionCallOffsets] Replaced NOP with call to fopen at offset 59
+[updateFunctionCallOffsets] Resolving fprintf -> 0x7fff164abb80
+[updateFunctionCallOffsets] Replaced NOP with call to fprintf at offset 136
+[updateFunctionCallOffsets] Resolving fprintf -> 0x7fff164abb80
+[updateFunctionCallOffsets] Replaced NOP with call to fprintf at offset 196
+[updateFunctionCallOffsets] Resolving fclose -> 0x7fff164b1510
+[updateFunctionCallOffsets] Replaced NOP with call to fclose at offset 222
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Replaced NOP with call to printf at offset 264
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Replaced NOP with call to printf at offset 330
+Code generation completed. Total code size: 416 bytes
+Running code...
+Allocated executable memory at: 0x2c604950000
+Code copied to executable memory successfully.
+Found 6 function call(s) to fix
+Fixed fopen call at offset: 3b
+Fixed fprintf call at offset: 88
+Fixed fprintf call at offset: c4
+Fixed fclose call at offset: de
+Fixed printf call at offset: 108
+Fixed printf call at offset: 14a
+
+Disassembling code after fix...
+Code size: 416 bytes
+----------------------------------------
+Initializing Capstone disassembler...
+Architecture: 4, Mode: 8
+Capstone initialized successfully. Handle: 3049510374272
+Disassembling 77 instructions...
+00000000: 55 	push rbp
+00000001: 48 89 e5 	mov rbp, rsp
+00000004: 48 81 ec 98 00 00 00 	sub rsp, 0x98
+0000000b: 48 8d 05 00 00 00 00 	lea rax, [rip]
+00000012: 48 89 85 f8 ff ff ff 	mov qword ptr [rbp - 8], rax
+00000019: 48 8d 05 00 00 00 00 	lea rax, [rip]
+00000020: 48 89 85 f0 ff ff ff 	mov qword ptr [rbp - 0x10], rax
+00000027: 48 8b 85 f8 ff ff ff 	mov rax, qword ptr [rbp - 8]
+0000002e: 48 89 c1 	mov rcx, rax
+00000031: 48 8b 85 f0 ff ff ff 	mov rax, qword ptr [rbp - 0x10]
+00000038: 48 89 c2 	mov rdx, rax
+0000003b: 48 b8 a0 c1 4a 16 ff 7f 00 00 	movabs rax, 0x7fff164ac1a0
+00000045: ff d0 	call rax
+00000047: 89 85 e8 ff ff ff 	mov dword ptr [rbp - 0x18], eax
+0000004d: 8b 85 e8 ff ff ff 	mov eax, dword ptr [rbp - 0x18]
+00000053: 89 85 e0 ff ff ff 	mov dword ptr [rbp - 0x20], eax
+00000059: 8b 85 e0 ff ff ff 	mov eax, dword ptr [rbp - 0x20]
+0000005f: 48 85 c0 	test rax, rax
+00000062: 0f 84 ca 00 00 00 	je 0x132
+00000068: 48 8d 05 00 00 00 00 	lea rax, [rip]
+0000006f: 48 89 85 d8 ff ff ff 	mov qword ptr [rbp - 0x28], rax
+00000076: 8b 85 e0 ff ff ff 	mov eax, dword ptr [rbp - 0x20]
+0000007c: 89 c1 	mov ecx, eax
+0000007e: 48 8b 85 d8 ff ff ff 	mov rax, qword ptr [rbp - 0x28]
+00000085: 48 89 c2 	mov rdx, rax
+00000088: 48 b8 80 bb 4a 16 ff 7f 00 00 	movabs rax, 0x7fff164abb80
+00000092: ff d0 	call rax
+00000094: 89 85 d0 ff ff ff 	mov dword ptr [rbp - 0x30], eax
+0000009a: 48 8d 05 00 00 00 00 	lea rax, [rip]
+000000a1: 48 89 85 c8 ff ff ff 	mov qword ptr [rbp - 0x38], rax
+000000a8: 8b 85 e0 ff ff ff 	mov eax, dword ptr [rbp - 0x20]
+000000ae: 89 c1 	mov ecx, eax
+000000b0: 48 8b 85 c8 ff ff ff 	mov rax, qword ptr [rbp - 0x38]
+000000b7: 48 89 c2 	mov rdx, rax
+000000ba: 49 b8 2a 00 00 00 00 00 00 00 	movabs r8, 0x2a
+000000c4: 48 b8 80 bb 4a 16 ff 7f 00 00 	movabs rax, 0x7fff164abb80
+000000ce: ff d0 	call rax
+000000d0: 89 85 c0 ff ff ff 	mov dword ptr [rbp - 0x40], eax
+000000d6: 8b 85 e0 ff ff ff 	mov eax, dword ptr [rbp - 0x20]
+000000dc: 89 c1 	mov ecx, eax
+000000de: 48 b8 10 15 4b 16 ff 7f 00 00 	movabs rax, 0x7fff164b1510
+000000e8: ff d0 	call rax
+000000ea: 89 85 b8 ff ff ff 	mov dword ptr [rbp - 0x48], eax
+000000f0: 48 8d 05 00 00 00 00 	lea rax, [rip]
+000000f7: 48 89 85 b0 ff ff ff 	mov qword ptr [rbp - 0x50], rax
+000000fe: 48 8b 85 b0 ff ff ff 	mov rax, qword ptr [rbp - 0x50]
+00000105: 48 89 c1 	mov rcx, rax
+00000108: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000112: ff d0 	call rax
+00000114: 89 85 a8 ff ff ff 	mov dword ptr [rbp - 0x58], eax
+0000011a: 48 b8 00 00 00 00 00 00 00 00 	movabs rax, 0
+00000124: 48 81 c4 98 00 00 00 	add rsp, 0x98
+0000012b: 5d 	pop rbp
+0000012c: c3 	ret 
+0000012d: e9 49 00 00 00 	jmp 0x17b
+00000132: 48 8d 05 00 00 00 00 	lea rax, [rip]
+00000139: 48 89 85 a0 ff ff ff 	mov qword ptr [rbp - 0x60], rax
+00000140: 48 8b 85 a0 ff ff ff 	mov rax, qword ptr [rbp - 0x60]
+00000147: 48 89 c1 	mov rcx, rax
+0000014a: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000154: ff d0 	call rax
+00000156: 89 85 98 ff ff ff 	mov dword ptr [rbp - 0x68], eax
+0000015c: 48 b8 ff ff ff ff ff ff ff ff 	movabs rax, 0xffffffffffffffff
+00000166: 89 85 90 ff ff ff 	mov dword ptr [rbp - 0x70], eax
+0000016c: 8b 85 90 ff ff ff 	mov eax, dword ptr [rbp - 0x70]
+00000172: 48 81 c4 98 00 00 00 	add rsp, 0x98
+00000179: 5d 	pop rbp
+0000017a: c3 	ret 
+0000017b: 55 	push rbp
+0000017c: 48 89 e5 	mov rbp, rsp
+0000017f: 48 81 ec 28 00 00 00 	sub rsp, 0x28
+00000186: e8 75 fe ff ff 	call 0
+0000018b: 89 85 f8 ff ff ff 	mov dword ptr [rbp - 8], eax
+00000191: 8b 85 f8 ff ff ff 	mov eax, dword ptr [rbp - 8]
+00000197: 48 81 c4 28 00 00 00 	add rsp, 0x28
+0000019e: 5d 	pop rbp
+0000019f: c3 	ret 
+Closing Capstone handle...
+Capstone handle closed.
+----------------------------------------
+Disassembly completed.
+Attempting to execute JIT code...
+Executable memory address: 0x2c604950000
+Found main function at offset: 379
+JIT function pointer: 0x2c60495017b
+H‰… ÿÿÿH‹… ÿÿÿH‰ÁH¸ì|lVöCode execution completed.
+main() return value: -1
+Freeing executable memory...
+Memory freed successfully.
+
+Script executed successfully.
+Return value: -1
+SymbolTable destructor called. Scope stack size: 1
+Deleting scope: 0x2c604f55180
+SymbolTable destruction completed.

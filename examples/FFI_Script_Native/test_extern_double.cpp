@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <string>
 
-#include <CScriptEngine.h>
+#include <IronCScript.h>
 
 extern "C" {
 
@@ -29,7 +29,7 @@ int main() {
     std::cout << script << std::endl;
     std::cout << std::endl;
 
-    cse::CScriptEngine engine;
+    cse::IronCScript engine;
     engine.registerNativeFunction("add_double", add_double);
 
     std::cout << "Executing..." << std::endl;

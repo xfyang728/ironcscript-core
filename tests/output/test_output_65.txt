@@ -1,0 +1,567 @@
+IronCScript v1.0.0
+Platform: x86-64
+Script: D:\MyCode\IronCScript\ironcscript-core\tests\scripts\09_stdlib/memory/test_memory_functions.c
+
+Executing script...
+[EXEC] JIT compiling script...
+[DEBUG] visitProgram: found 1 statements
+[DEBUG] visitProgram: processing statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found func_decl
+[DEBUG] visitFunc_decl: entered
+[DEBUG] visitFunc_decl: retType = int
+[DEBUG] visitFunc_decl: name = main
+[DEBUG] visitFunc_decl: found block
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found var_decl
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found if_stmt
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found if_stmt
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found expression statement
+[DEBUG] visitStmt: entered
+[DEBUG] visitStmt: found return statement
+[DEBUG] visitFunc_decl: bodyResult has value: 1
+[DEBUG] visitFunc_decl: body = 0x24221986eb0
+[DEBUG] visitFunc_decl: created funcDecl = 0x242219a6a70
+[DEBUG] visitProgram: result has value: 1
+[DEBUG] visitProgram: s is null: 0
+[DEBUG] visitProgram: added statement to block
+[DEBUG] visitProgram: block has 1 statements
+[DEBUG] analyzeBlock: processing 1 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NFunctionDeclarationE
+[DEBUG] analyzeFunctionDeclaration: main
+[DEBUG] analyzeFunctionDeclaration: analyzing 0 arguments
+[DEBUG] analyzeFunctionDeclaration: analyzing body
+[DEBUG] analyzeBlock: processing 6 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse19NPointerDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse19NPointerDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse17NArrayDeclarationE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse12NIfStatementE
+[DEBUG] analyzeBlock: processing 9 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] inferType: array type, returning char*
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] inferType: array type, returning char*
+[DEBUG] inferType: array type, returning char*
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] inferType: array type, returning char*
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse12NIfStatementE
+[DEBUG] analyzeBlock: processing 5 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing 2 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing 1 statements
+[DEBUG] analyzeBlock: processing statement type: N3cse20NExpressionStatementE
+[DEBUG] analyzeBlock: processing statement type: N3cse16NReturnStatementE
+[DEBUG] analyzeFunctionDeclaration: main
+[DEBUG] analyzeCastOperator: targetType=char*
+[DEBUG] Cast quad: CAST char*, ptr1 -> t18
+[DEBUG] analyzeCastOperator: targetType=char*
+[DEBUG] Cast quad: CAST char*, ptr2 -> t25
+[DEBUG] analyzeCastOperator: targetType=char*
+[DEBUG] Cast quad: CAST char*, ptr2 -> t29
+Generating code from intermediate representation...
+Processing quad: FUNC (opcode: 20) int  main
+Function main starts at offset 0
+Processing quad: ARRAY (opcode: 34) 50 char buffer
+Local variable size for function main updated to: 50 bytes
+Array buffer allocated at offset 8 with 50 elements of size 1
+Processing quad: ASSIGN (opcode: 11) 100  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=100, paramReg=1, xmmReg=-1
+Processing quad: CALL (opcode: 15) malloc 1 t0
+Local variable size for function main updated to: 58 bytes
+Allocating new local variable t0 (type: Int) at offset 58
+Processing quad: ASSIGN (opcode: 11) t0  ptr1
+Local variable size for function main updated to: 66 bytes
+Allocating new local variable ptr1 (type: Int) at offset 66
+Processing quad: JMPF (opcode: 13) ptr1  t1
+Processing quad: ASSIGN (opcode: 11) malloc(100) = %p
+  t3
+Local variable size for function main updated to: 74 bytes
+Allocating new local variable t3 (type: Pointer) at offset 74
+Processing quad: ASSIGN (opcode: 11) t3  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=t3, paramReg=1, xmmReg=-1
+Processing quad: ASSIGN (opcode: 11) ptr1  param_1
+[DEBUG] ASSIGN: result=param_1, arg1=ptr1, paramReg=2, xmmReg=-1
+Processing quad: CALL (opcode: 15) printf 2 t4
+Local variable size for function main updated to: 82 bytes
+Allocating new local variable t4 (type: Int) at offset 82
+Processing quad: ASSIGN (opcode: 11) ptr1  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=ptr1, paramReg=1, xmmReg=-1
+Processing quad: ASSIGN (opcode: 11) 0  param_1
+[DEBUG] ASSIGN: result=param_1, arg1=0, paramReg=2, xmmReg=-1
+Processing quad: ASSIGN (opcode: 11) 100  param_2
+[DEBUG] ASSIGN: result=param_2, arg1=100, paramReg=8, xmmReg=-1
+Processing quad: CALL (opcode: 15) memset 3 t5
+Local variable size for function main updated to: 90 bytes
+Allocating new local variable t5 (type: Int) at offset 90
+Processing quad: ASSIGN (opcode: 11) memset(ptr1, 0, 100) done
+  t6
+Local variable size for function main updated to: 98 bytes
+Allocating new local variable t6 (type: Pointer) at offset 98
+Processing quad: ASSIGN (opcode: 11) t6  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=t6, paramReg=1, xmmReg=-1
+Processing quad: CALL (opcode: 15) printf 1 t7
+Local variable size for function main updated to: 106 bytes
+Allocating new local variable t7 (type: Int) at offset 106
+Processing quad: ASSIGN (opcode: 11) Hello, World!  t8
+Local variable size for function main updated to: 114 bytes
+Allocating new local variable t8 (type: Pointer) at offset 114
+Processing quad: ASSIGN (opcode: 11) buffer  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=buffer, paramReg=1, xmmReg=-1
+Processing quad: ASSIGN (opcode: 11) t8  param_1
+[DEBUG] ASSIGN: result=param_1, arg1=t8, paramReg=2, xmmReg=-1
+Processing quad: CALL (opcode: 15) strcpy 2 t9
+Local variable size for function main updated to: 122 bytes
+Allocating new local variable t9 (type: Int) at offset 122
+Processing quad: ASSIGN (opcode: 11) buffer  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=buffer, paramReg=1, xmmReg=-1
+Processing quad: CALL (opcode: 15) strlen 1 t10
+Local variable size for function main updated to: 130 bytes
+Allocating new local variable t10 (type: Int) at offset 130
+Processing quad: ADD (opcode: 0) t10 1 t11
+Local variable size for function main updated to: 138 bytes
+Allocating new local variable t11 (type: Int) at offset 138
+Processing quad: ASSIGN (opcode: 11) ptr1  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=ptr1, paramReg=1, xmmReg=-1
+Processing quad: ASSIGN (opcode: 11) buffer  param_1
+[DEBUG] ASSIGN: result=param_1, arg1=buffer, paramReg=2, xmmReg=-1
+Processing quad: ASSIGN (opcode: 11) t11  param_2
+[DEBUG] ASSIGN: result=param_2, arg1=t11, paramReg=8, xmmReg=-1
+Processing quad: CALL (opcode: 15) memcpy 3 t12
+Local variable size for function main updated to: 146 bytes
+Allocating new local variable t12 (type: Int) at offset 146
+Processing quad: ASSIGN (opcode: 11) memcpy(ptr1, buffer, %d) done
+  t13
+Local variable size for function main updated to: 154 bytes
+Allocating new local variable t13 (type: Pointer) at offset 154
+Processing quad: ASSIGN (opcode: 11) buffer  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=buffer, paramReg=1, xmmReg=-1
+Processing quad: CALL (opcode: 15) strlen 1 t14
+Local variable size for function main updated to: 162 bytes
+Allocating new local variable t14 (type: Int) at offset 162
+Processing quad: ADD (opcode: 0) t14 1 t15
+Local variable size for function main updated to: 170 bytes
+Allocating new local variable t15 (type: Int) at offset 170
+Processing quad: ASSIGN (opcode: 11) t13  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=t13, paramReg=1, xmmReg=-1
+Processing quad: ASSIGN (opcode: 11) t15  param_1
+[DEBUG] ASSIGN: result=param_1, arg1=t15, paramReg=2, xmmReg=-1
+Processing quad: CALL (opcode: 15) printf 2 t16
+Local variable size for function main updated to: 178 bytes
+Allocating new local variable t16 (type: Int) at offset 178
+Processing quad: ASSIGN (opcode: 11) Content: %s
+  t17
+Local variable size for function main updated to: 186 bytes
+Allocating new local variable t17 (type: Pointer) at offset 186
+Processing quad: CAST (opcode: 40) char* ptr1 t18
+Local variable size for function main updated to: 194 bytes
+Allocating new local variable t18 (type: Int) at offset 194
+Processing quad: ASSIGN (opcode: 11) t17  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=t17, paramReg=1, xmmReg=-1
+Processing quad: ASSIGN (opcode: 11) t18  param_1
+[DEBUG] ASSIGN: result=param_1, arg1=t18, paramReg=2, xmmReg=-1
+Processing quad: CALL (opcode: 15) printf 2 t19
+Local variable size for function main updated to: 202 bytes
+Allocating new local variable t19 (type: Int) at offset 202
+Processing quad: ASSIGN (opcode: 11) ptr1  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=ptr1, paramReg=1, xmmReg=-1
+Processing quad: ASSIGN (opcode: 11) 200  param_1
+[DEBUG] ASSIGN: result=param_1, arg1=200, paramReg=2, xmmReg=-1
+Processing quad: CALL (opcode: 15) realloc 2 t20
+Local variable size for function main updated to: 210 bytes
+Allocating new local variable t20 (type: Int) at offset 210
+Processing quad: ASSIGN (opcode: 11) t20  ptr2
+Local variable size for function main updated to: 218 bytes
+Allocating new local variable ptr2 (type: Int) at offset 218
+Processing quad: JMPF (opcode: 13) ptr2  t21
+Processing quad: ASSIGN (opcode: 11) realloc(ptr1, 200) = %p
+  t23
+Local variable size for function main updated to: 226 bytes
+Allocating new local variable t23 (type: Pointer) at offset 226
+Processing quad: ASSIGN (opcode: 11) t23  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=t23, paramReg=1, xmmReg=-1
+Processing quad: ASSIGN (opcode: 11) ptr2  param_1
+[DEBUG] ASSIGN: result=param_1, arg1=ptr2, paramReg=2, xmmReg=-1
+Processing quad: CALL (opcode: 15) printf 2 t24
+Local variable size for function main updated to: 234 bytes
+Allocating new local variable t24 (type: Int) at offset 234
+Processing quad: CAST (opcode: 40) char* ptr2 t25
+Local variable size for function main updated to: 242 bytes
+Allocating new local variable t25 (type: Int) at offset 242
+Processing quad: ASSIGN (opcode: 11)  Reallocated  t26
+Local variable size for function main updated to: 250 bytes
+Allocating new local variable t26 (type: Pointer) at offset 250
+Processing quad: ASSIGN (opcode: 11) t25  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=t25, paramReg=1, xmmReg=-1
+Processing quad: ASSIGN (opcode: 11) t26  param_1
+[DEBUG] ASSIGN: result=param_1, arg1=t26, paramReg=2, xmmReg=-1
+Processing quad: CALL (opcode: 15) strcat 2 t27
+Local variable size for function main updated to: 258 bytes
+Allocating new local variable t27 (type: Int) at offset 258
+Processing quad: ASSIGN (opcode: 11) Content after realloc: %s
+  t28
+Local variable size for function main updated to: 266 bytes
+Allocating new local variable t28 (type: Pointer) at offset 266
+Processing quad: CAST (opcode: 40) char* ptr2 t29
+Local variable size for function main updated to: 274 bytes
+Allocating new local variable t29 (type: Int) at offset 274
+Processing quad: ASSIGN (opcode: 11) t28  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=t28, paramReg=1, xmmReg=-1
+Processing quad: ASSIGN (opcode: 11) t29  param_1
+[DEBUG] ASSIGN: result=param_1, arg1=t29, paramReg=2, xmmReg=-1
+Processing quad: CALL (opcode: 15) printf 2 t30
+Local variable size for function main updated to: 282 bytes
+Allocating new local variable t30 (type: Int) at offset 282
+Processing quad: ASSIGN (opcode: 11) ptr2  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=ptr2, paramReg=1, xmmReg=-1
+Processing quad: CALL (opcode: 15) free 1 t31
+Local variable size for function main updated to: 290 bytes
+Allocating new local variable t31 (type: Int) at offset 290
+Processing quad: ASSIGN (opcode: 11) free(ptr2) done
+  t32
+Local variable size for function main updated to: 298 bytes
+Allocating new local variable t32 (type: Pointer) at offset 298
+Processing quad: ASSIGN (opcode: 11) t32  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=t32, paramReg=1, xmmReg=-1
+Processing quad: CALL (opcode: 15) printf 1 t33
+Local variable size for function main updated to: 306 bytes
+Allocating new local variable t33 (type: Int) at offset 306
+Processing quad: JMP (opcode: 12)   t22
+Processing quad: LABEL (opcode: 19)   t21
+Created label t21 at offset 829
+Created label: t21 at offset 829
+Processing quad: ASSIGN (opcode: 11) realloc failed
+  t34
+Local variable size for function main updated to: 314 bytes
+Allocating new local variable t34 (type: Pointer) at offset 314
+Processing quad: ASSIGN (opcode: 11) t34  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=t34, paramReg=1, xmmReg=-1
+Processing quad: CALL (opcode: 15) printf 1 t35
+Local variable size for function main updated to: 322 bytes
+Allocating new local variable t35 (type: Int) at offset 322
+Processing quad: ASSIGN (opcode: 11) ptr1  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=ptr1, paramReg=1, xmmReg=-1
+Processing quad: CALL (opcode: 15) free 1 t36
+Local variable size for function main updated to: 330 bytes
+Allocating new local variable t36 (type: Int) at offset 330
+Processing quad: LABEL (opcode: 19)   t22
+Created label t22 at offset 897
+Created label: t22 at offset 897
+Processing quad: JMP (opcode: 12)   t2
+Processing quad: LABEL (opcode: 19)   t1
+Created label t1 at offset 902
+Created label: t1 at offset 902
+Processing quad: ASSIGN (opcode: 11) malloc failed
+  t37
+Local variable size for function main updated to: 338 bytes
+Allocating new local variable t37 (type: Pointer) at offset 338
+Processing quad: ASSIGN (opcode: 11) t37  param_0
+[DEBUG] ASSIGN: result=param_0, arg1=t37, paramReg=1, xmmReg=-1
+Processing quad: CALL (opcode: 15) printf 1 t38
+Local variable size for function main updated to: 346 bytes
+Allocating new local variable t38 (type: Int) at offset 346
+Processing quad: LABEL (opcode: 19)   t2
+Created label t2 at offset 944
+Created label: t2 at offset 944
+Processing quad: RET (opcode: 17)   0
+Processing quad: ENDFUNC (opcode: 21)   main
+Updated stack allocation for function main to 392 bytes
+Updated stack deallocation for function main at position 954 to 392 bytes
+[updateFunctionCallOffsets] Resolving malloc -> 0x7ff6566c7c0a
+[updateFunctionCallOffsets] Replaced NOP with call to malloc at offset 21
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Replaced NOP with call to printf at offset 98
+[updateFunctionCallOffsets] Resolving memset -> 0x7ff6566c7c8a
+[updateFunctionCallOffsets] Replaced NOP with call to memset at offset 144
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Replaced NOP with call to printf at offset 186
+[updateFunctionCallOffsets] Resolving strcpy -> 0x7fff164daf70
+[updateFunctionCallOffsets] Replaced NOP with call to strcpy at offset 238
+[updateFunctionCallOffsets] Resolving strlen -> 0x7fff164db7b0
+[updateFunctionCallOffsets] Replaced NOP with call to strlen at offset 266
+[updateFunctionCallOffsets] Resolving memcpy -> 0x7ff6566c7cba
+[updateFunctionCallOffsets] Replaced NOP with call to memcpy at offset 336
+[updateFunctionCallOffsets] Resolving strlen -> 0x7fff164db7b0
+[updateFunctionCallOffsets] Replaced NOP with call to strlen at offset 378
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Replaced NOP with call to printf at offset 439
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Replaced NOP with call to printf at offset 501
+[updateFunctionCallOffsets] Resolving realloc -> 0x7fff1647d720
+[updateFunctionCallOffsets] Replaced NOP with call to realloc at offset 537
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Replaced NOP with call to printf at offset 614
+[updateFunctionCallOffsets] Resolving strcat -> 0x7fff164daeb0
+[updateFunctionCallOffsets] Replaced NOP with call to strcat at offset 676
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Replaced NOP with call to printf at offset 738
+[updateFunctionCallOffsets] Resolving free -> 0x7ff6566c7c62
+[updateFunctionCallOffsets] Replaced NOP with call to free at offset 764
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Replaced NOP with call to printf at offset 806
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Replaced NOP with call to printf at offset 853
+[updateFunctionCallOffsets] Resolving free -> 0x7ff6566c7c62
+[updateFunctionCallOffsets] Replaced NOP with call to free at offset 879
+[updateFunctionCallOffsets] Resolving printf -> 0x7ff6566c7cec
+[updateFunctionCallOffsets] Replaced NOP with call to printf at offset 926
+Code generation completed. Total code size: 963 bytes
+Running code...
+Allocated executable memory at: 0x24221230000
+Code copied to executable memory successfully.
+Found 19 function call(s) to fix
+Fixed malloc call at offset: 15
+Fixed printf call at offset: 62
+Fixed memset call at offset: 90
+Fixed printf call at offset: ba
+Fixed strcpy call at offset: ee
+Fixed strlen call at offset: 10a
+Fixed memcpy call at offset: 150
+Fixed strlen call at offset: 17a
+Fixed printf call at offset: 1b7
+Fixed printf call at offset: 1f5
+Fixed realloc call at offset: 219
+Fixed printf call at offset: 266
+Fixed strcat call at offset: 2a4
+Fixed printf call at offset: 2e2
+Fixed free call at offset: 2fc
+Fixed printf call at offset: 326
+Fixed printf call at offset: 355
+Fixed free call at offset: 36f
+Fixed printf call at offset: 39e
+
+Disassembling code after fix...
+Code size: 963 bytes
+----------------------------------------
+Initializing Capstone disassembler...
+Architecture: 4, Mode: 8
+Capstone initialized successfully. Handle: 2483054866928
+Disassembling 170 instructions...
+00000000: 55 	push rbp
+00000001: 48 89 e5 	mov rbp, rsp
+00000004: 48 81 ec 88 01 00 00 	sub rsp, 0x188
+0000000b: 48 b9 64 00 00 00 00 00 00 00 	movabs rcx, 0x64
+00000015: 48 b8 0a 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7c0a
+0000001f: ff d0 	call rax
+00000021: 89 85 c6 ff ff ff 	mov dword ptr [rbp - 0x3a], eax
+00000027: 8b 85 c6 ff ff ff 	mov eax, dword ptr [rbp - 0x3a]
+0000002d: 89 85 be ff ff ff 	mov dword ptr [rbp - 0x42], eax
+00000033: 8b 85 be ff ff ff 	mov eax, dword ptr [rbp - 0x42]
+00000039: 48 85 c0 	test rax, rax
+0000003c: 0f 84 44 03 00 00 	je 0x386
+00000042: 48 8d 05 00 00 00 00 	lea rax, [rip]
+00000049: 48 89 85 b6 ff ff ff 	mov qword ptr [rbp - 0x4a], rax
+00000050: 48 8b 85 b6 ff ff ff 	mov rax, qword ptr [rbp - 0x4a]
+00000057: 48 89 c1 	mov rcx, rax
+0000005a: 8b 85 be ff ff ff 	mov eax, dword ptr [rbp - 0x42]
+00000060: 89 c2 	mov edx, eax
+00000062: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+0000006c: ff d0 	call rax
+0000006e: 89 85 ae ff ff ff 	mov dword ptr [rbp - 0x52], eax
+00000074: 8b 85 be ff ff ff 	mov eax, dword ptr [rbp - 0x42]
+0000007a: 89 c1 	mov ecx, eax
+0000007c: 48 ba 00 00 00 00 00 00 00 00 	movabs rdx, 0
+00000086: 49 b8 64 00 00 00 00 00 00 00 	movabs r8, 0x64
+00000090: 48 b8 8a 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7c8a
+0000009a: ff d0 	call rax
+0000009c: 89 85 a6 ff ff ff 	mov dword ptr [rbp - 0x5a], eax
+000000a2: 48 8d 05 00 00 00 00 	lea rax, [rip]
+000000a9: 48 89 85 9e ff ff ff 	mov qword ptr [rbp - 0x62], rax
+000000b0: 48 8b 85 9e ff ff ff 	mov rax, qword ptr [rbp - 0x62]
+000000b7: 48 89 c1 	mov rcx, rax
+000000ba: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+000000c4: ff d0 	call rax
+000000c6: 89 85 96 ff ff ff 	mov dword ptr [rbp - 0x6a], eax
+000000cc: 48 8d 05 00 00 00 00 	lea rax, [rip]
+000000d3: 48 89 85 8e ff ff ff 	mov qword ptr [rbp - 0x72], rax
+000000da: 48 8d 85 f8 ff ff ff 	lea rax, [rbp - 8]
+000000e1: 48 89 c1 	mov rcx, rax
+000000e4: 48 8b 85 8e ff ff ff 	mov rax, qword ptr [rbp - 0x72]
+000000eb: 48 89 c2 	mov rdx, rax
+000000ee: 48 b8 70 af 4d 16 ff 7f 00 00 	movabs rax, 0x7fff164daf70
+000000f8: ff d0 	call rax
+000000fa: 89 85 86 ff ff ff 	mov dword ptr [rbp - 0x7a], eax
+00000100: 48 8d 85 f8 ff ff ff 	lea rax, [rbp - 8]
+00000107: 48 89 c1 	mov rcx, rax
+0000010a: 48 b8 b0 b7 4d 16 ff 7f 00 00 	movabs rax, 0x7fff164db7b0
+00000114: ff d0 	call rax
+00000116: 89 85 7e ff ff ff 	mov dword ptr [rbp - 0x82], eax
+0000011c: 8b 85 7e ff ff ff 	mov eax, dword ptr [rbp - 0x82]
+00000122: 48 b9 01 00 00 00 00 00 00 00 	movabs rcx, 1
+0000012c: 48 01 c8 	add rax, rcx
+0000012f: 89 85 76 ff ff ff 	mov dword ptr [rbp - 0x8a], eax
+00000135: 8b 85 be ff ff ff 	mov eax, dword ptr [rbp - 0x42]
+0000013b: 89 c1 	mov ecx, eax
+0000013d: 48 8d 85 f8 ff ff ff 	lea rax, [rbp - 8]
+00000144: 48 89 c2 	mov rdx, rax
+00000147: 8b 85 76 ff ff ff 	mov eax, dword ptr [rbp - 0x8a]
+0000014d: 41 89 c0 	mov r8d, eax
+00000150: 48 b8 ba 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cba
+0000015a: ff d0 	call rax
+0000015c: 89 85 6e ff ff ff 	mov dword ptr [rbp - 0x92], eax
+00000162: 48 8d 05 00 00 00 00 	lea rax, [rip]
+00000169: 48 89 85 66 ff ff ff 	mov qword ptr [rbp - 0x9a], rax
+00000170: 48 8d 85 f8 ff ff ff 	lea rax, [rbp - 8]
+00000177: 48 89 c1 	mov rcx, rax
+0000017a: 48 b8 b0 b7 4d 16 ff 7f 00 00 	movabs rax, 0x7fff164db7b0
+00000184: ff d0 	call rax
+00000186: 89 85 5e ff ff ff 	mov dword ptr [rbp - 0xa2], eax
+0000018c: 8b 85 5e ff ff ff 	mov eax, dword ptr [rbp - 0xa2]
+00000192: 48 b9 01 00 00 00 00 00 00 00 	movabs rcx, 1
+0000019c: 48 01 c8 	add rax, rcx
+0000019f: 89 85 56 ff ff ff 	mov dword ptr [rbp - 0xaa], eax
+000001a5: 48 8b 85 66 ff ff ff 	mov rax, qword ptr [rbp - 0x9a]
+000001ac: 48 89 c1 	mov rcx, rax
+000001af: 8b 85 56 ff ff ff 	mov eax, dword ptr [rbp - 0xaa]
+000001b5: 89 c2 	mov edx, eax
+000001b7: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+000001c1: ff d0 	call rax
+000001c3: 89 85 4e ff ff ff 	mov dword ptr [rbp - 0xb2], eax
+000001c9: 48 8d 05 00 00 00 00 	lea rax, [rip]
+000001d0: 48 89 85 46 ff ff ff 	mov qword ptr [rbp - 0xba], rax
+000001d7: 8b 85 be ff ff ff 	mov eax, dword ptr [rbp - 0x42]
+000001dd: 89 85 3e ff ff ff 	mov dword ptr [rbp - 0xc2], eax
+000001e3: 48 8b 85 46 ff ff ff 	mov rax, qword ptr [rbp - 0xba]
+000001ea: 48 89 c1 	mov rcx, rax
+000001ed: 8b 85 3e ff ff ff 	mov eax, dword ptr [rbp - 0xc2]
+000001f3: 89 c2 	mov edx, eax
+000001f5: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+000001ff: ff d0 	call rax
+00000201: 89 85 36 ff ff ff 	mov dword ptr [rbp - 0xca], eax
+00000207: 8b 85 be ff ff ff 	mov eax, dword ptr [rbp - 0x42]
+0000020d: 89 c1 	mov ecx, eax
+0000020f: 48 ba c8 00 00 00 00 00 00 00 	movabs rdx, 0xc8
+00000219: 48 b8 20 d7 47 16 ff 7f 00 00 	movabs rax, 0x7fff1647d720
+00000223: ff d0 	call rax
+00000225: 89 85 2e ff ff ff 	mov dword ptr [rbp - 0xd2], eax
+0000022b: 8b 85 2e ff ff ff 	mov eax, dword ptr [rbp - 0xd2]
+00000231: 89 85 26 ff ff ff 	mov dword ptr [rbp - 0xda], eax
+00000237: 8b 85 26 ff ff ff 	mov eax, dword ptr [rbp - 0xda]
+0000023d: 48 85 c0 	test rax, rax
+00000240: 0f 84 f7 00 00 00 	je 0x33d
+00000246: 48 8d 05 00 00 00 00 	lea rax, [rip]
+0000024d: 48 89 85 1e ff ff ff 	mov qword ptr [rbp - 0xe2], rax
+00000254: 48 8b 85 1e ff ff ff 	mov rax, qword ptr [rbp - 0xe2]
+0000025b: 48 89 c1 	mov rcx, rax
+0000025e: 8b 85 26 ff ff ff 	mov eax, dword ptr [rbp - 0xda]
+00000264: 89 c2 	mov edx, eax
+00000266: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000270: ff d0 	call rax
+00000272: 89 85 16 ff ff ff 	mov dword ptr [rbp - 0xea], eax
+00000278: 8b 85 26 ff ff ff 	mov eax, dword ptr [rbp - 0xda]
+0000027e: 89 85 0e ff ff ff 	mov dword ptr [rbp - 0xf2], eax
+00000284: 48 8d 05 00 00 00 00 	lea rax, [rip]
+0000028b: 48 89 85 06 ff ff ff 	mov qword ptr [rbp - 0xfa], rax
+00000292: 8b 85 0e ff ff ff 	mov eax, dword ptr [rbp - 0xf2]
+00000298: 89 c1 	mov ecx, eax
+0000029a: 48 8b 85 06 ff ff ff 	mov rax, qword ptr [rbp - 0xfa]
+000002a1: 48 89 c2 	mov rdx, rax
+000002a4: 48 b8 b0 ae 4d 16 ff 7f 00 00 	movabs rax, 0x7fff164daeb0
+000002ae: ff d0 	call rax
+000002b0: 89 85 fe fe ff ff 	mov dword ptr [rbp - 0x102], eax
+000002b6: 48 8d 05 00 00 00 00 	lea rax, [rip]
+000002bd: 48 89 85 f6 fe ff ff 	mov qword ptr [rbp - 0x10a], rax
+000002c4: 8b 85 26 ff ff ff 	mov eax, dword ptr [rbp - 0xda]
+000002ca: 89 85 ee fe ff ff 	mov dword ptr [rbp - 0x112], eax
+000002d0: 48 8b 85 f6 fe ff ff 	mov rax, qword ptr [rbp - 0x10a]
+000002d7: 48 89 c1 	mov rcx, rax
+000002da: 8b 85 ee fe ff ff 	mov eax, dword ptr [rbp - 0x112]
+000002e0: 89 c2 	mov edx, eax
+000002e2: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+000002ec: ff d0 	call rax
+000002ee: 89 85 e6 fe ff ff 	mov dword ptr [rbp - 0x11a], eax
+000002f4: 8b 85 26 ff ff ff 	mov eax, dword ptr [rbp - 0xda]
+000002fa: 89 c1 	mov ecx, eax
+000002fc: 48 b8 62 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7c62
+00000306: ff d0 	call rax
+00000308: 89 85 de fe ff ff 	mov dword ptr [rbp - 0x122], eax
+0000030e: 48 8d 05 00 00 00 00 	lea rax, [rip]
+00000315: 48 89 85 d6 fe ff ff 	mov qword ptr [rbp - 0x12a], rax
+0000031c: 48 8b 85 d6 fe ff ff 	mov rax, qword ptr [rbp - 0x12a]
+00000323: 48 89 c1 	mov rcx, rax
+00000326: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+00000330: ff d0 	call rax
+00000332: 89 85 ce fe ff ff 	mov dword ptr [rbp - 0x132], eax
+00000338: e9 44 00 00 00 	jmp 0x381
+0000033d: 48 8d 05 00 00 00 00 	lea rax, [rip]
+00000344: 48 89 85 c6 fe ff ff 	mov qword ptr [rbp - 0x13a], rax
+0000034b: 48 8b 85 c6 fe ff ff 	mov rax, qword ptr [rbp - 0x13a]
+00000352: 48 89 c1 	mov rcx, rax
+00000355: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+0000035f: ff d0 	call rax
+00000361: 89 85 be fe ff ff 	mov dword ptr [rbp - 0x142], eax
+00000367: 8b 85 be ff ff ff 	mov eax, dword ptr [rbp - 0x42]
+0000036d: 89 c1 	mov ecx, eax
+0000036f: 48 b8 62 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7c62
+00000379: ff d0 	call rax
+0000037b: 89 85 b6 fe ff ff 	mov dword ptr [rbp - 0x14a], eax
+00000381: e9 2a 00 00 00 	jmp 0x3b0
+00000386: 48 8d 05 00 00 00 00 	lea rax, [rip]
+0000038d: 48 89 85 ae fe ff ff 	mov qword ptr [rbp - 0x152], rax
+00000394: 48 8b 85 ae fe ff ff 	mov rax, qword ptr [rbp - 0x152]
+0000039b: 48 89 c1 	mov rcx, rax
+0000039e: 48 b8 ec 7c 6c 56 f6 7f 00 00 	movabs rax, 0x7ff6566c7cec
+000003a8: ff d0 	call rax
+000003aa: 89 85 a6 fe ff ff 	mov dword ptr [rbp - 0x15a], eax
+000003b0: 48 b8 00 00 00 00 00 00 00 00 	movabs rax, 0
+000003ba: 48 81 c4 88 01 00 00 	add rsp, 0x188
+000003c1: 5d 	pop rbp
+000003c2: c3 	ret 
+Closing Capstone handle...
+Capstone handle closed.
+----------------------------------------
+Disassembly completed.
+Attempting to execute JIT code...
+Executable memory address: 0x24221230000
+Found main function at offset: 0
+JIT function pointer: 0x24221230000

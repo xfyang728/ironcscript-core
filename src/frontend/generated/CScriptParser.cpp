@@ -1,7 +1,8 @@
 
-// Generated from D:/MyCode/CScriptEngine/src/frontend/parser/CScript.g4 by ANTLR 4.13.2
+// Generated from D:/MyCode/IronCScript/ironcscript-core/src/frontend/parser/CScript.g4 by ANTLR 4.13.2
 
 
+#include "CScriptListener.h"
 #include "CScriptVisitor.h"
 
 #include "CScriptParser.h"
@@ -389,6 +390,18 @@ size_t CScriptParser::ProgramContext::getRuleIndex() const {
   return CScriptParser::RuleProgram;
 }
 
+void CScriptParser::ProgramContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterProgram(this);
+}
+
+void CScriptParser::ProgramContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitProgram(this);
+}
+
 
 std::any CScriptParser::ProgramContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -536,6 +549,18 @@ CScriptParser::Include_stmtContext* CScriptParser::StmtContext::include_stmt() {
 
 size_t CScriptParser::StmtContext::getRuleIndex() const {
   return CScriptParser::RuleStmt;
+}
+
+void CScriptParser::StmtContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterStmt(this);
+}
+
+void CScriptParser::StmtContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitStmt(this);
 }
 
 
@@ -796,6 +821,18 @@ size_t CScriptParser::Import_stmtContext::getRuleIndex() const {
   return CScriptParser::RuleImport_stmt;
 }
 
+void CScriptParser::Import_stmtContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterImport_stmt(this);
+}
+
+void CScriptParser::Import_stmtContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitImport_stmt(this);
+}
+
 
 std::any CScriptParser::Import_stmtContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -905,6 +942,18 @@ size_t CScriptParser::Include_stmtContext::getRuleIndex() const {
   return CScriptParser::RuleInclude_stmt;
 }
 
+void CScriptParser::Include_stmtContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterInclude_stmt(this);
+}
+
+void CScriptParser::Include_stmtContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitInclude_stmt(this);
+}
+
 
 std::any CScriptParser::Include_stmtContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -976,6 +1025,18 @@ CScriptParser::Func_decl_argsContext* CScriptParser::Register_callback_stmtConte
 
 size_t CScriptParser::Register_callback_stmtContext::getRuleIndex() const {
   return CScriptParser::RuleRegister_callback_stmt;
+}
+
+void CScriptParser::Register_callback_stmtContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterRegister_callback_stmt(this);
+}
+
+void CScriptParser::Register_callback_stmtContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitRegister_callback_stmt(this);
 }
 
 
@@ -1059,6 +1120,18 @@ CScriptParser::StmtContext* CScriptParser::BlockContext::stmt(size_t i) {
 
 size_t CScriptParser::BlockContext::getRuleIndex() const {
   return CScriptParser::RuleBlock;
+}
+
+void CScriptParser::BlockContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterBlock(this);
+}
+
+void CScriptParser::BlockContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitBlock(this);
 }
 
 
@@ -1189,6 +1262,18 @@ tree::TerminalNode* CScriptParser::Var_declContext::STRUCT_KW() {
 
 size_t CScriptParser::Var_declContext::getRuleIndex() const {
   return CScriptParser::RuleVar_decl;
+}
+
+void CScriptParser::Var_declContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterVar_decl(this);
+}
+
+void CScriptParser::Var_declContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitVar_decl(this);
 }
 
 
@@ -1375,6 +1460,18 @@ size_t CScriptParser::Func_declContext::getRuleIndex() const {
   return CScriptParser::RuleFunc_decl;
 }
 
+void CScriptParser::Func_declContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterFunc_decl(this);
+}
+
+void CScriptParser::Func_declContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitFunc_decl(this);
+}
+
 
 std::any CScriptParser::Func_declContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -1466,6 +1563,18 @@ size_t CScriptParser::Extern_declContext::getRuleIndex() const {
   return CScriptParser::RuleExtern_decl;
 }
 
+void CScriptParser::Extern_declContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterExtern_decl(this);
+}
+
+void CScriptParser::Extern_declContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitExtern_decl(this);
+}
+
 
 std::any CScriptParser::Extern_declContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -1547,6 +1656,18 @@ size_t CScriptParser::Func_decl_argsContext::getRuleIndex() const {
   return CScriptParser::RuleFunc_decl_args;
 }
 
+void CScriptParser::Func_decl_argsContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterFunc_decl_args(this);
+}
+
+void CScriptParser::Func_decl_argsContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitFunc_decl_args(this);
+}
+
 
 std::any CScriptParser::Func_decl_argsContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -1609,6 +1730,18 @@ size_t CScriptParser::IdentContext::getRuleIndex() const {
   return CScriptParser::RuleIdent;
 }
 
+void CScriptParser::IdentContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterIdent(this);
+}
+
+void CScriptParser::IdentContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitIdent(this);
+}
+
 
 std::any CScriptParser::IdentContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -1668,6 +1801,18 @@ tree::TerminalNode* CScriptParser::TypeContext::ENUM_KW() {
 
 size_t CScriptParser::TypeContext::getRuleIndex() const {
   return CScriptParser::RuleType;
+}
+
+void CScriptParser::TypeContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterType(this);
+}
+
+void CScriptParser::TypeContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitType(this);
 }
 
 
@@ -1767,6 +1912,18 @@ size_t CScriptParser::Struct_declContext::getRuleIndex() const {
   return CScriptParser::RuleStruct_decl;
 }
 
+void CScriptParser::Struct_declContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterStruct_decl(this);
+}
+
+void CScriptParser::Struct_declContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitStruct_decl(this);
+}
+
 
 std::any CScriptParser::Struct_declContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -1840,6 +1997,18 @@ size_t CScriptParser::Union_declContext::getRuleIndex() const {
   return CScriptParser::RuleUnion_decl;
 }
 
+void CScriptParser::Union_declContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterUnion_decl(this);
+}
+
+void CScriptParser::Union_declContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitUnion_decl(this);
+}
+
 
 std::any CScriptParser::Union_declContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -1907,6 +2076,18 @@ tree::TerminalNode* CScriptParser::Struct_membersContext::SEMI(size_t i) {
 
 size_t CScriptParser::Struct_membersContext::getRuleIndex() const {
   return CScriptParser::RuleStruct_members;
+}
+
+void CScriptParser::Struct_membersContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterStruct_members(this);
+}
+
+void CScriptParser::Struct_membersContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitStruct_members(this);
 }
 
 
@@ -1994,6 +2175,18 @@ size_t CScriptParser::Enum_declContext::getRuleIndex() const {
   return CScriptParser::RuleEnum_decl;
 }
 
+void CScriptParser::Enum_declContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterEnum_decl(this);
+}
+
+void CScriptParser::Enum_declContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitEnum_decl(this);
+}
+
 
 std::any CScriptParser::Enum_declContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -2072,6 +2265,18 @@ size_t CScriptParser::Enum_listContext::getRuleIndex() const {
   return CScriptParser::RuleEnum_list;
 }
 
+void CScriptParser::Enum_listContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterEnum_list(this);
+}
+
+void CScriptParser::Enum_listContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitEnum_list(this);
+}
+
 
 std::any CScriptParser::Enum_listContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -2140,6 +2345,18 @@ CScriptParser::ExprContext* CScriptParser::Enum_itemContext::expr() {
 
 size_t CScriptParser::Enum_itemContext::getRuleIndex() const {
   return CScriptParser::RuleEnum_item;
+}
+
+void CScriptParser::Enum_itemContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterEnum_item(this);
+}
+
+void CScriptParser::Enum_itemContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitEnum_item(this);
 }
 
 
@@ -2212,6 +2429,18 @@ tree::TerminalNode* CScriptParser::Init_listContext::COMMA(size_t i) {
 
 size_t CScriptParser::Init_listContext::getRuleIndex() const {
   return CScriptParser::RuleInit_list;
+}
+
+void CScriptParser::Init_listContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterInit_list(this);
+}
+
+void CScriptParser::Init_listContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitInit_list(this);
 }
 
 
@@ -2346,6 +2575,18 @@ tree::TerminalNode* CScriptParser::ExprContext::MOD_EQ() {
 
 size_t CScriptParser::ExprContext::getRuleIndex() const {
   return CScriptParser::RuleExpr;
+}
+
+void CScriptParser::ExprContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterExpr(this);
+}
+
+void CScriptParser::ExprContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitExpr(this);
 }
 
 
@@ -2541,6 +2782,18 @@ size_t CScriptParser::Or_exprContext::getRuleIndex() const {
   return CScriptParser::RuleOr_expr;
 }
 
+void CScriptParser::Or_exprContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterOr_expr(this);
+}
+
+void CScriptParser::Or_exprContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitOr_expr(this);
+}
+
 
 std::any CScriptParser::Or_exprContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -2630,6 +2883,18 @@ tree::TerminalNode* CScriptParser::And_exprContext::AND() {
 
 size_t CScriptParser::And_exprContext::getRuleIndex() const {
   return CScriptParser::RuleAnd_expr;
+}
+
+void CScriptParser::And_exprContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterAnd_expr(this);
+}
+
+void CScriptParser::And_exprContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitAnd_expr(this);
 }
 
 
@@ -2723,6 +2988,18 @@ size_t CScriptParser::Bit_or_exprContext::getRuleIndex() const {
   return CScriptParser::RuleBit_or_expr;
 }
 
+void CScriptParser::Bit_or_exprContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterBit_or_expr(this);
+}
+
+void CScriptParser::Bit_or_exprContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitBit_or_expr(this);
+}
+
 
 std::any CScriptParser::Bit_or_exprContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -2814,6 +3091,18 @@ size_t CScriptParser::Bit_xor_exprContext::getRuleIndex() const {
   return CScriptParser::RuleBit_xor_expr;
 }
 
+void CScriptParser::Bit_xor_exprContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterBit_xor_expr(this);
+}
+
+void CScriptParser::Bit_xor_exprContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitBit_xor_expr(this);
+}
+
 
 std::any CScriptParser::Bit_xor_exprContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -2903,6 +3192,18 @@ tree::TerminalNode* CScriptParser::Bit_and_exprContext::BITAND() {
 
 size_t CScriptParser::Bit_and_exprContext::getRuleIndex() const {
   return CScriptParser::RuleBit_and_expr;
+}
+
+void CScriptParser::Bit_and_exprContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterBit_and_expr(this);
+}
+
+void CScriptParser::Bit_and_exprContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitBit_and_expr(this);
 }
 
 
@@ -2998,6 +3299,18 @@ tree::TerminalNode* CScriptParser::Eq_exprContext::NEQ() {
 
 size_t CScriptParser::Eq_exprContext::getRuleIndex() const {
   return CScriptParser::RuleEq_expr;
+}
+
+void CScriptParser::Eq_exprContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterEq_expr(this);
+}
+
+void CScriptParser::Eq_exprContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitEq_expr(this);
 }
 
 
@@ -3124,6 +3437,18 @@ tree::TerminalNode* CScriptParser::Rel_exprContext::GTE() {
 
 size_t CScriptParser::Rel_exprContext::getRuleIndex() const {
   return CScriptParser::RuleRel_expr;
+}
+
+void CScriptParser::Rel_exprContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterRel_expr(this);
+}
+
+void CScriptParser::Rel_exprContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitRel_expr(this);
 }
 
 
@@ -3270,6 +3595,18 @@ size_t CScriptParser::Shift_exprContext::getRuleIndex() const {
   return CScriptParser::RuleShift_expr;
 }
 
+void CScriptParser::Shift_exprContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterShift_expr(this);
+}
+
+void CScriptParser::Shift_exprContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitShift_expr(this);
+}
+
 
 std::any CScriptParser::Shift_exprContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -3386,6 +3723,18 @@ tree::TerminalNode* CScriptParser::Add_exprContext::MINUS() {
 
 size_t CScriptParser::Add_exprContext::getRuleIndex() const {
   return CScriptParser::RuleAdd_expr;
+}
+
+void CScriptParser::Add_exprContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterAdd_expr(this);
+}
+
+void CScriptParser::Add_exprContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitAdd_expr(this);
 }
 
 
@@ -3508,6 +3857,18 @@ tree::TerminalNode* CScriptParser::Mul_exprContext::MOD() {
 
 size_t CScriptParser::Mul_exprContext::getRuleIndex() const {
   return CScriptParser::RuleMul_expr;
+}
+
+void CScriptParser::Mul_exprContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterMul_expr(this);
+}
+
+void CScriptParser::Mul_exprContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitMul_expr(this);
 }
 
 
@@ -3675,6 +4036,18 @@ tree::TerminalNode* CScriptParser::Unary_exprContext::DEC() {
 
 size_t CScriptParser::Unary_exprContext::getRuleIndex() const {
   return CScriptParser::RuleUnary_expr;
+}
+
+void CScriptParser::Unary_exprContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterUnary_expr(this);
+}
+
+void CScriptParser::Unary_exprContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitUnary_expr(this);
 }
 
 
@@ -3861,6 +4234,18 @@ size_t CScriptParser::Primary_exprContext::getRuleIndex() const {
   return CScriptParser::RulePrimary_expr;
 }
 
+void CScriptParser::Primary_exprContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterPrimary_expr(this);
+}
+
+void CScriptParser::Primary_exprContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitPrimary_expr(this);
+}
+
 
 std::any CScriptParser::Primary_exprContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -4024,6 +4409,18 @@ size_t CScriptParser::Call_argsContext::getRuleIndex() const {
   return CScriptParser::RuleCall_args;
 }
 
+void CScriptParser::Call_argsContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterCall_args(this);
+}
+
+void CScriptParser::Call_argsContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitCall_args(this);
+}
+
 
 std::any CScriptParser::Call_argsContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -4096,6 +4493,18 @@ tree::TerminalNode* CScriptParser::NumericContext::STRING() {
 
 size_t CScriptParser::NumericContext::getRuleIndex() const {
   return CScriptParser::RuleNumeric;
+}
+
+void CScriptParser::NumericContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterNumeric(this);
+}
+
+void CScriptParser::NumericContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitNumeric(this);
 }
 
 
@@ -4180,6 +4589,18 @@ size_t CScriptParser::If_stmtContext::getRuleIndex() const {
   return CScriptParser::RuleIf_stmt;
 }
 
+void CScriptParser::If_stmtContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterIf_stmt(this);
+}
+
+void CScriptParser::If_stmtContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitIf_stmt(this);
+}
+
 
 std::any CScriptParser::If_stmtContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -4262,6 +4683,18 @@ CScriptParser::BlockContext* CScriptParser::While_stmtContext::block() {
 
 size_t CScriptParser::While_stmtContext::getRuleIndex() const {
   return CScriptParser::RuleWhile_stmt;
+}
+
+void CScriptParser::While_stmtContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterWhile_stmt(this);
+}
+
+void CScriptParser::While_stmtContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitWhile_stmt(this);
 }
 
 
@@ -4351,6 +4784,18 @@ CScriptParser::For_incrContext* CScriptParser::For_stmtContext::for_incr() {
 
 size_t CScriptParser::For_stmtContext::getRuleIndex() const {
   return CScriptParser::RuleFor_stmt;
+}
+
+void CScriptParser::For_stmtContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterFor_stmt(this);
+}
+
+void CScriptParser::For_stmtContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitFor_stmt(this);
 }
 
 
@@ -4444,6 +4889,18 @@ size_t CScriptParser::For_initContext::getRuleIndex() const {
   return CScriptParser::RuleFor_init;
 }
 
+void CScriptParser::For_initContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterFor_init(this);
+}
+
+void CScriptParser::For_initContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitFor_init(this);
+}
+
 
 std::any CScriptParser::For_initContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -4510,6 +4967,18 @@ size_t CScriptParser::For_condContext::getRuleIndex() const {
   return CScriptParser::RuleFor_cond;
 }
 
+void CScriptParser::For_condContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterFor_cond(this);
+}
+
+void CScriptParser::For_condContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitFor_cond(this);
+}
+
 
 std::any CScriptParser::For_condContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -4557,6 +5026,18 @@ CScriptParser::ExprContext* CScriptParser::For_incrContext::expr() {
 
 size_t CScriptParser::For_incrContext::getRuleIndex() const {
   return CScriptParser::RuleFor_incr;
+}
+
+void CScriptParser::For_incrContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterFor_incr(this);
+}
+
+void CScriptParser::For_incrContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitFor_incr(this);
 }
 
 
@@ -4628,6 +5109,18 @@ size_t CScriptParser::Do_while_stmtContext::getRuleIndex() const {
   return CScriptParser::RuleDo_while_stmt;
 }
 
+void CScriptParser::Do_while_stmtContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterDo_while_stmt(this);
+}
+
+void CScriptParser::Do_while_stmtContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitDo_while_stmt(this);
+}
+
 
 std::any CScriptParser::Do_while_stmtContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -4693,6 +5186,18 @@ CScriptParser::Catch_blockContext* CScriptParser::Try_catch_stmtContext::catch_b
 
 size_t CScriptParser::Try_catch_stmtContext::getRuleIndex() const {
   return CScriptParser::RuleTry_catch_stmt;
+}
+
+void CScriptParser::Try_catch_stmtContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterTry_catch_stmt(this);
+}
+
+void CScriptParser::Try_catch_stmtContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitTry_catch_stmt(this);
 }
 
 
@@ -4775,6 +5280,18 @@ tree::TerminalNode* CScriptParser::Catch_blockContext::ELLIPSIS() {
 
 size_t CScriptParser::Catch_blockContext::getRuleIndex() const {
   return CScriptParser::RuleCatch_block;
+}
+
+void CScriptParser::Catch_blockContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterCatch_block(this);
+}
+
+void CScriptParser::Catch_blockContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitCatch_block(this);
 }
 
 
@@ -4885,6 +5402,18 @@ size_t CScriptParser::Switch_stmtContext::getRuleIndex() const {
   return CScriptParser::RuleSwitch_stmt;
 }
 
+void CScriptParser::Switch_stmtContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterSwitch_stmt(this);
+}
+
+void CScriptParser::Switch_stmtContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitSwitch_stmt(this);
+}
+
 
 std::any CScriptParser::Switch_stmtContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<CScriptVisitor*>(visitor))
@@ -4948,6 +5477,18 @@ CScriptParser::Case_stmtContext* CScriptParser::Case_listContext::case_stmt(size
 
 size_t CScriptParser::Case_listContext::getRuleIndex() const {
   return CScriptParser::RuleCase_list;
+}
+
+void CScriptParser::Case_listContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterCase_list(this);
+}
+
+void CScriptParser::Case_listContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitCase_list(this);
 }
 
 
@@ -5028,6 +5569,18 @@ tree::TerminalNode* CScriptParser::Case_stmtContext::DEFAULT() {
 
 size_t CScriptParser::Case_stmtContext::getRuleIndex() const {
   return CScriptParser::RuleCase_stmt;
+}
+
+void CScriptParser::Case_stmtContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterCase_stmt(this);
+}
+
+void CScriptParser::Case_stmtContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<CScriptListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitCase_stmt(this);
 }
 
 
