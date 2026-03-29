@@ -10,7 +10,7 @@ if(NOT CSE_PLATFORM_EMBEDDED)
     
     target_link_libraries(ModuleTest
         PRIVATE
-            CScriptEngineLib
+            IronCScriptCoreLib
             ${CAPSTONE_LIB}
             ${ANTLR_STATIC_LIB}
             PlatformAbstraction

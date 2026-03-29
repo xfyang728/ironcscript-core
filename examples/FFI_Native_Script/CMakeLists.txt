@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(FFI_Native_Script main.cpp)
 
-target_link_libraries(FFI_Native_Script CScriptEngineLib)
+target_link_libraries(FFI_Native_Script IronCScriptCoreLib)
 
 target_include_directories(FFI_Native_Script PRIVATE
     ${CMAKE_SOURCE_DIR}/src

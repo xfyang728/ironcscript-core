@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(CScriptEngineExamples)
+project(IronCScriptExamples)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -25,7 +25,7 @@ add_executable(FFI_SimpleTest
 
 target_link_libraries(FFI_Script_Native
     PRIVATE
-    CScriptEngineLib
+    IronCScriptCoreLib
 )
 
 if(NOT CMAKE_CROSSCOMPILING)
@@ -35,7 +35,7 @@ endif()
 
 target_link_libraries(FFI_SimpleTest
     PRIVATE
-    CScriptEngineLib
+    IronCScriptCoreLib
 )
 
 target_include_directories(FFI_Script_Native

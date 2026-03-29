@@ -23,7 +23,7 @@ if (POLICY CMP0141 AND NOT CMAKE_CROSSCOMPILING)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
-project ("IronCScriptCore")
+project (IronCScriptCore)
 
 add_definitions(-DYY_NO_UNISTD_H)
 add_definitions(-DUSE_ANTLR)
@@ -70,6 +70,8 @@ set(LIB_SOURCES
     src/ir/Quad.cpp
     src/frontend/semantic/SemanticAnalyzer.cpp
     src/frontend/semantic/SymbolTable.cpp
+    src/IronCScript.cpp
+    src/IronCScriptImpl.cpp
 )
 
 if(WIN32)
@@ -110,5 +112,59 @@ add_subdirectory(src/backend/cache)
 add_subdirectory(src/bytecode)
 add_subdirectory(src/exception)
 
+if(NOT CMAKE_CROSSCOMPILING)
+    add_subdirectory(src/module)
+    add_subdirectory(src/platform)
+    add_subdirectory(src/gc)
+    add_subdirectory(src/sandbox)
+    add_subdirectory(extern/googletest-1.17.0)
+endif()
+
 add_library(IronCScriptCoreLib STATIC ${LIB_SOURCES})
-target_link_libraries(IronCScriptCoreLib ${CAPSTONE_LIB} ${ANTLR_STATIC_LIB} Cache Bytecode Exception)
+if(NOT CMAKE_CROSSCOMPILING)
+    target_link_libraries(IronCScriptCoreLib PUBLIC ${CAPSTONE_LIB} ${ANTLR_STATIC_LIB})
+    target_link_libraries(IronCScriptCoreLib PUBLIC Cache BytecodeModule Exception ModuleManager PlatformAbstraction GarbageCollector Sandbox)
+else()
+    target_link_libraries(IronCScriptCoreLib PUBLIC ${CAPSTONE_LIB} ${ANTLR_STATIC_LIB})
+    target_link_libraries(IronCScriptCoreLib PUBLIC Cache Exception)
+endif()
+
+if(NOT CMAKE_CROSSCOMPILING)
+    add_executable(IronCScriptCLI src/main_cli.cpp)
+    target_link_libraries(IronCScriptCLI PRIVATE IronCScriptCoreLib)
+endif()
+
+if(CMAKE_CROSSCOMPILING AND RISCV64)
+    add_executable(IronCScriptEmbedded src/main_cli_embedded.cpp)
+    target_link_libraries(IronCScriptEmbedded PRIVATE IronCScriptCoreLib)
+
+    add_executable(IronCScriptRISCVIpf src/main_cli_riscv.cpp)
+    target_link_libraries(IronCScriptRISCVIpf PRIVATE IronCScriptCoreLib)
+endif()
+
+if(NOT CMAKE_CROSSCOMPILING)
+    enable_testing()
+
+    set(TEST_SOURCES
+        tests/integration_tests/test_IronCScript.cpp
+        tests/component_tests/test_ir.cpp
+        tests/component_tests/test_codegen.cpp
+    )
+
+    add_executable(IronCScriptTests ${TEST_SOURCES})
+    target_link_libraries(IronCScriptTests PRIVATE GTest::gtest_main IronCScriptCoreLib ${CAPSTONE_LIB} ${ANTLR_STATIC_LIB} PlatformAbstraction ModuleManager)
+
+    add_test(NAME IronCScriptTests COMMAND IronCScriptTests WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+    add_subdirectory(tools/cscriptc)
+    add_subdirectory(tools/csburn)
+endif()
+
+if(NOT CMAKE_CROSSCOMPILING)
+    add_subdirectory(examples/ExceptionTest)
+    add_subdirectory(examples/FFI_Native_Script)
+    add_subdirectory(examples/FFI_Script_Native)
+    add_subdirectory(examples/ModuleTest)
+    add_subdirectory(examples/TryCatchTest)
+    add_subdirectory(examples/K210Test)
+endif()
