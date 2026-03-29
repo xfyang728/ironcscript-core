@@ -1,6 +1,0 @@
-Note: Google Test filter = IronCScriptTest.TestSimple
-[==========] Running 1 test from 1 test suite.
-[----------] Global test environment set-up.
-[----------] 1 test from IronCScriptTest
-[ RUN      ] IronCScriptTest.TestSimple
-Running: cmd /c ""D:\MyCode\IronCScript\build\IronCScript.exe" "D:\MyCode\IronCScript\tests\scripts\test_simple.c" > "D:\MyCode\IronCScript\tests\output\test_output_1.txt" 2>&1"
