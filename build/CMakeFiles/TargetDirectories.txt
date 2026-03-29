@@ -1,0 +1,15 @@
+D:/MyCode/IronCScript/ironcscript-core/build/CMakeFiles/IronCScriptCoreLib.dir
+D:/MyCode/IronCScript/ironcscript-core/build/CMakeFiles/edit_cache.dir
+D:/MyCode/IronCScript/ironcscript-core/build/CMakeFiles/rebuild_cache.dir
+D:/MyCode/IronCScript/ironcscript-core/build/src/backend/cache/CMakeFiles/Cache.dir
+D:/MyCode/IronCScript/ironcscript-core/build/src/backend/cache/CMakeFiles/edit_cache.dir
+D:/MyCode/IronCScript/ironcscript-core/build/src/backend/cache/CMakeFiles/rebuild_cache.dir
+D:/MyCode/IronCScript/ironcscript-core/build/src/bytecode/CMakeFiles/BytecodeModule.dir
+D:/MyCode/IronCScript/ironcscript-core/build/src/bytecode/CMakeFiles/edit_cache.dir
+D:/MyCode/IronCScript/ironcscript-core/build/src/bytecode/CMakeFiles/rebuild_cache.dir
+D:/MyCode/IronCScript/ironcscript-core/build/src/bytecode/vm/k210/CMakeFiles/K210VM.dir
+D:/MyCode/IronCScript/ironcscript-core/build/src/bytecode/vm/k210/CMakeFiles/edit_cache.dir
+D:/MyCode/IronCScript/ironcscript-core/build/src/bytecode/vm/k210/CMakeFiles/rebuild_cache.dir
+D:/MyCode/IronCScript/ironcscript-core/build/src/exception/CMakeFiles/Exception.dir
+D:/MyCode/IronCScript/ironcscript-core/build/src/exception/CMakeFiles/edit_cache.dir
+D:/MyCode/IronCScript/ironcscript-core/build/src/exception/CMakeFiles/rebuild_cache.dir
