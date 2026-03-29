@@ -24,24 +24,28 @@ namespace cse
         return func();
     }
 
-    inline int invokeMainFunction(void *funcPtr, ReturnType retType)
-    {
-        switch (retType)
-        {
-        case ReturnType::Double:
-        {
-            double result = invokeAndCast<double>(funcPtr);
+    inline int invokeMainFunction(void *funcPtr, ReturnType retType) {
+        switch (retType) {
+        case ReturnType::Double: {
+            // 定义一个函数指针类型，返回 double
+            typedef double (*DoubleFunc)();
+            DoubleFunc func = reinterpret_cast<DoubleFunc>(funcPtr);
+            double result = func();
             return static_cast<int>(result);
         }
-        case ReturnType::Float:
-        {
-            float result = invokeAndCast<float>(funcPtr);
+        case ReturnType::Float: {
+            // 定义一个函数指针类型，返回 float
+            typedef float (*FloatFunc)();
+            FloatFunc func = reinterpret_cast<FloatFunc>(funcPtr);
+            float result = func();
             return static_cast<int>(result);
         }
         case ReturnType::Integer:
-        default:
-        {
-            int result = invokeAndCast<int>(funcPtr);
+        default: {
+            // 定义一个函数指针类型，返回 int
+            typedef int (*IntFunc)();
+            IntFunc func = reinterpret_cast<IntFunc>(funcPtr);
+            int result = func();
             return result;
         }
         }

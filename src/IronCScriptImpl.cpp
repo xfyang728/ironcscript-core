@@ -178,6 +178,9 @@ bool IronCScriptImpl::generateAndExecuteCode(const std::list<Quad>& quadList) {
         }
 
         codeGen->generateCodeFromIR(quadList);
+        
+        // 调用 formatCode 方法来处理 RIP 相对偏移
+        codeGen->formatCode();
 
         m_LastReturnValue = m_CodeGenContext->runCode();
 
