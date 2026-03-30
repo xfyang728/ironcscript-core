@@ -31,7 +31,7 @@ std::string doubleToString(double value) {
     return buffer;
 }
 
-IRGenerator::IRGenerator(SymbolTable& symTable) : symbolTable(symTable), hasErrors(false), tempVarCounter(0), paramIndex(0) {
+IRGenerator::IRGenerator(SymbolTable& symTable) : symbolTable(symTable), hasErrors(false), tempVarCounter(0), paramEvalVarCounter(0), paramIndex(0) {
 }
 
 IRGenerator::~IRGenerator() {
@@ -53,6 +53,12 @@ void IRGenerator::error(const std::string& message, const Node* node) {
 std::string IRGenerator::generateTempVar() {
     std::stringstream ss;
     ss << "t" << tempVarCounter++;
+    return ss.str();
+}
+
+std::string IRGenerator::generateParamEvalVar(int paramIndex) {
+    std::stringstream ss;
+    ss << "pe" << paramIndex << "_" << paramEvalVarCounter++;
     return ss.str();
 }
 
@@ -775,17 +781,19 @@ std::string IRGenerator::analyzeAssignment(NAssignment* assignment) {
 std::string IRGenerator::analyzeMethodCall(NMethodCall* call) {
     int totalArgs = static_cast<int>(call->arguments.size());
 
-    std::vector<std::string> argValues(totalArgs);
+    std::vector<std::string> argTemps(totalArgs);
     std::vector<bool> argIsDouble(totalArgs);
 
     for (int i = 0; i < totalArgs; i++) {
         argIsDouble[i] = isDoubleExpression(call->arguments[i]);
-        argValues[i] = analyzeExpression(call->arguments[i]);
+        argTemps[i] = generateParamEvalVar(i);
+        std::string exprResult = analyzeExpression(call->arguments[i]);
+        quadList.push_back(Quad(OpEnum::ASSIGN, exprResult, "", argTemps[i]));
     }
 
     for (int i = 0; i < totalArgs; i++) {
         std::string paramName = "param_" + std::to_string(i);
-        quadList.push_back(Quad(OpEnum::ASSIGN, argValues[i], "", paramName));
+        quadList.push_back(Quad(OpEnum::ASSIGN, argTemps[i], "", paramName));
     }
 
     std::string temp = generateTempVar();

@@ -29,6 +29,7 @@ private:
     std::map<std::string, bool> stringVariables;
     bool hasErrors;
     int tempVarCounter;
+    int paramEvalVarCounter;
     int paramIndex;
     std::string currentSwitchEndLabel;
     std::string currentSwitchCondition;
@@ -38,6 +39,7 @@ private:
     std::string currentLoopIncrementLabel;
 
     std::string generateTempVar();
+    std::string generateParamEvalVar(int paramIndex);
     void analyzeStatement(NStatement* statement);
     std::string analyzeExpression(NExpression* expression);
     void analyzeVariableDeclaration(NVariableDeclaration* decl);

@@ -32,6 +32,7 @@ public:
     bool GetConstantValue(const char* name, int& value) const;
     void SetConstantValue(const char* name, int value);
     void ClearConstantValue(const char* name);
+    bool IsParamEvalVar(const char* name) const;
     void SetInFunction(bool inFunction) override;
     bool GetInFunction() const override;
     bool VariableExists(const char* name) const override;

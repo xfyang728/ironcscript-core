@@ -95,26 +95,34 @@ void BaseCodeGenerator::AllocateVariable(const char* name, cse::ICodeGenerator::
         }
     } else {
         if (m_InFunction) {
-                // 局部变量
-                int offset = m_NextOffset;
-                m_VariableOffsets[name] = offset;
-                m_VariableTypes[name] = type;
-                int typeSize = m_Architecture->getRegisterSize();
-                if (type == cse::ICodeGenerator::Char || type == cse::ICodeGenerator::Bool) {
-                    typeSize = 1;
-                } else if (type == cse::ICodeGenerator::Double) {
-                    typeSize = sizeof(double);
-                } else if (type == cse::ICodeGenerator::Pointer) {
-                    typeSize = m_Architecture->getRegisterSize();
-                }
-                m_NextOffset += typeSize;
-                m_LocalVariableSize = m_NextOffset - m_Architecture->getRegisterSize();
-                if (!m_CurrentFunction.empty()) {
-                    m_FunctionLocalVariableSizes[m_CurrentFunction] = m_LocalVariableSize;
-                    std::cout << "Local variable size for function " << m_CurrentFunction << " updated to: " << m_LocalVariableSize << " bytes" << std::endl;
-                }
-                std::cout << "Allocating new local variable " << name << " (type: " << typeToString(type) << ") at offset " << offset << std::endl;
+            bool isParamEval = IsParamEvalVar(name);
+            int offset;
+            if (isParamEval) {
+                offset = 0x100 + m_ParamEvalOffset;
+                m_ParamEvalOffset += m_Architecture->getRegisterSize();
             } else {
+                offset = m_NextOffset;
+                m_NextOffset += m_Architecture->getRegisterSize();
+                m_LocalVariableSize = m_NextOffset - m_Architecture->getRegisterSize();
+            }
+            m_VariableOffsets[name] = offset;
+            m_VariableTypes[name] = type;
+            int typeSize = m_Architecture->getRegisterSize();
+            if (type == cse::ICodeGenerator::Char || type == cse::ICodeGenerator::Bool) {
+                typeSize = 1;
+            } else if (type == cse::ICodeGenerator::Double) {
+                typeSize = sizeof(double);
+            } else if (type == cse::ICodeGenerator::Pointer) {
+                typeSize = m_Architecture->getRegisterSize();
+            }
+            if (!isParamEval) {
+                m_NextOffset += typeSize - m_Architecture->getRegisterSize();
+            }
+            if (!m_CurrentFunction.empty()) {
+                m_FunctionLocalVariableSizes[m_CurrentFunction] = m_NextOffset - m_Architecture->getRegisterSize();
+            }
+            std::cout << "Allocating " << (isParamEval ? "param eval" : "local") << " variable " << name << " (type: " << typeToString(type) << ") at offset " << offset << std::endl;
+        } else {
             // 全局变量
             int offset = m_NextDataOffset;
             m_GlobalVariableOffsets[name] = offset;
@@ -175,6 +183,10 @@ void BaseCodeGenerator::SetConstantValue(const char* name, int value) {
 
 void BaseCodeGenerator::ClearConstantValue(const char* name) {
     m_ConstantValues.erase(name);
+}
+
+bool BaseCodeGenerator::IsParamEvalVar(const char* name) const {
+    return name && name[0] == 'p' && name[1] == 'e' && std::isdigit(name[2]);
 }
 
 void BaseCodeGenerator::SetInFunction(bool inFunction) {

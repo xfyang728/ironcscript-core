@@ -1638,7 +1638,8 @@ namespace cse
                                     loadIntegerToRegister(value, reg);
                                     storeRegisterToVariable(reg, result, Int);
                                     freeRegister(reg);
-                                    if (result[0] == 't' && result.size() > 1 && std::isdigit(result[1])) {
+                                    if ((result[0] == 't' && result.size() > 1 && std::isdigit(result[1])) ||
+                                        (result[0] == 'p' && result[1] == 'e' && std::isdigit(result[2]))) {
                                         SetConstantValue(result.c_str(), value);
                                     }
                                 }
@@ -1649,7 +1650,8 @@ namespace cse
                                     loadVariableToRegister(arg1, reg, argType);
                                     storeRegisterToVariable(reg, result, argType);
                                     freeRegister(reg);
-                                    if (result[0] == 't' && result.size() > 1 && std::isdigit(result[1])) {
+                                    if ((result[0] == 't' && result.size() > 1 && std::isdigit(result[1])) ||
+                                        (result[0] == 'p' && result[1] == 'e' && std::isdigit(result[2]))) {
                                         int srcConst;
                                         if (GetConstantValue(arg1.c_str(), srcConst)) {
                                             SetConstantValue(result.c_str(), srcConst);
