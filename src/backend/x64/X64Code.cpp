@@ -1447,11 +1447,19 @@ namespace cse
                                 size_t instrPos = m_CodeBuffer.size();
                                 m_CodeBuffer.push_back(0x48);
                                 m_CodeBuffer.push_back(0x8D);
-                                m_CodeBuffer.push_back(0x05 + (paramReg << 3));
-                                m_CodeBuffer.push_back(0x00);
-                                m_CodeBuffer.push_back(0x00);
-                                m_CodeBuffer.push_back(0x00);
-                                m_CodeBuffer.push_back(0x00);
+                                if (paramReg >= 8) {
+                                    m_CodeBuffer.push_back(0x45);
+                                    m_CodeBuffer.push_back(0x00);
+                                    m_CodeBuffer.push_back(0x00);
+                                    m_CodeBuffer.push_back(0x00);
+                                    m_CodeBuffer.push_back(0x00);
+                                } else {
+                                    m_CodeBuffer.push_back(0x05);
+                                    m_CodeBuffer.push_back(0x00);
+                                    m_CodeBuffer.push_back(0x00);
+                                    m_CodeBuffer.push_back(0x00);
+                                    m_CodeBuffer.push_back(0x00);
+                                }
                                 AddRipRelativeOffset(instrPos, dataOffset);
                             }
                         }
