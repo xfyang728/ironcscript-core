@@ -291,6 +291,12 @@ namespace cse
 
     void X64Code::CallStandardLibraryFunction(const char* name)
     {
+        // 栈对齐处理：确保栈在函数调用前保持 16 字节对齐
+        m_CodeBuffer.push_back(0x48);
+        m_CodeBuffer.push_back(0x83);
+        m_CodeBuffer.push_back(0xE4);
+        m_CodeBuffer.push_back(0xF0); // and rsp, 0xFFFFFFFFFFFFFFF0
+        
         FunctionCallSite site;
         site.codeOffset = m_CodeBuffer.size();
         site.funcName = name;
@@ -760,53 +766,92 @@ namespace cse
                             loadVariableToRegister(index, 1, Int);
                         }
                         
-                        int numElements = 1;
-                        if (!m_CurrentFunction.empty() && m_FunctionArrays.find(m_CurrentFunction) != m_FunctionArrays.end()) {
-                            for (const auto& arrayInfo : m_FunctionArrays[m_CurrentFunction]) {
-                                if (arrayInfo.name == arrayName) {
-                                    numElements = arrayInfo.size;
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        int varOffset = GetVariableAbsoluteOffset(arrayName.c_str());
-                        int32_t displacement = -static_cast<int32_t>(varOffset);
+                        int varOffset = GetVariableOffset(arrayName.c_str());
                         
                         if (isDoubleArray) {
-                            unsigned char scaleByte = 0;
-                            if (elementSize == 8) scaleByte = 0xC5; // 缩放因子 3 (8x), 索引 rcx, 基址 rbp
-                            else if (elementSize == 4) scaleByte = 0x85; // 缩放因子 2 (4x), 索引 rcx, 基址 rbp
-                            else if (elementSize == 2) scaleByte = 0x45; // 缩放因子 1 (2x), 索引 rcx, 基址 rbp
-                            else if (elementSize == 1) scaleByte = 0x05; // 缩放因子 0 (1x), 索引 rcx, 基址 rbp
-                            
+                            // 计算数组元素地址：rbp + offset - rcx*scale
+                            // 栈是向下增长的，数组元素也是向下存储的
+                            // 先将索引乘以元素大小
+                            if (elementSize == 8) {
+                                m_CodeBuffer.push_back(0x48);
+                                m_CodeBuffer.push_back(0xC1);
+                                m_CodeBuffer.push_back(0xE1);
+                                m_CodeBuffer.push_back(0x03); // shl rcx, 3 (乘以 8)
+                            } else if (elementSize == 4) {
+                                m_CodeBuffer.push_back(0x48);
+                                m_CodeBuffer.push_back(0xC1);
+                                m_CodeBuffer.push_back(0xE1);
+                                m_CodeBuffer.push_back(0x02); // shl rcx, 2 (乘以 4)
+                            } else if (elementSize == 2) {
+                                m_CodeBuffer.push_back(0x48);
+                                m_CodeBuffer.push_back(0xC1);
+                                m_CodeBuffer.push_back(0xE1);
+                                m_CodeBuffer.push_back(0x01); // shl rcx, 1 (乘以 2)
+                            }
+                            // 然后计算地址：rbp + offset - rcx
+                            m_CodeBuffer.push_back(0x48);
+                            m_CodeBuffer.push_back(0x8D);
+                            m_CodeBuffer.push_back(0x85); // lea rax, [rbp + offset]
+                            m_CodeBuffer.push_back(static_cast<unsigned char>(varOffset & 0xFF));
+                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 8) & 0xFF));
+                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 16) & 0xFF));
+                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 24) & 0xFF));
+                            m_CodeBuffer.push_back(0x48);
+                            m_CodeBuffer.push_back(0x29);
+                            m_CodeBuffer.push_back(0xC8); // sub rax, rcx
+                            // 然后加载数据
                             m_CodeBuffer.push_back(0xF2);
                             m_CodeBuffer.push_back(0x0F);
                             m_CodeBuffer.push_back(0x10);
-                            m_CodeBuffer.push_back(0x84); // ModRM: [rbp + rcx*scale + disp32]
-                            m_CodeBuffer.push_back(scaleByte); // SIB: scale, index=rcx, base=rbp
-                            m_CodeBuffer.push_back(static_cast<unsigned char>(displacement & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 8) & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 16) & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 24) & 0xFF));
+                            m_CodeBuffer.push_back(0x00); // movsd xmm0, [rax]
                             storeRegisterToVariable(0, result, Double);
                         } else {
-                            unsigned char scaleByte = 0;
-                            if (elementSize == 8) scaleByte = 0xC5; // 缩放因子 3 (8x), 索引 rcx, 基址 rbp
-                            else if (elementSize == 4) scaleByte = 0x85; // 缩放因子 2 (4x), 索引 rcx, 基址 rbp
-                            else if (elementSize == 2) scaleByte = 0x45; // 缩放因子 1 (2x), 索引 rcx, 基址 rbp
-                            else if (elementSize == 1) scaleByte = 0x05; // 缩放因子 0 (1x), 索引 rcx, 基址 rbp
-                            
+                            // 计算数组元素地址：rbp + offset - rcx*scale
+                            // 栈是向下增长的，数组元素也是向下存储的
+                            // 先将索引乘以元素大小
                             if (elementSize == 8) {
                                 m_CodeBuffer.push_back(0x48);
+                                m_CodeBuffer.push_back(0xC1);
+                                m_CodeBuffer.push_back(0xE1);
+                                m_CodeBuffer.push_back(0x03); // shl rcx, 3 (乘以 8)
+                            } else if (elementSize == 4) {
+                                m_CodeBuffer.push_back(0x48);
+                                m_CodeBuffer.push_back(0xC1);
+                                m_CodeBuffer.push_back(0xE1);
+                                m_CodeBuffer.push_back(0x02); // shl rcx, 2 (乘以 4)
+                            } else if (elementSize == 2) {
+                                m_CodeBuffer.push_back(0x48);
+                                m_CodeBuffer.push_back(0xC1);
+                                m_CodeBuffer.push_back(0xE1);
+                                m_CodeBuffer.push_back(0x01); // shl rcx, 1 (乘以 2)
                             }
-                            m_CodeBuffer.push_back(0x8B);
-                            m_CodeBuffer.push_back(0x84); // ModRM: [rbp + rcx*scale + disp32]
-                            m_CodeBuffer.push_back(scaleByte); // SIB: scale, index=rcx, base=rbp
-                            m_CodeBuffer.push_back(static_cast<unsigned char>(displacement & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 8) & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 16) & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 24) & 0xFF));
+                            // 然后计算地址：rbp + offset - rcx
+                            m_CodeBuffer.push_back(0x48);
+                            m_CodeBuffer.push_back(0x8D);
+                            m_CodeBuffer.push_back(0x85); // lea rax, [rbp + offset]
+                            m_CodeBuffer.push_back(static_cast<unsigned char>(varOffset & 0xFF));
+                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 8) & 0xFF));
+                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 16) & 0xFF));
+                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 24) & 0xFF));
+                            m_CodeBuffer.push_back(0x48);
+                            m_CodeBuffer.push_back(0x29);
+                            m_CodeBuffer.push_back(0xC8); // sub rax, rcx
+                            // 然后加载数据
+                            if (elementSize == 8) {
+                                m_CodeBuffer.push_back(0x48);
+                                m_CodeBuffer.push_back(0x8B);
+                                m_CodeBuffer.push_back(0x00); // mov rax, [rax]
+                            } else if (elementSize == 4) {
+                                m_CodeBuffer.push_back(0x8B);
+                                m_CodeBuffer.push_back(0x00); // mov eax, [rax]
+                            } else if (elementSize == 2) {
+                                m_CodeBuffer.push_back(0x66);
+                                m_CodeBuffer.push_back(0x8B);
+                                m_CodeBuffer.push_back(0x00); // mov ax, [rax]
+                            } else if (elementSize == 1) {
+                                m_CodeBuffer.push_back(0x8A);
+                                m_CodeBuffer.push_back(0x00); // mov al, [rax]
+                            }
                             storeRegisterToVariable(0, result, Int);
                         }
                     }
@@ -884,11 +929,11 @@ namespace cse
                             if (isdigit(value[0]) || (value[0] == '-' && isdigit(value[1]))) {
                                 int64_t val = std::stoll(value);
                                 m_CodeBuffer.push_back(0x48);
-                                m_CodeBuffer.push_back(0xB8);
+                                m_CodeBuffer.push_back(0xBA);
                                 m_CodeBuffer.insert(m_CodeBuffer.end(), reinterpret_cast<const unsigned char*>(&val), reinterpret_cast<const unsigned char*>(&val) + 8);
                             }
                             else if (VariableExists(value.c_str())) {
-                                loadVariableToRegister(value, 0, Int);
+                                loadVariableToRegister(value, 1, Int);
                             }
                         }
                         
@@ -902,52 +947,91 @@ namespace cse
                             loadVariableToRegister(index, 1, Int);
                         }
                         
-                        int numElements = 1;
-                        if (!m_CurrentFunction.empty() && m_FunctionArrays.find(m_CurrentFunction) != m_FunctionArrays.end()) {
-                            for (const auto& arrayInfo : m_FunctionArrays[m_CurrentFunction]) {
-                                if (arrayInfo.name == name) {
-                                    numElements = arrayInfo.size;
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        int varOffset = GetVariableAbsoluteOffset(name.c_str());
-                        int32_t displacement = -static_cast<int32_t>(varOffset);
+                        int varOffset = GetVariableOffset(name.c_str());
                         
                         if (isDoubleArray) {
-                            unsigned char scaleByte = 0;
-                            if (elementSize == 8) scaleByte = 0xC5; // 缩放因子 3 (8x), 索引 rcx, 基址 rbp
-                            else if (elementSize == 4) scaleByte = 0x85; // 缩放因子 2 (4x), 索引 rcx, 基址 rbp
-                            else if (elementSize == 2) scaleByte = 0x45; // 缩放因子 1 (2x), 索引 rcx, 基址 rbp
-                            else if (elementSize == 1) scaleByte = 0x05; // 缩放因子 0 (1x), 索引 rcx, 基址 rbp
-                            
+                            // 计算数组元素地址：rbp + offset - rcx*scale
+                            // 栈是向下增长的，数组元素也是向下存储的
+                            // 先将索引乘以元素大小
+                            if (elementSize == 8) {
+                                m_CodeBuffer.push_back(0x48);
+                                m_CodeBuffer.push_back(0xC1);
+                                m_CodeBuffer.push_back(0xE1);
+                                m_CodeBuffer.push_back(0x03); // shl rcx, 3 (乘以 8)
+                            } else if (elementSize == 4) {
+                                m_CodeBuffer.push_back(0x48);
+                                m_CodeBuffer.push_back(0xC1);
+                                m_CodeBuffer.push_back(0xE1);
+                                m_CodeBuffer.push_back(0x02); // shl rcx, 2 (乘以 4)
+                            } else if (elementSize == 2) {
+                                m_CodeBuffer.push_back(0x48);
+                                m_CodeBuffer.push_back(0xC1);
+                                m_CodeBuffer.push_back(0xE1);
+                                m_CodeBuffer.push_back(0x01); // shl rcx, 1 (乘以 2)
+                            }
+                            // 然后计算地址：rbp + offset - rcx
+                            m_CodeBuffer.push_back(0x48);
+                            m_CodeBuffer.push_back(0x8D);
+                            m_CodeBuffer.push_back(0x85); // lea rax, [rbp + offset]
+                            m_CodeBuffer.push_back(static_cast<unsigned char>(varOffset & 0xFF));
+                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 8) & 0xFF));
+                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 16) & 0xFF));
+                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 24) & 0xFF));
+                            m_CodeBuffer.push_back(0x48);
+                            m_CodeBuffer.push_back(0x29);
+                            m_CodeBuffer.push_back(0xC8); // sub rax, rcx
+                            // 然后存储数据
                             m_CodeBuffer.push_back(0xF2);
                             m_CodeBuffer.push_back(0x0F);
                             m_CodeBuffer.push_back(0x11);
-                            m_CodeBuffer.push_back(0x84); // ModRM: [rbp + rcx*scale + disp32]
-                            m_CodeBuffer.push_back(scaleByte); // SIB: scale, index=rcx, base=rbp
-                            m_CodeBuffer.push_back(static_cast<unsigned char>(displacement & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 8) & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 16) & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 24) & 0xFF));
+                            m_CodeBuffer.push_back(0x00); // movsd [rax], xmm0
                         } else {
-                            unsigned char scaleByte = 0;
-                            if (elementSize == 8) scaleByte = 0xC5; // 缩放因子 3 (8x), 索引 rcx, 基址 rbp
-                            else if (elementSize == 4) scaleByte = 0x85; // 缩放因子 2 (4x), 索引 rcx, 基址 rbp
-                            else if (elementSize == 2) scaleByte = 0x45; // 缩放因子 1 (2x), 索引 rcx, 基址 rbp
-                            else if (elementSize == 1) scaleByte = 0x05; // 缩放因子 0 (1x), 索引 rcx, 基址 rbp
-                            
+                            // 计算数组元素地址：rbp + offset - rcx*scale
+                            // 栈是向下增长的，数组元素也是向下存储的
+                            // 先将索引乘以元素大小
                             if (elementSize == 8) {
                                 m_CodeBuffer.push_back(0x48);
+                                m_CodeBuffer.push_back(0xC1);
+                                m_CodeBuffer.push_back(0xE1);
+                                m_CodeBuffer.push_back(0x03); // shl rcx, 3 (乘以 8)
+                            } else if (elementSize == 4) {
+                                m_CodeBuffer.push_back(0x48);
+                                m_CodeBuffer.push_back(0xC1);
+                                m_CodeBuffer.push_back(0xE1);
+                                m_CodeBuffer.push_back(0x02); // shl rcx, 2 (乘以 4)
+                            } else if (elementSize == 2) {
+                                m_CodeBuffer.push_back(0x48);
+                                m_CodeBuffer.push_back(0xC1);
+                                m_CodeBuffer.push_back(0xE1);
+                                m_CodeBuffer.push_back(0x01); // shl rcx, 1 (乘以 2)
                             }
-                            m_CodeBuffer.push_back(0x89);
-                            m_CodeBuffer.push_back(0x84); // ModRM: [rbp + rcx*scale + disp32]
-                            m_CodeBuffer.push_back(scaleByte); // SIB: scale, index=rcx, base=rbp
-                            m_CodeBuffer.push_back(static_cast<unsigned char>(displacement & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 8) & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 16) & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 24) & 0xFF));
+                            // 然后计算地址：rbp + offset - rcx
+                            m_CodeBuffer.push_back(0x48);
+                            m_CodeBuffer.push_back(0x8D);
+                            m_CodeBuffer.push_back(0x85); // lea rax, [rbp + offset]
+                            m_CodeBuffer.push_back(static_cast<unsigned char>(varOffset & 0xFF));
+                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 8) & 0xFF));
+                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 16) & 0xFF));
+                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 24) & 0xFF));
+                            m_CodeBuffer.push_back(0x48);
+                            m_CodeBuffer.push_back(0x29);
+                            m_CodeBuffer.push_back(0xC8); // sub rax, rcx
+                            // 然后存储数据
+                            if (elementSize == 8) {
+                                m_CodeBuffer.push_back(0x48);
+                                m_CodeBuffer.push_back(0x89);
+                                m_CodeBuffer.push_back(0x10); // mov [rax], rdx
+                            } else if (elementSize == 4) {
+                                m_CodeBuffer.push_back(0x89);
+                                m_CodeBuffer.push_back(0x10); // mov [rax], edx
+                            } else if (elementSize == 2) {
+                                m_CodeBuffer.push_back(0x66);
+                                m_CodeBuffer.push_back(0x89);
+                                m_CodeBuffer.push_back(0x10); // mov [rax], dx
+                            } else if (elementSize == 1) {
+                                m_CodeBuffer.push_back(0x88);
+                                m_CodeBuffer.push_back(0x10); // mov [rax], dl
+                            }
                         }
                     }
                 }
@@ -1038,23 +1122,31 @@ namespace cse
                         int rax = 0;
                         
                         if (isdigit(value[0]) || (value[0] == '-' && isdigit(value[1]))) {
-                            int64_t val = std::stoll(value);
-                            m_CodeBuffer.push_back(0x48);
+                            int val = std::stoi(value);
                             m_CodeBuffer.push_back(0xB8);
-                            m_CodeBuffer.insert(m_CodeBuffer.end(), reinterpret_cast<const unsigned char*>(&val), reinterpret_cast<const unsigned char*>(&val) + 8);
+                            m_CodeBuffer.push_back(static_cast<unsigned char>(val & 0xFF));
+                            m_CodeBuffer.push_back(static_cast<unsigned char>((val >> 8) & 0xFF));
+                            m_CodeBuffer.push_back(static_cast<unsigned char>((val >> 16) & 0xFF));
+                            m_CodeBuffer.push_back(static_cast<unsigned char>((val >> 24) & 0xFF));
                         }
                         else if (VariableExists(value.c_str())) {
                             loadVariableToRegister(value, rax, Int);
                         }
                         
-                        int structOffset = 0;
+                        int structBaseOffset = 0;
                         if (m_StructOffsets.find(object) != m_StructOffsets.end()) {
-                            structOffset = -m_StructOffsets[object];
+                            structBaseOffset = m_StructOffsets[object];
                         } else {
-                            int oldNextOffset = m_NextOffset;
-                            AllocateVariable(object.c_str(), Int);
-                            m_StructOffsets[object] = oldNextOffset;
-                            structOffset = -oldNextOffset;
+                            // 为结构体分配足够的空间（至少 16 字节，以容纳常见的结构体成员）
+                            structBaseOffset = m_NextOffset;
+                            m_VariableOffsets[object] = structBaseOffset;
+                            m_VariableTypes[object] = Int;
+                            m_NextOffset += 16; // 分配 16 字节空间
+                            m_LocalVariableSize = m_NextOffset - m_Architecture->getRegisterSize();
+                            if (!m_CurrentFunction.empty()) {
+                                m_FunctionLocalVariableSizes[m_CurrentFunction] = m_LocalVariableSize;
+                            }
+                            m_StructOffsets[object] = structBaseOffset;
                         }
                         
                         int memberOffset = 0;
@@ -1063,15 +1155,16 @@ namespace cse
                         else if (member == "z") memberOffset = 8;
                         else if (member == "w") memberOffset = 12;
                         
-                        int totalOffset = structOffset + memberOffset;
+                        int totalOffset = structBaseOffset + memberOffset;
+                        int displacement = -totalOffset;
                         
-                        m_CodeBuffer.push_back(0x48);
+                        // 存储数据到结构体成员（使用 4 字节存储，因为 int 是 4 字节）
                         m_CodeBuffer.push_back(0x89);
                         m_CodeBuffer.push_back(0x85);
-                        m_CodeBuffer.push_back(static_cast<unsigned char>(totalOffset & 0xFF));
-                        m_CodeBuffer.push_back(static_cast<unsigned char>((totalOffset >> 8) & 0xFF));
-                        m_CodeBuffer.push_back(static_cast<unsigned char>((totalOffset >> 16) & 0xFF));
-                        m_CodeBuffer.push_back(static_cast<unsigned char>((totalOffset >> 24) & 0xFF));
+                        m_CodeBuffer.push_back(static_cast<unsigned char>(displacement & 0xFF));
+                        m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 8) & 0xFF));
+                        m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 16) & 0xFF));
+                        m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 24) & 0xFF));
                         
                         freeRegister(rax);
                     }
@@ -1083,14 +1176,20 @@ namespace cse
                     std::string member = quad.getArg2();
                     std::string result = quad.getResult();
                     if (!object.empty() && !member.empty() && !result.empty()) {
-                        int structOffset = 0;
+                        int structBaseOffset = 0;
                         if (m_StructOffsets.find(object) != m_StructOffsets.end()) {
-                            structOffset = -m_StructOffsets[object];
+                            structBaseOffset = m_StructOffsets[object];
                         } else {
-                            int oldNextOffset = m_NextOffset;
-                            AllocateVariable(object.c_str(), Int);
-                            m_StructOffsets[object] = oldNextOffset;
-                            structOffset = -oldNextOffset;
+                            // 为结构体分配足够的空间（至少 16 字节，以容纳常见的结构体成员）
+                            structBaseOffset = m_NextOffset;
+                            m_VariableOffsets[object] = structBaseOffset;
+                            m_VariableTypes[object] = Int;
+                            m_NextOffset += 16; // 分配 16 字节空间
+                            m_LocalVariableSize = m_NextOffset - m_Architecture->getRegisterSize();
+                            if (!m_CurrentFunction.empty()) {
+                                m_FunctionLocalVariableSizes[m_CurrentFunction] = m_LocalVariableSize;
+                            }
+                            m_StructOffsets[object] = structBaseOffset;
                         }
                         
                         int memberOffset = 0;
@@ -1099,15 +1198,16 @@ namespace cse
                         else if (member == "z") memberOffset = 8;
                         else if (member == "w") memberOffset = 12;
                         
-                        int totalOffset = structOffset + memberOffset;
+                        int totalOffset = structBaseOffset + memberOffset;
+                        int displacement = -totalOffset;
                         
-                        m_CodeBuffer.push_back(0x48);
+                        // 从结构体成员加载数据
                         m_CodeBuffer.push_back(0x8B);
                         m_CodeBuffer.push_back(0x85);
-                        m_CodeBuffer.push_back(static_cast<unsigned char>(totalOffset & 0xFF));
-                        m_CodeBuffer.push_back(static_cast<unsigned char>((totalOffset >> 8) & 0xFF));
-                        m_CodeBuffer.push_back(static_cast<unsigned char>((totalOffset >> 16) & 0xFF));
-                        m_CodeBuffer.push_back(static_cast<unsigned char>((totalOffset >> 24) & 0xFF));
+                        m_CodeBuffer.push_back(static_cast<unsigned char>(displacement & 0xFF));
+                        m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 8) & 0xFF));
+                        m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 16) & 0xFF));
+                        m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 24) & 0xFF));
                         
                         AllocateVariable(result.c_str(), Int);
                         storeRegisterToVariable(0, result, Int);
@@ -1175,9 +1275,18 @@ namespace cse
 
                         int paramReg = -1;
                         int xmmReg = -1;
-                        bool isParam = result.substr(0, 6) == "param_";
+                        std::cout << "[DEBUG] ASSIGN: result=" << result << ", arg1=" << arg1 << std::endl;
+                        
+                        // 直接检查 result 是否以 "param_" 开头
+                        bool isParam = result.rfind("param_", 0) == 0;
+                        std::cout << "[DEBUG] ASSIGN: isParam=" << isParam << std::endl;
+                        
                         if (isParam) {
-                            int paramIndex = std::stoi(result.substr(6));
+                            // 提取参数索引
+                            std::string paramIndexStr = result.substr(6);
+                            int paramIndex = std::stoi(paramIndexStr);
+                            std::cout << "[DEBUG] ASSIGN: paramIndex=" << paramIndex << std::endl;
+                            
                             Type varType = Int;
                             if (m_VariableTypes.find(arg1) != m_VariableTypes.end()) {
                                 varType = m_VariableTypes[arg1];
@@ -1196,20 +1305,32 @@ namespace cse
                                     varType = Pointer;
                                 }
                             }
+                            
                             if (varType == Double) {
                                 if (paramIndex == 0) xmmReg = 0;
                                 else if (paramIndex == 1) xmmReg = 1;
                                 else if (paramIndex == 2) xmmReg = 2;
                                 else if (paramIndex == 3) xmmReg = 3;
                             } else {
-                                if (paramIndex == 0) paramReg = 1;
-                                else if (paramIndex == 1) paramReg = 2;
-                                else if (paramIndex == 2) paramReg = 8;
-                                else if (paramIndex == 3) paramReg = 9;
+                                if (paramIndex == 0) paramReg = 7;  // rdi
+                                else if (paramIndex == 1) paramReg = 6;  // rsi
+                                else if (paramIndex == 2) paramReg = 2;  // rdx
+                                else if (paramIndex == 3) paramReg = 1;  // rcx
+                                else if (paramIndex == 4) paramReg = 8;  // r8
+                                else if (paramIndex == 5) paramReg = 9;  // r9
                             }
+                            std::cout << "[DEBUG] ASSIGN: paramReg=" << paramReg << ", xmmReg=" << xmmReg << std::endl;
+                        } else if (result == "rcx") {
+                            paramReg = 1;
+                        } else if (result == "rdx") {
+                            paramReg = 2;
+                        } else if (result == "r8") {
+                            paramReg = 8;
+                        } else if (result == "r9") {
+                            paramReg = 9;
                         }
 
-                        if (result == "rcx" || result == "rdx" || result == "r8" || result == "r9" || paramReg >= 0 || xmmReg >= 0)
+                        if (paramReg >= 0 || xmmReg >= 0)
                         {
                             std::cout << "[DEBUG] ASSIGN: result=" << result << ", arg1=" << arg1 << ", paramReg=" << paramReg << ", xmmReg=" << xmmReg << std::endl;
                             if (paramReg < 0 && xmmReg < 0) {
@@ -1717,6 +1838,8 @@ namespace cse
                         m_LocalVariableSize = 0;
                         m_FunctionHasReturn[funcName] = false;
                         m_FunctionArrays[funcName].clear();
+                        m_StackArgCount = 0;
+                        m_XmmRegCount = 0;
                         
                         m_Functions[funcName] = m_CodeBuffer.size();
                         std::cout << "Function " << funcName << " starts at offset " << m_CodeBuffer.size() << std::endl;
@@ -1742,104 +1865,225 @@ namespace cse
                     std::string result = quad.getResult();
 
                     int paramReg;
-                    if (m_StackArgCount == 0) paramReg = 1;
-                    else if (m_StackArgCount == 1) paramReg = 2;
-                    else if (m_StackArgCount == 2) paramReg = 8;
-                    else if (m_StackArgCount == 3) paramReg = 9;
-                    else paramReg = 0;
+                    if (m_StackArgCount == 0) paramReg = 7;  // rdi
+                    else if (m_StackArgCount == 1) paramReg = 6;  // rsi
+                    else if (m_StackArgCount == 2) paramReg = 2;  // rdx
+                    else if (m_StackArgCount == 3) paramReg = 1;  // rcx
+                    else if (m_StackArgCount == 4) paramReg = 8;  // r8
+                    else if (m_StackArgCount == 5) paramReg = 9;  // r9
+                    else paramReg = -1;  // 栈参数
 
-                    if (!arg1.empty() && arg1 != result)
-                    {
-                        bool isParamRef = (arg1.substr(0, 6) == "param_");
-                        if (isParamRef)
-                        {
-                            Type varType = Int;
-                            if (!result.empty() && VariableExists(result.c_str())) {
-                                varType = GetVariableType(result.c_str());
-                            }
-                            if (!result.empty()) {
-                                AllocateVariable(result.c_str(), varType);
-                                storeRegisterToVariable(paramReg, result, varType);
-                            }
-                        }
-                        else if (isdigit(arg1[0]) || (arg1[0] == '-' && isdigit(arg1[1])))
-                        {
-                            int value = std::stoi(arg1);
-                            loadIntegerToRegister(value, paramReg);
-                        }
-                        else if (VariableExists(arg1.c_str()))
-                        {
-                            Type argType = GetVariableType(arg1.c_str());
-                            int tempReg = allocateRegister();
-                            loadVariableToRegister(arg1, tempReg, argType);
-                            if (argType == Pointer || argType == Double) {
-                                if (paramReg >= 8 && tempReg >= 8) {
-                                    m_CodeBuffer.push_back(0x4D);
-                                    m_CodeBuffer.push_back(0x89);
-                                    m_CodeBuffer.push_back(0xC0 + ((tempReg - 8) << 3) + (paramReg - 8));
-                                } else if (paramReg >= 8) {
-                                    m_CodeBuffer.push_back(0x49);
-                                    m_CodeBuffer.push_back(0x89);
-                                    m_CodeBuffer.push_back(0xC0 + (tempReg << 3) + (paramReg - 8));
-                                } else if (tempReg >= 8) {
-                                    m_CodeBuffer.push_back(0x4C);
-                                    m_CodeBuffer.push_back(0x89);
-                                    m_CodeBuffer.push_back(0xC0 + ((tempReg - 8) << 3) + paramReg);
-                                } else {
-                                    m_CodeBuffer.push_back(0x48);
-                                    m_CodeBuffer.push_back(0x89);
-                                    m_CodeBuffer.push_back(0xC0 + (tempReg << 3) + paramReg);
-                                }
-                            } else {
-                                if (paramReg >= 8 && tempReg >= 8) {
-                                    m_CodeBuffer.push_back(0x45);
-                                    m_CodeBuffer.push_back(0x89);
-                                    m_CodeBuffer.push_back(0xC0 + ((tempReg - 8) << 3) + (paramReg - 8));
-                                } else if (paramReg >= 8) {
-                                    m_CodeBuffer.push_back(0x41);
-                                    m_CodeBuffer.push_back(0x89);
-                                    m_CodeBuffer.push_back(0xC0 + (tempReg << 3) + (paramReg - 8));
-                                } else if (tempReg >= 8) {
-                                    m_CodeBuffer.push_back(0x44);
-                                    m_CodeBuffer.push_back(0x89);
-                                    m_CodeBuffer.push_back(0xC0 + ((tempReg - 8) << 3) + paramReg);
-                                } else {
-                                    m_CodeBuffer.push_back(0x89);
-                                    m_CodeBuffer.push_back(0xC0 + (tempReg << 3) + paramReg);
-                                }
-                            }
-                            freeRegister(tempReg);
-                        }
-                        else
-                        {
-                            size_t dataOffset = StoreString(arg1.c_str());
-                            size_t instrPos = m_CodeBuffer.size();
-                            m_CodeBuffer.push_back(0x48);
-                            m_CodeBuffer.push_back(0x8D);
-                            m_CodeBuffer.push_back(0x05 + (paramReg << 3));
-                            m_CodeBuffer.push_back(0x00);
-                            m_CodeBuffer.push_back(0x00);
-                            m_CodeBuffer.push_back(0x00);
-                            m_CodeBuffer.push_back(0x00);
-                            AddRipRelativeOffset(instrPos, dataOffset);
-                        }
-
-                        if (!result.empty() && !isParamRef)
-                        {
-                            Type varType = Int;
-                            if (VariableExists(arg1.c_str())) {
-                                varType = GetVariableType(arg1.c_str());
-                            } else if (!(isdigit(arg1[0]) || (arg1[0] == '-' && isdigit(arg1[1])))) {
-                                varType = Pointer;
-                            }
-                            AllocateVariable(result.c_str(), varType);
-                            storeRegisterToVariable(paramReg, result, varType);
+                    // 检查参数类型，确定使用通用寄存器还是 xmm 寄存器
+                    bool isFloatParam = false;
+                    if (VariableExists(arg1.c_str())) {
+                        Type argType = GetVariableType(arg1.c_str());
+                        isFloatParam = (argType == Double);
+                    } else if (isdigit(arg1[0]) || (arg1[0] == '-' && isdigit(arg1[1]))) {
+                        // 检查是否是浮点数
+                        if (arg1.find('.') != std::string::npos || arg1.find('e') != std::string::npos || arg1.find('E') != std::string::npos) {
+                            isFloatParam = true;
                         }
                     }
-                    else if (!result.empty())
-                    {
-                        AllocateVariable(result.c_str(), Int);
-                        storeRegisterToVariable(paramReg, result, Int);
+
+                    if (isFloatParam) {
+                        // 浮点数参数使用 xmm 寄存器，单独计数
+                        static int xmmArgCount = 0;
+                        int xmmReg = xmmArgCount;
+                        if (xmmReg < 8) { // 前 8 个浮点数参数使用 xmm0-xmm7
+                            if (!arg1.empty() && arg1 != result) {
+                                if (isdigit(arg1[0]) || (arg1[0] == '-' && isdigit(arg1[1]))) {
+                                    double value = std::stod(arg1);
+                                    // 加载双精度浮点数到 xmm 寄存器
+                                    size_t dataOffset = StoreDouble(value);
+                                    size_t instrPos = m_CodeBuffer.size();
+                                    m_CodeBuffer.push_back(0xF2);
+                                    m_CodeBuffer.push_back(0x0F);
+                                    m_CodeBuffer.push_back(0x10);
+                                    m_CodeBuffer.push_back(0x05 + (xmmReg << 3));
+                                    m_CodeBuffer.push_back(0x00);
+                                    m_CodeBuffer.push_back(0x00);
+                                    m_CodeBuffer.push_back(0x00);
+                                    m_CodeBuffer.push_back(0x00);
+                                    AddRipRelativeOffset(instrPos, dataOffset, 8);
+                                } else if (VariableExists(arg1.c_str())) {
+                                    Type argType = GetVariableType(arg1.c_str());
+                                    if (argType == Double) {
+                                        // 从内存加载到 xmm 寄存器
+                                        int varOffset = GetVariableOffset(arg1.c_str());
+                                        m_CodeBuffer.push_back(0xF2);
+                                        m_CodeBuffer.push_back(0x0F);
+                                        m_CodeBuffer.push_back(0x10);
+                                        m_CodeBuffer.push_back(0x85 + (xmmReg << 3));
+                                        m_CodeBuffer.push_back(static_cast<unsigned char>(varOffset & 0xFF));
+                                        m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 8) & 0xFF));
+                                        m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 16) & 0xFF));
+                                        m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 24) & 0xFF));
+                                    }
+                                }
+                            }
+                            xmmArgCount++;
+                        } else {
+                            // 超过 8 个浮点数参数使用栈
+                            if (!arg1.empty() && arg1 != result) {
+                                if (VariableExists(arg1.c_str())) {
+                                    Type argType = GetVariableType(arg1.c_str());
+                                    if (argType == Double) {
+                                        // 从内存加载到临时寄存器，再压入栈
+                                        int tempReg = allocateRegister();
+                                        loadVariableToRegister(arg1, tempReg, argType);
+                                        // 分配栈空间并压入
+                                        m_CodeBuffer.push_back(0x48);
+                                        m_CodeBuffer.push_back(0x83);
+                                        m_CodeBuffer.push_back(0xEC);
+                                        m_CodeBuffer.push_back(0x08);
+                                        if (tempReg >= 8) {
+                                            m_CodeBuffer.push_back(0x41);
+                                            m_CodeBuffer.push_back(0x50 + (tempReg - 8));
+                                        } else {
+                                            m_CodeBuffer.push_back(0x50 + tempReg);
+                                        }
+                                        freeRegister(tempReg);
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // 整数/指针参数使用通用寄存器
+                        if (paramReg != -1) {
+                            if (!arg1.empty() && arg1 != result)
+                            {
+                                bool isParamRef = (arg1.rfind("param_", 0) == 0);
+                                if (isParamRef)
+                                {
+                                    Type varType = Int;
+                                    if (!result.empty() && VariableExists(result.c_str())) {
+                                        varType = GetVariableType(result.c_str());
+                                    }
+                                    if (!result.empty()) {
+                                        AllocateVariable(result.c_str(), varType);
+                                        storeRegisterToVariable(paramReg, result, varType);
+                                    }
+                                }
+                                else if (isdigit(arg1[0]) || (arg1[0] == '-' && isdigit(arg1[1])))
+                                {
+                                    int value = std::stoi(arg1);
+                                    loadIntegerToRegister(value, paramReg);
+                                }
+                                else if (VariableExists(arg1.c_str()))
+                                {
+                                    Type argType = GetVariableType(arg1.c_str());
+                                    int tempReg = allocateRegister();
+                                    loadVariableToRegister(arg1, tempReg, argType);
+                                    if (argType == Pointer || argType == Double) {
+                                        if (paramReg >= 8 && tempReg >= 8) {
+                                            m_CodeBuffer.push_back(0x4D);
+                                            m_CodeBuffer.push_back(0x89);
+                                            m_CodeBuffer.push_back(0xC0 + ((tempReg - 8) << 3) + (paramReg - 8));
+                                        } else if (paramReg >= 8) {
+                                            m_CodeBuffer.push_back(0x49);
+                                            m_CodeBuffer.push_back(0x89);
+                                            m_CodeBuffer.push_back(0xC0 + (tempReg << 3) + (paramReg - 8));
+                                        } else if (tempReg >= 8) {
+                                            m_CodeBuffer.push_back(0x4C);
+                                            m_CodeBuffer.push_back(0x89);
+                                            m_CodeBuffer.push_back(0xC0 + ((tempReg - 8) << 3) + paramReg);
+                                        } else {
+                                            m_CodeBuffer.push_back(0x48);
+                                            m_CodeBuffer.push_back(0x89);
+                                            m_CodeBuffer.push_back(0xC0 + (tempReg << 3) + paramReg);
+                                        }
+                                    } else {
+                                        if (paramReg >= 8 && tempReg >= 8) {
+                                            m_CodeBuffer.push_back(0x45);
+                                            m_CodeBuffer.push_back(0x89);
+                                            m_CodeBuffer.push_back(0xC0 + ((tempReg - 8) << 3) + (paramReg - 8));
+                                        } else if (paramReg >= 8) {
+                                            m_CodeBuffer.push_back(0x41);
+                                            m_CodeBuffer.push_back(0x89);
+                                            m_CodeBuffer.push_back(0xC0 + (tempReg << 3) + (paramReg - 8));
+                                        } else if (tempReg >= 8) {
+                                            m_CodeBuffer.push_back(0x44);
+                                            m_CodeBuffer.push_back(0x89);
+                                            m_CodeBuffer.push_back(0xC0 + ((tempReg - 8) << 3) + paramReg);
+                                        } else {
+                                            m_CodeBuffer.push_back(0x89);
+                                            m_CodeBuffer.push_back(0xC0 + (tempReg << 3) + paramReg);
+                                        }
+                                    }
+                                    freeRegister(tempReg);
+                                }
+                                else
+                                {
+                                    size_t dataOffset = StoreString(arg1.c_str());
+                                    size_t instrPos = m_CodeBuffer.size();
+                                    m_CodeBuffer.push_back(0x48);
+                                    m_CodeBuffer.push_back(0x8D);
+                                    if (paramReg >= 8) {
+                                        m_CodeBuffer.push_back(0x45);
+                                        m_CodeBuffer.push_back(0x00);
+                                        m_CodeBuffer.push_back(0x00);
+                                        m_CodeBuffer.push_back(0x00);
+                                        m_CodeBuffer.push_back(0x00);
+                                    } else {
+                                        m_CodeBuffer.push_back(0x05);
+                                        m_CodeBuffer.push_back(0x00);
+                                        m_CodeBuffer.push_back(0x00);
+                                        m_CodeBuffer.push_back(0x00);
+                                        m_CodeBuffer.push_back(0x00);
+                                    }
+                                    AddRipRelativeOffset(instrPos, dataOffset);
+                                }
+
+                                if (!result.empty() && !isParamRef)
+                                {
+                                    Type varType = Int;
+                                    if (VariableExists(arg1.c_str())) {
+                                        varType = GetVariableType(arg1.c_str());
+                                    } else if (!(isdigit(arg1[0]) || (arg1[0] == '-' && isdigit(arg1[1])))) {
+                                        varType = Pointer;
+                                    }
+                                    AllocateVariable(result.c_str(), varType);
+                                    storeRegisterToVariable(paramReg, result, varType);
+                                }
+                            }
+                            else if (!result.empty())
+                            {
+                                AllocateVariable(result.c_str(), Int);
+                                storeRegisterToVariable(paramReg, result, Int);
+                            }
+                        } else {
+                            // 栈参数处理
+                            if (!arg1.empty() && arg1 != result)
+                            {
+                                if (isdigit(arg1[0]) || (arg1[0] == '-' && isdigit(arg1[1])))
+                                {
+                                    int value = std::stoi(arg1);
+                                    // 将参数压入栈
+                                    m_CodeBuffer.push_back(0x6A);
+                                    m_CodeBuffer.push_back(static_cast<unsigned char>(value & 0xFF));
+                                }
+                                else if (VariableExists(arg1.c_str()))
+                                {
+                                    Type argType = GetVariableType(arg1.c_str());
+                                    int tempReg = allocateRegister();
+                                    loadVariableToRegister(arg1, tempReg, argType);
+                                    // 将参数压入栈
+                                    if (argType == Pointer || argType == Double || argType == Int) {
+                                        m_CodeBuffer.push_back(0x48);
+                                        m_CodeBuffer.push_back(0x83);
+                                        m_CodeBuffer.push_back(0xEC);
+                                        m_CodeBuffer.push_back(0x08);
+                                        if (tempReg >= 8) {
+                                            m_CodeBuffer.push_back(0x41);
+                                            m_CodeBuffer.push_back(0x50 + (tempReg - 8));
+                                        } else {
+                                            m_CodeBuffer.push_back(0x50 + tempReg);
+                                        }
+                                    }
+                                    freeRegister(tempReg);
+                                }
+                            }
+                        }
                     }
 
                     m_StackArgCount++;
@@ -1886,10 +2130,18 @@ namespace cse
                                 AllocateVariable(result.c_str(), retType);
                                 storeRegisterToVariable(0, result, retType);
                             }
+                            m_StackArgCount = 0;
+                            m_XmmRegCount = 0;
                         }
                         else if (m_Functions.find(funcName) != m_Functions.end())
                         {
                             std::cout << "Internal function call: " << funcName << std::endl;
+
+                            // 栈对齐处理：确保栈在函数调用前保持 16 字节对齐
+                            m_CodeBuffer.push_back(0x48);
+                            m_CodeBuffer.push_back(0x83);
+                            m_CodeBuffer.push_back(0xE4);
+                            m_CodeBuffer.push_back(0xF0); // and rsp, 0xFFFFFFFFFFFFFFF0
 
                             FunctionCallSite site;
                             site.codeOffset = m_CodeBuffer.size();
@@ -1908,6 +2160,8 @@ namespace cse
                                 AllocateVariable(result.c_str(), retType);
                                 storeRegisterToVariable(0, result, retType);
                             }
+                            m_StackArgCount = 0;
+                            m_XmmRegCount = 0;
                         }
                         else
                         {
@@ -1932,6 +2186,8 @@ namespace cse
                                 AllocateVariable(result.c_str(), retType);
                                 storeRegisterToVariable(0, result, retType);
                             }
+                            m_StackArgCount = 0;
+                            m_XmmRegCount = 0;
                         }
                     }
                 }
@@ -1959,6 +2215,9 @@ namespace cse
                         Type dstType = Int;
                         if (targetType == "double" || targetType == "float") {
                             dstType = Double;
+                        } else if (targetType.find('*') != std::string::npos) {
+                            // 处理指针类型转换
+                            dstType = Pointer;
                         }
                         
                         AllocateVariable(result.c_str(), dstType);
