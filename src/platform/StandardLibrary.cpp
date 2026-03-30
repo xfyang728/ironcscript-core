@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -124,55 +125,61 @@ void StandardLibrary::builtin_exit(int status) {
 }
 
 int StandardLibrary::builtin_abs(int n) {
-    return n >= 0 ? n : -n;
-}
-
-void* StandardLibrary::resolve(const std::string& funcName) {
-    if (isBuiltin(funcName)) {
-        if (funcName == "malloc") return reinterpret_cast<void*>(&builtin_malloc);
-        if (funcName == "free") return reinterpret_cast<void*>(&builtin_free);
-        if (funcName == "memset") return reinterpret_cast<void*>(&builtin_memset);
-        if (funcName == "memcpy") return reinterpret_cast<void*>(&builtin_memcpy);
-        if (funcName == "printf") return reinterpret_cast<void*>(&builtin_printf);
-        if (funcName == "exit") return reinterpret_cast<void*>(&builtin_exit);
-        if (funcName == "abs") return reinterpret_cast<void*>(&builtin_abs);
+        return n >= 0 ? n : -n;
     }
 
-    if (isStandardLib(funcName)) {
+void* StandardLibrary::resolve(const std::string& funcName) {
+        if (isBuiltin(funcName)) {
+            if (funcName == "malloc") return reinterpret_cast<void*>(&builtin_malloc);
+            if (funcName == "free") return reinterpret_cast<void*>(&builtin_free);
+            if (funcName == "memset") return reinterpret_cast<void*>(&builtin_memset);
+            if (funcName == "memcpy") return reinterpret_cast<void*>(&builtin_memcpy);
+            if (funcName == "printf") return reinterpret_cast<void*>(&builtin_printf);
+            if (funcName == "exit") return reinterpret_cast<void*>(&builtin_exit);
+            if (funcName == "abs") return reinterpret_cast<void*>(&builtin_abs);
+        }
+
+        if (isStandardLib(funcName)) {
 #ifdef _WIN32
-        static HMODULE hModule = nullptr;
-        if (!hModule) {
-            hModule = LoadLibraryA("msvcrt.dll");
-            if (!hModule) {
-                hModule = LoadLibraryA("libucrtapp.dll");
+            // 尝试加载多个可能包含标准库函数的 DLL
+            static std::vector<HMODULE> loadedModules;
+            const char* dlls[] = {
+                "msvcrt.dll",
+                "libucrtapp.dll",
+                "libucrtbase.dll",
+                "ucrtbase.dll",
+                "vcruntime140.dll",
+                "vcruntime140_1.dll"
+            };
+            
+            for (size_t i = 0; i < sizeof(dlls) / sizeof(dlls[0]); i++) {
+                HMODULE hModule = LoadLibraryA(dlls[i]);
+                if (hModule) {
+                    loadedModules.push_back(hModule);
+                    void* addr = reinterpret_cast<void*>(GetProcAddress(hModule, funcName.c_str()));
+                    if (addr) {
+                        std::cout << "[StandardLibrary] Found " << funcName << " in " << dlls[i] << " at " << addr << std::endl;
+                        return addr;
+                    }
+                }
             }
-            if (!hModule) {
-                hModule = LoadLibraryA("libucrtbase.dll");
-            }
-            if (!hModule) {
-                hModule = LoadLibraryA("ucrtbase.dll");
-            }
-        }
-        if (hModule) {
-            void* addr = reinterpret_cast<void*>(GetProcAddress(hModule, funcName.c_str()));
-            if (addr) return addr;
-        }
 #elif defined(CSE_EMBEDDED)
         // 在嵌入式平台上，标准库函数的地址会由代码生成器直接处理
         return nullptr;
 #else
         // 在非嵌入式平台上，使用 dlopen 和 dlsym 获取标准库函数地址
+        static std::vector<void*> loadedHandles;
         void* handle = dlopen("libc.so.6", RTLD_LAZY);
         if (handle) {
+            loadedHandles.push_back(handle);
             void* addr = dlsym(handle, funcName.c_str());
-            dlclose(handle);
             return addr;
         }
         return nullptr;
 #endif
-    }
+        }
 
-    return nullptr;
-}
+        return nullptr;
+    }
 
 } // namespace cse

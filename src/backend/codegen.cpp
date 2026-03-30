@@ -25,19 +25,24 @@ namespace cse
     }
 
     inline int invokeMainFunction(void *funcPtr, ReturnType retType) {
+        std::cout << "invokeMainFunction: funcPtr=" << funcPtr << ", retType=" << static_cast<int>(retType) << std::endl;
         switch (retType) {
         case ReturnType::Double: {
             // 定义一个函数指针类型，返回 double
             typedef double (*DoubleFunc)();
             DoubleFunc func = reinterpret_cast<DoubleFunc>(funcPtr);
+            std::cout << "invokeMainFunction: Calling double function..." << std::endl;
             double result = func();
+            std::cout << "invokeMainFunction: Double result=" << result << std::endl;
             return static_cast<int>(result);
         }
         case ReturnType::Float: {
             // 定义一个函数指针类型，返回 float
             typedef float (*FloatFunc)();
             FloatFunc func = reinterpret_cast<FloatFunc>(funcPtr);
+            std::cout << "invokeMainFunction: Calling float function..." << std::endl;
             float result = func();
+            std::cout << "invokeMainFunction: Float result=" << result << std::endl;
             return static_cast<int>(result);
         }
         case ReturnType::Integer:
@@ -45,7 +50,9 @@ namespace cse
             // 定义一个函数指针类型，返回 int
             typedef int (*IntFunc)();
             IntFunc func = reinterpret_cast<IntFunc>(funcPtr);
+            std::cout << "invokeMainFunction: Calling int function..." << std::endl;
             int result = func();
+            std::cout << "invokeMainFunction: Int result=" << result << std::endl;
             return result;
         }
         }

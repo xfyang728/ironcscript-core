@@ -34,11 +34,11 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
 endif()
 
 # K210平台支持
-if(CSE_K210)
+if(CSE_K210 AND NOT CSE_COMMERCIAL_BUILD)
     add_subdirectory(k210)
 endif()
 
 # STM32平台支持
-if(CSE_STM32)
+if(CSE_STM32 AND NOT CSE_COMMERCIAL_BUILD)
     add_subdirectory(stm32)
 endif()

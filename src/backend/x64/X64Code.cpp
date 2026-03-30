@@ -303,46 +303,8 @@ namespace cse
     
     void X64Code::updateFunctionCallOffsets()
     {
-        size_t codeSize = m_CodeBuffer.size();
-        if (!m_DataBuffer.empty()) {
-            codeSize -= m_DataBuffer.size();
-        }
-
-        for (auto& site : m_FunctionCalls) {
-            if (site.codeOffset < m_CodeBuffer.size()) {
-                bool isNopSequence = true;
-                for (int j = 0; j < 12 && (site.codeOffset + j) < m_CodeBuffer.size(); j++) {
-                    if (m_CodeBuffer[site.codeOffset + j] != 0x90) {
-                        isNopSequence = false;
-                        break;
-                    }
-                }
-
-                if (isNopSequence) {
-                    void* funcAddr = StandardLibrary::instance().resolve(site.funcName);
-
-                    if (funcAddr) {
-                        uint64_t addr = reinterpret_cast<uint64_t>(funcAddr);
-                        std::cout << "[updateFunctionCallOffsets] Resolving " << site.funcName
-                                  << " -> 0x" << std::hex << addr << std::dec << std::endl;
-                        m_CodeBuffer[site.codeOffset + 0] = 0x48;
-                        m_CodeBuffer[site.codeOffset + 1] = 0xB8;
-                        for (int i = 0; i < 8; i++) {
-                            m_CodeBuffer[site.codeOffset + 2 + i] = (addr >> (i * 8)) & 0xFF;
-                        }
-                        m_CodeBuffer[site.codeOffset + 10] = 0xFF;
-                        m_CodeBuffer[site.codeOffset + 11] = 0xD0;
-                        std::cout << "[updateFunctionCallOffsets] Replaced NOP with call to " << site.funcName
-                                  << " at offset " << site.codeOffset << std::endl;
-                    } else {
-                        std::cerr << "Warning: Could not find address for function " << site.funcName << std::endl;
-                    }
-                } else {
-                    std::cerr << "Warning: Function call site for " << site.funcName
-                              << " at offset " << site.codeOffset << " is not a NOP sequence" << std::endl;
-                }
-            }
-        }
+        // 注意：这个方法在代码生成阶段被调用，但此时数据还没有被添加到代码缓冲区中
+        // 所以这里不应该修改代码，而是由 codegen.cpp 中的 runCode 方法来处理函数调用的修复
     }
 
     void X64Code::generateCodeFromIR(const std::list<Quad>& quadList)
@@ -2241,8 +2203,9 @@ namespace cse
             }
             
             size_t totalStackSize = localVariableSize + 32;
-            if ((totalStackSize + 8) % 16 != 0) {
-                totalStackSize += 16 - ((totalStackSize + 8) % 16);
+            // 确保总栈大小是 16 字节的倍数，以满足 x86-64 调用约定的栈对齐要求
+            if (totalStackSize % 16 != 0) {
+                totalStackSize += 16 - (totalStackSize % 16);
             }
             
             if (stackAllocPos + 3 < m_CodeBuffer.size())

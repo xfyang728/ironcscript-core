@@ -139,7 +139,7 @@ TEST(IronCScriptTest, TestFFIDoubleSqrt) {
 }
 
 TEST(IronCScriptTest, TestFFIDoublePow) {
-    TestResult result = runScript("10_advanced/test_ffi_double_pow.c");
+    TestResult result = runScript("09_stdlib/math/test_pow.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
     EXPECT_EQ(result.returnValue, 256) << "double pow test should return 256 (2^8)";
 }

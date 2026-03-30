@@ -3,6 +3,7 @@
 #include "StandardLibrary.h"
 #ifdef _WIN32
 #include <Windows.h>
+#include <iostream>
 #else
 #include <dlfcn.h>
 #endif
@@ -20,16 +21,25 @@ std::string X64Platform::getPlatformName() const {
 
 void* X64Platform::getStandardLibraryFunctionAddress(const std::string& funcName) {
 #ifdef _WIN32
-    HMODULE hModule = GetModuleHandleA("msvcrt.dll");
+    // 只从 msvcrt.dll 中加载标准库函数，这是 Windows 中标准的 C 运行时库
+    static HMODULE hModule = nullptr;
     if (!hModule) {
-        hModule = LoadLibraryA("msvcrt.dll");
+        hModule = GetModuleHandleA("msvcrt.dll");
+        if (!hModule) {
+            hModule = LoadLibraryA("msvcrt.dll");
+        }
     }
-    return reinterpret_cast<void*>(GetProcAddress(hModule, funcName.c_str()));
+    if (hModule) {
+        void* addr = reinterpret_cast<void*>(GetProcAddress(hModule, funcName.c_str()));
+        if (addr) {
+            std::cout << "[X64Platform] Found " << funcName << " in msvcrt.dll at " << addr << std::endl;
+            return addr;
+        }
+    }
 #else
-    void* handle = dlopen("libc.so.6", RTLD_LAZY);
+    static void* handle = dlopen("libc.so.6", RTLD_LAZY);
     if (handle) {
         void* addr = dlsym(handle, funcName.c_str());
-        dlclose(handle);
         return addr;
     }
     return nullptr;
@@ -45,7 +55,7 @@ void* X64Platform::getFFIFunctionAddress(const std::string& funcName) {
     if (it != m_FFIFunctions.end()) {
         return it->second;
     }
-    return StandardLibrary::instance().resolve(funcName);
+    return getStandardLibraryFunctionAddress(funcName);
 }
 
 bool X64Platform::isFFIFunction(const std::string& funcName) const {

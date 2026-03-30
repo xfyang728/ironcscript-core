@@ -24,8 +24,16 @@ class IronCScript {
 public:
     using ExecutionCallback = std::function<void(const std::string&)>;
 
-private:
+protected:
     std::unique_ptr<IronCScriptImpl> m_pImpl;
+
+    IronCScriptImpl* getImpl() {
+        return m_pImpl.get();
+    }
+
+    const IronCScriptImpl* getImpl() const {
+        return m_pImpl.get();
+    }
 
 public:
     IronCScript();

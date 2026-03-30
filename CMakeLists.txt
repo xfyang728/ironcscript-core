@@ -40,10 +40,10 @@ set(ANTLR_INCLUDE_DIR
     extern/antlr4-runtime/include/antlr4-runtime/tree/pattern
     extern/antlr4-runtime/include/antlr4-runtime/tree/xpath
 )
-set(ANTLR_STATIC_LIB "${CMAKE_SOURCE_DIR}/extern/antlr4-runtime/lib/libantlr4-runtime-static.a")
+set(ANTLR_STATIC_LIB "${CMAKE_CURRENT_SOURCE_DIR}/extern/antlr4-runtime/lib/libantlr4-runtime-static.a")
 
-set(CAPSTONE_DIR ${CMAKE_SOURCE_DIR}/extern/capstone_build_mingw)
-set(CAPSTONE_LIB "${CMAKE_SOURCE_DIR}/extern/capstone_build_mingw/libcapstone.a")
+set(CAPSTONE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/capstone_build_mingw)
+set(CAPSTONE_LIB "${CMAKE_CURRENT_SOURCE_DIR}/extern/capstone_build_mingw/libcapstone.a")
 
 include_directories(src)
 include_directories(${CAPSTONE_DIR})
@@ -117,7 +117,9 @@ if(NOT CMAKE_CROSSCOMPILING)
     add_subdirectory(src/platform)
     add_subdirectory(src/gc)
     add_subdirectory(src/sandbox)
-    add_subdirectory(extern/googletest-1.17.0)
+    if(NOT CSE_COMMERCIAL_BUILD)
+        add_subdirectory(extern/googletest-1.17.0)
+    endif()
 endif()
 
 add_library(IronCScriptCoreLib STATIC ${LIB_SOURCES})
@@ -129,7 +131,7 @@ else()
     target_link_libraries(IronCScriptCoreLib PUBLIC Cache Exception)
 endif()
 
-if(NOT CMAKE_CROSSCOMPILING)
+if(NOT CMAKE_CROSSCOMPILING AND NOT CSE_COMMERCIAL_BUILD)
     add_executable(IronCScriptCLI src/main_cli.cpp)
     target_link_libraries(IronCScriptCLI PRIVATE IronCScriptCoreLib)
 endif()
@@ -142,7 +144,7 @@ if(CMAKE_CROSSCOMPILING AND RISCV64)
     target_link_libraries(IronCScriptRISCVIpf PRIVATE IronCScriptCoreLib)
 endif()
 
-if(NOT CMAKE_CROSSCOMPILING)
+if(NOT CMAKE_CROSSCOMPILING AND NOT CSE_COMMERCIAL_BUILD)
     enable_testing()
 
     set(TEST_SOURCES
@@ -160,7 +162,7 @@ if(NOT CMAKE_CROSSCOMPILING)
     add_subdirectory(tools/csburn)
 endif()
 
-if(NOT CMAKE_CROSSCOMPILING)
+if(NOT CMAKE_CROSSCOMPILING AND NOT CSE_COMMERCIAL_BUILD)
     add_subdirectory(examples/ExceptionTest)
     add_subdirectory(examples/FFI_Native_Script)
     add_subdirectory(examples/FFI_Script_Native)
