@@ -77,6 +77,19 @@ void BaseCodeGenerator::AllocateVariable(const char* name, cse::ICodeGenerator::
         std::cout << "Global variable " << name << " already allocated" << std::endl;
     } else if (m_VariableOffsets.find(name) != m_VariableOffsets.end()) {
         std::cout << "Local variable " << name << " already allocated at offset " << m_VariableOffsets[name] << std::endl;
+        int existingOffset = m_VariableOffsets[name];
+        int typeSize = m_Architecture->getRegisterSize();
+        if (type == cse::ICodeGenerator::Char || type == cse::ICodeGenerator::Bool) {
+            typeSize = 1;
+        } else if (type == cse::ICodeGenerator::Double) {
+            typeSize = sizeof(double);
+        } else if (type == cse::ICodeGenerator::Pointer) {
+            typeSize = m_Architecture->getRegisterSize();
+        }
+        int nextAvailable = existingOffset + typeSize;
+        if (nextAvailable > m_NextOffset) {
+            m_NextOffset = nextAvailable;
+        }
     } else {
         if (m_InFunction) {
                 // 局部变量
