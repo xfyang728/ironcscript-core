@@ -1371,86 +1371,91 @@ namespace cse
                                 int value = std::stoi(arg1);
                                 loadIntegerToRegister(value, paramReg);
                             } else if (VariableExists(arg1.c_str())) {
-                                int tempReg = allocateRegister();
-                                Type argType = Int;
-                                if (m_VariableTypes.find(arg1) != m_VariableTypes.end()) {
-                                    argType = m_VariableTypes[arg1];
+                                int constValue;
+                                if (GetConstantValue(arg1.c_str(), constValue)) {
+                                    loadIntegerToRegister(constValue, paramReg);
                                 } else {
-                                    // 判断是否是数组变量
-                                    bool isArrayVar = false;
-                                    if (!m_CurrentFunction.empty() && m_FunctionArrays.find(m_CurrentFunction) != m_FunctionArrays.end()) {
-                                        for (const auto& arrayInfo : m_FunctionArrays[m_CurrentFunction]) {
-                                            if (arrayInfo.name == arg1) {
-                                                isArrayVar = true;
-                                                break;
+                                    int tempReg = allocateRegister();
+                                    Type argType = Int;
+                                    if (m_VariableTypes.find(arg1) != m_VariableTypes.end()) {
+                                        argType = m_VariableTypes[arg1];
+                                    } else {
+                                        bool isArrayVar = false;
+                                        if (!m_CurrentFunction.empty() && m_FunctionArrays.find(m_CurrentFunction) != m_FunctionArrays.end()) {
+                                            for (const auto& arrayInfo : m_FunctionArrays[m_CurrentFunction]) {
+                                                if (arrayInfo.name == arg1) {
+                                                    isArrayVar = true;
+                                                    break;
+                                                }
                                             }
                                         }
+                                        if (isArrayVar) {
+                                            argType = Pointer;
+                                        }
                                     }
-                                    if (isArrayVar) {
-                                        argType = Pointer;
-                                    }
-                                }
-                                loadVariableToRegister(arg1, tempReg, argType);
-                                if (argType == Pointer || argType == Double) {
-                                    // 64 位类型使用 64 位 mov 指令
-                                    if (paramReg >= 8 && tempReg >= 8) {
-                                        m_CodeBuffer.push_back(0x4D);
-                                        m_CodeBuffer.push_back(0x89);
-                                        m_CodeBuffer.push_back(0xC0 + ((tempReg - 8) << 3) + (paramReg - 8));
-                                    } else if (paramReg >= 8) {
-                                        m_CodeBuffer.push_back(0x49);
-                                        m_CodeBuffer.push_back(0x89);
-                                        m_CodeBuffer.push_back(0xC0 + (tempReg << 3) + (paramReg - 8));
-                                    } else if (tempReg >= 8) {
-                                        m_CodeBuffer.push_back(0x4C);
-                                        m_CodeBuffer.push_back(0x89);
-                                        m_CodeBuffer.push_back(0xC0 + ((tempReg - 8) << 3) + paramReg);
+                                    loadVariableToRegister(arg1, tempReg, argType);
+                                    if (argType == Pointer || argType == Double) {
+                                        if (paramReg >= 8 && tempReg >= 8) {
+                                            m_CodeBuffer.push_back(0x4D);
+                                            m_CodeBuffer.push_back(0x89);
+                                            m_CodeBuffer.push_back(0xC0 + ((tempReg - 8) << 3) + (paramReg - 8));
+                                        } else if (paramReg >= 8) {
+                                            m_CodeBuffer.push_back(0x49);
+                                            m_CodeBuffer.push_back(0x89);
+                                            m_CodeBuffer.push_back(0xC0 + (tempReg << 3) + (paramReg - 8));
+                                        } else if (tempReg >= 8) {
+                                            m_CodeBuffer.push_back(0x4C);
+                                            m_CodeBuffer.push_back(0x89);
+                                            m_CodeBuffer.push_back(0xC0 + ((tempReg - 8) << 3) + paramReg);
+                                        } else {
+                                            m_CodeBuffer.push_back(0x48);
+                                            m_CodeBuffer.push_back(0x89);
+                                            m_CodeBuffer.push_back(0xC0 + (tempReg << 3) + paramReg);
+                                        }
                                     } else {
-                                        m_CodeBuffer.push_back(0x48);
-                                        m_CodeBuffer.push_back(0x89);
-                                        m_CodeBuffer.push_back(0xC0 + (tempReg << 3) + paramReg);
+                                        if (paramReg >= 8 && tempReg >= 8) {
+                                            m_CodeBuffer.push_back(0x45);
+                                            m_CodeBuffer.push_back(0x89);
+                                            m_CodeBuffer.push_back(0xC0 + ((tempReg - 8) << 3) + (paramReg - 8));
+                                        } else if (paramReg >= 8) {
+                                            m_CodeBuffer.push_back(0x41);
+                                            m_CodeBuffer.push_back(0x89);
+                                            m_CodeBuffer.push_back(0xC0 + (tempReg << 3) + (paramReg - 8));
+                                        } else if (tempReg >= 8) {
+                                            m_CodeBuffer.push_back(0x44);
+                                            m_CodeBuffer.push_back(0x89);
+                                            m_CodeBuffer.push_back(0xC0 + ((tempReg - 8) << 3) + paramReg);
+                                        } else {
+                                            m_CodeBuffer.push_back(0x89);
+                                            m_CodeBuffer.push_back(0xC0 + (tempReg << 3) + paramReg);
+                                        }
                                     }
+                                    freeRegister(tempReg);
+                                }
+                            } else {
+                                int constValue;
+                                if (GetConstantValue(arg1.c_str(), constValue)) {
+                                    loadIntegerToRegister(constValue, paramReg);
                                 } else {
-                                    // 32 位类型使用 32 位 mov 指令
-                                    if (paramReg >= 8 && tempReg >= 8) {
+                                    size_t dataOffset = StoreString(arg1.c_str());
+                                    size_t instrPos = m_CodeBuffer.size();
+                                    m_CodeBuffer.push_back(0x48);
+                                    m_CodeBuffer.push_back(0x8D);
+                                    if (paramReg >= 8) {
                                         m_CodeBuffer.push_back(0x45);
-                                        m_CodeBuffer.push_back(0x89);
-                                        m_CodeBuffer.push_back(0xC0 + ((tempReg - 8) << 3) + (paramReg - 8));
-                                    } else if (paramReg >= 8) {
-                                        m_CodeBuffer.push_back(0x41);
-                                        m_CodeBuffer.push_back(0x89);
-                                        m_CodeBuffer.push_back(0xC0 + (tempReg << 3) + (paramReg - 8));
-                                    } else if (tempReg >= 8) {
-                                        m_CodeBuffer.push_back(0x44);
-                                        m_CodeBuffer.push_back(0x89);
-                                        m_CodeBuffer.push_back(0xC0 + ((tempReg - 8) << 3) + paramReg);
+                                        m_CodeBuffer.push_back(0x00);
+                                        m_CodeBuffer.push_back(0x00);
+                                        m_CodeBuffer.push_back(0x00);
+                                        m_CodeBuffer.push_back(0x00);
                                     } else {
-                                        m_CodeBuffer.push_back(0x89);
-                                        m_CodeBuffer.push_back(0xC0 + (tempReg << 3) + paramReg);
+                                        m_CodeBuffer.push_back(0x05);
+                                        m_CodeBuffer.push_back(0x00);
+                                        m_CodeBuffer.push_back(0x00);
+                                        m_CodeBuffer.push_back(0x00);
+                                        m_CodeBuffer.push_back(0x00);
                                     }
+                                    AddRipRelativeOffset(instrPos, dataOffset);
                                 }
-                                freeRegister(tempReg);
-                            }
-                            else
-                            {
-                                size_t dataOffset = StoreString(arg1.c_str());
-                                size_t instrPos = m_CodeBuffer.size();
-                                m_CodeBuffer.push_back(0x48);
-                                m_CodeBuffer.push_back(0x8D);
-                                if (paramReg >= 8) {
-                                    m_CodeBuffer.push_back(0x45);
-                                    m_CodeBuffer.push_back(0x00);
-                                    m_CodeBuffer.push_back(0x00);
-                                    m_CodeBuffer.push_back(0x00);
-                                    m_CodeBuffer.push_back(0x00);
-                                } else {
-                                    m_CodeBuffer.push_back(0x05);
-                                    m_CodeBuffer.push_back(0x00);
-                                    m_CodeBuffer.push_back(0x00);
-                                    m_CodeBuffer.push_back(0x00);
-                                    m_CodeBuffer.push_back(0x00);
-                                }
-                                AddRipRelativeOffset(instrPos, dataOffset);
                             }
                         }
                         else if (result == "xmm0" || result == "xmm1" || result == "xmm2" || result == "xmm3")
@@ -1633,6 +1638,9 @@ namespace cse
                                     loadIntegerToRegister(value, reg);
                                     storeRegisterToVariable(reg, result, Int);
                                     freeRegister(reg);
+                                    if (result[0] == 't' && result.size() > 1 && std::isdigit(result[1])) {
+                                        SetConstantValue(result.c_str(), value);
+                                    }
                                 }
                                 else if (VariableExists(arg1.c_str()))
                                 {
@@ -1641,6 +1649,14 @@ namespace cse
                                     loadVariableToRegister(arg1, reg, argType);
                                     storeRegisterToVariable(reg, result, argType);
                                     freeRegister(reg);
+                                    if (result[0] == 't' && result.size() > 1 && std::isdigit(result[1])) {
+                                        int srcConst;
+                                        if (GetConstantValue(arg1.c_str(), srcConst)) {
+                                            SetConstantValue(result.c_str(), srcConst);
+                                        } else {
+                                            ClearConstantValue(result.c_str());
+                                        }
+                                    }
                                 }
                                 else
                                 {

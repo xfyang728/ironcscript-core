@@ -36,8 +36,11 @@ BaseCodeGenerator::BaseCodeGenerator(std::unique_ptr<Architecture> arch)
     m_ParamIndex = 0;
     m_MsvcrtDll = nullptr;
     m_LocalVariableSize = 0;
+    m_ParamEvalBase = 0;
+    m_ParamEvalOffset = 0;
     m_CurrentFunction = "";
     m_Platform = nullptr;
+    m_ConstantValues.clear();
     
     m_CodeBuffer.reserve(4096);
     m_DataBuffer.reserve(1024);
@@ -155,6 +158,23 @@ int BaseCodeGenerator::GetVariableAbsoluteOffset(const char* name) {
     }
     // 变量不存在，返回 0
     return 0;
+}
+
+bool BaseCodeGenerator::GetConstantValue(const char* name, int& value) const {
+    auto it = m_ConstantValues.find(name);
+    if (it != m_ConstantValues.end()) {
+        value = it->second;
+        return true;
+    }
+    return false;
+}
+
+void BaseCodeGenerator::SetConstantValue(const char* name, int value) {
+    m_ConstantValues[name] = value;
+}
+
+void BaseCodeGenerator::ClearConstantValue(const char* name) {
+    m_ConstantValues.erase(name);
 }
 
 void BaseCodeGenerator::SetInFunction(bool inFunction) {

@@ -29,6 +29,9 @@ public:
     void AllocateVariable(const char* name, Type type) override;
     int GetVariableOffset(const char* name) override;
     int GetVariableAbsoluteOffset(const char* name);
+    bool GetConstantValue(const char* name, int& value) const;
+    void SetConstantValue(const char* name, int value);
+    void ClearConstantValue(const char* name);
     void SetInFunction(bool inFunction) override;
     bool GetInFunction() const override;
     bool VariableExists(const char* name) const override;
@@ -92,7 +95,10 @@ protected:
     void* m_MsvcrtDll;
 #endif
     int m_LocalVariableSize; // 局部变量总大小
-    
+    int m_ParamEvalBase;     // 参数求值区域基址（固定分配）
+    int m_ParamEvalOffset;   // 参数求值区域当前偏移
+    std::map<std::string, int> m_ConstantValues; // 追踪常量变量的值
+
     // 平台抽象层
     PlatformAbstraction* m_Platform = nullptr;
     
