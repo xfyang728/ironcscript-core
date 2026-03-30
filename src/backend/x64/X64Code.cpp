@@ -291,20 +291,10 @@ namespace cse
 
     void X64Code::CallStandardLibraryFunction(const char* name)
     {
-        // 栈对齐处理：确保栈在函数调用前保持 16 字节对齐
-        m_CodeBuffer.push_back(0x48);
-        m_CodeBuffer.push_back(0x83);
-        m_CodeBuffer.push_back(0xE4);
-        m_CodeBuffer.push_back(0xF0); // and rsp, 0xFFFFFFFFFFFFFFF0
-        
         FunctionCallSite site;
         site.codeOffset = m_CodeBuffer.size();
         site.funcName = name;
         m_FunctionCalls.push_back(site);
-        
-        for (int i = 0; i < 12; i++) {
-            m_CodeBuffer.push_back(0x90);
-        }
     }
     
     void X64Code::updateFunctionCallOffsets()
