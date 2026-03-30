@@ -771,20 +771,20 @@ namespace cse
                         }
                         
                         int varOffset = GetVariableAbsoluteOffset(arrayName.c_str());
-                        int32_t displacement = -static_cast<int32_t>(varOffset + (numElements - 1) * elementSize);
+                        int32_t displacement = -static_cast<int32_t>(varOffset);
                         
                         if (isDoubleArray) {
                             unsigned char scaleByte = 0;
-                            if (elementSize == 8) scaleByte = 0xCD;
-                            else if (elementSize == 4) scaleByte = 0x8D;
-                            else if (elementSize == 2) scaleByte = 0x4D;
-                            else if (elementSize == 1) scaleByte = 0x0D;
+                            if (elementSize == 8) scaleByte = 0xC5; // 缩放因子 3 (8x), 索引 rcx, 基址 rbp
+                            else if (elementSize == 4) scaleByte = 0x85; // 缩放因子 2 (4x), 索引 rcx, 基址 rbp
+                            else if (elementSize == 2) scaleByte = 0x45; // 缩放因子 1 (2x), 索引 rcx, 基址 rbp
+                            else if (elementSize == 1) scaleByte = 0x05; // 缩放因子 0 (1x), 索引 rcx, 基址 rbp
                             
                             m_CodeBuffer.push_back(0xF2);
                             m_CodeBuffer.push_back(0x0F);
                             m_CodeBuffer.push_back(0x10);
-                            m_CodeBuffer.push_back(0x84);
-                            m_CodeBuffer.push_back(scaleByte);
+                            m_CodeBuffer.push_back(0x84); // ModRM: [rbp + rcx*scale + disp32]
+                            m_CodeBuffer.push_back(scaleByte); // SIB: scale, index=rcx, base=rbp
                             m_CodeBuffer.push_back(static_cast<unsigned char>(displacement & 0xFF));
                             m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 8) & 0xFF));
                             m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 16) & 0xFF));
@@ -792,17 +792,17 @@ namespace cse
                             storeRegisterToVariable(0, result, Double);
                         } else {
                             unsigned char scaleByte = 0;
-                            if (elementSize == 8) scaleByte = 0xCD;
-                            else if (elementSize == 4) scaleByte = 0x8D;
-                            else if (elementSize == 2) scaleByte = 0x4D;
-                            else if (elementSize == 1) scaleByte = 0x0D;
+                            if (elementSize == 8) scaleByte = 0xC5; // 缩放因子 3 (8x), 索引 rcx, 基址 rbp
+                            else if (elementSize == 4) scaleByte = 0x85; // 缩放因子 2 (4x), 索引 rcx, 基址 rbp
+                            else if (elementSize == 2) scaleByte = 0x45; // 缩放因子 1 (2x), 索引 rcx, 基址 rbp
+                            else if (elementSize == 1) scaleByte = 0x05; // 缩放因子 0 (1x), 索引 rcx, 基址 rbp
                             
                             if (elementSize == 8) {
                                 m_CodeBuffer.push_back(0x48);
                             }
                             m_CodeBuffer.push_back(0x8B);
-                            m_CodeBuffer.push_back(0x84);
-                            m_CodeBuffer.push_back(scaleByte);
+                            m_CodeBuffer.push_back(0x84); // ModRM: [rbp + rcx*scale + disp32]
+                            m_CodeBuffer.push_back(scaleByte); // SIB: scale, index=rcx, base=rbp
                             m_CodeBuffer.push_back(static_cast<unsigned char>(displacement & 0xFF));
                             m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 8) & 0xFF));
                             m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 16) & 0xFF));
@@ -913,37 +913,37 @@ namespace cse
                         }
                         
                         int varOffset = GetVariableAbsoluteOffset(name.c_str());
-                        int32_t displacement = -static_cast<int32_t>(varOffset + (numElements - 1) * elementSize);
+                        int32_t displacement = -static_cast<int32_t>(varOffset);
                         
                         if (isDoubleArray) {
                             unsigned char scaleByte = 0;
-                            if (elementSize == 8) scaleByte = 0xCD;
-                            else if (elementSize == 4) scaleByte = 0x8D;
-                            else if (elementSize == 2) scaleByte = 0x4D;
-                            else if (elementSize == 1) scaleByte = 0x0D;
+                            if (elementSize == 8) scaleByte = 0xC5; // 缩放因子 3 (8x), 索引 rcx, 基址 rbp
+                            else if (elementSize == 4) scaleByte = 0x85; // 缩放因子 2 (4x), 索引 rcx, 基址 rbp
+                            else if (elementSize == 2) scaleByte = 0x45; // 缩放因子 1 (2x), 索引 rcx, 基址 rbp
+                            else if (elementSize == 1) scaleByte = 0x05; // 缩放因子 0 (1x), 索引 rcx, 基址 rbp
                             
                             m_CodeBuffer.push_back(0xF2);
                             m_CodeBuffer.push_back(0x0F);
                             m_CodeBuffer.push_back(0x11);
-                            m_CodeBuffer.push_back(0x84);
-                            m_CodeBuffer.push_back(scaleByte);
+                            m_CodeBuffer.push_back(0x84); // ModRM: [rbp + rcx*scale + disp32]
+                            m_CodeBuffer.push_back(scaleByte); // SIB: scale, index=rcx, base=rbp
                             m_CodeBuffer.push_back(static_cast<unsigned char>(displacement & 0xFF));
                             m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 8) & 0xFF));
                             m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 16) & 0xFF));
                             m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 24) & 0xFF));
                         } else {
                             unsigned char scaleByte = 0;
-                            if (elementSize == 8) scaleByte = 0xCD;
-                            else if (elementSize == 4) scaleByte = 0x8D;
-                            else if (elementSize == 2) scaleByte = 0x4D;
-                            else if (elementSize == 1) scaleByte = 0x0D;
+                            if (elementSize == 8) scaleByte = 0xC5; // 缩放因子 3 (8x), 索引 rcx, 基址 rbp
+                            else if (elementSize == 4) scaleByte = 0x85; // 缩放因子 2 (4x), 索引 rcx, 基址 rbp
+                            else if (elementSize == 2) scaleByte = 0x45; // 缩放因子 1 (2x), 索引 rcx, 基址 rbp
+                            else if (elementSize == 1) scaleByte = 0x05; // 缩放因子 0 (1x), 索引 rcx, 基址 rbp
                             
                             if (elementSize == 8) {
                                 m_CodeBuffer.push_back(0x48);
                             }
                             m_CodeBuffer.push_back(0x89);
-                            m_CodeBuffer.push_back(0x84);
-                            m_CodeBuffer.push_back(scaleByte);
+                            m_CodeBuffer.push_back(0x84); // ModRM: [rbp + rcx*scale + disp32]
+                            m_CodeBuffer.push_back(scaleByte); // SIB: scale, index=rcx, base=rbp
                             m_CodeBuffer.push_back(static_cast<unsigned char>(displacement & 0xFF));
                             m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 8) & 0xFF));
                             m_CodeBuffer.push_back(static_cast<unsigned char>((displacement >> 16) & 0xFF));
@@ -1436,7 +1436,8 @@ namespace cse
                             }
                             else if (VariableExists(arg1.c_str()))
                             {
-                                loadVariableToRegister(arg1, 0, Int);
+                                Type argType = GetVariableType(arg1.c_str());
+                                loadVariableToRegister(arg1, 0, argType);
                             }
                             m_CodeBuffer.push_back(0x48);
                             m_CodeBuffer.push_back(0x89);
@@ -1867,6 +1868,12 @@ namespace cse
                                               funcName == "asin" || funcName == "acos" || funcName == "atan" ||
                                               funcName == "atan2" || funcName == "floor" || funcName == "ceil" ||
                                               funcName == "round" || funcName == "fmod");
+                        bool returnsPointer = (funcName == "malloc" || funcName == "calloc" || funcName == "realloc" ||
+                                               funcName == "strcpy" || funcName == "strcat" || funcName == "strstr" ||
+                                               funcName == "fopen" || funcName == "freopen" || funcName == "tmpfile" ||
+                                               funcName == "memcpy" || funcName == "memmove" || funcName == "memset");
+
+
 
                         if (IsStandardLibraryFunction(funcName.c_str()))
                         {
@@ -1875,7 +1882,7 @@ namespace cse
                             m_XmmRegCount = 0;
                             if (!result.empty())
                             {
-                                Type retType = returnsDouble ? Double : Int;
+                                Type retType = returnsDouble ? Double : (returnsPointer ? Pointer : Int);
                                 AllocateVariable(result.c_str(), retType);
                                 storeRegisterToVariable(0, result, retType);
                             }
@@ -1897,7 +1904,7 @@ namespace cse
 
                             if (!result.empty())
                             {
-                                Type retType = returnsDouble ? Double : Int;
+                                Type retType = returnsDouble ? Double : (returnsPointer ? Pointer : Int);
                                 AllocateVariable(result.c_str(), retType);
                                 storeRegisterToVariable(0, result, retType);
                             }
@@ -1921,7 +1928,7 @@ namespace cse
 
                             if (!result.empty())
                             {
-                                Type retType = returnsDouble ? Double : Int;
+                                Type retType = returnsDouble ? Double : (returnsPointer ? Pointer : Int);
                                 AllocateVariable(result.c_str(), retType);
                                 storeRegisterToVariable(0, result, retType);
                             }
