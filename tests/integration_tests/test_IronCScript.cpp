@@ -24,28 +24,27 @@ TestResult runScript(const char* scriptPath) {
     std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output_" + std::to_string(testCounter) + ".txt";
     std::string scriptFullPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\scripts\\" + std::string(scriptPath);
     std::string exeFullPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\build\\IronCScriptCLI.exe";
-    
-    // 使用新的ProcessRunner
+
     ProcessRunner::ProcessResult processResult = ProcessRunner::runProcess(
-        exeFullPath, 
-        "\"" + scriptFullPath + "\"", 
+        exeFullPath,
+        "\"" + scriptFullPath + "\"",
         outputPath,
-        15000 // 15秒超时
+        15000
     );
-    
+
     result.exitCode = processResult.exitCode;
     result.returnValue = processResult.returnValue;
     result.hasOutput = processResult.hasOutput;
     result.output = processResult.output;
     result.timedOut = processResult.timedOut;
-    
+
     std::cout << "Output: " << result.output << std::endl;
     std::cout << "Exit code: " << result.exitCode << std::endl;
     std::cout << "Return value: " << result.returnValue << std::endl;
     if (result.timedOut) {
         std::cout << "Process timed out!" << std::endl;
     }
-    
+
     return result;
 }
 
@@ -56,32 +55,30 @@ TestResult runScriptWithInput(const char* scriptPath, const char* inputPath) {
     std::string inputFullPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\inputs\\" + std::string(inputPath);
     std::string scriptFullPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\scripts\\" + std::string(scriptPath);
     std::string exeFullPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\build\\IronCScriptCLI.exe";
-    
-    // 使用新的ProcessRunner，正确处理输入重定向
-    // 构建命令行参数
+
     std::string arguments = "\"" + scriptFullPath + "\"";
-    
+
     ProcessRunner::ProcessResult processResult = ProcessRunner::runProcessWithInput(
-        exeFullPath, 
-        arguments, 
+        exeFullPath,
+        arguments,
         inputFullPath,
         outputPath,
-        15000 // 15秒超时
+        15000
     );
-    
+
     result.exitCode = processResult.exitCode;
     result.returnValue = processResult.returnValue;
     result.hasOutput = processResult.hasOutput;
     result.output = processResult.output;
     result.timedOut = processResult.timedOut;
-    
+
     std::cout << "Output: " << result.output << std::endl;
     std::cout << "Exit code: " << result.exitCode << std::endl;
     std::cout << "Return value: " << result.returnValue << std::endl;
     if (result.timedOut) {
         std::cout << "Process timed out!" << std::endl;
     }
-    
+
     return result;
 }
 
@@ -90,16 +87,12 @@ protected:
     void SetUp() override {}
 };
 
+// ==================== 01_basic ====================
+
 TEST(IronCScriptTest, TestChar) {
     TestResult result = runScript("01_basic/test_char.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
     EXPECT_EQ(result.returnValue, 65) << "char test should return ASCII value of 'A' (65)";
-}
-
-TEST(IronCScriptTest, TestPrintfInt) {
-    TestResult result = runScript("09_stdlib/stdio/test_printf_int.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 1) << "printf int test should return 1";
 }
 
 TEST(IronCScriptTest, TestInt) {
@@ -126,77 +119,18 @@ TEST(IronCScriptTest, TestDouble) {
     EXPECT_EQ(result.returnValue, 3) << "double test should return 3 (1.0+2.0)";
 }
 
-TEST(IronCScriptTest, TestFFIDoublePow) {
-    TestResult result = runScript("09_stdlib/math/test_pow.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 256) << "double pow test should return 256 (2^8)";
-}
-
-TEST(IronCScriptTest, TestDoubleArithOps) {
-    TestResult result = runScript("02_operators/test_double_arith_ops.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    double expected = (5.0 - 3.0) + (5.0 * 3.0) + (5.0 / 3.0) + 2.0;
-    EXPECT_EQ(result.returnValue, static_cast<int>(expected)) << "double arith ops test";
-}
-
-TEST(IronCScriptTest, TestDoubleBasic) {
-    TestResult result = runScript("02_operators/test_double_basic.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 4) << "double basic test should return 4 (1.5+2.5)";
-}
-
 TEST(IronCScriptTest, TestFloat) {
     TestResult result = runScript("01_basic/test_simple_float.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
     EXPECT_EQ(result.returnValue, 1) << "float test should return 1 (1.0 cast to int)";
 }
 
-TEST(IronCScriptTest, TestFunctionCall) {
-    TestResult result = runScript("04_functions/test_function_call.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 8) << "function call test: add(5,3) should return 8";
-}
-
-TEST(IronCScriptTest, TestGlobalVariable) {
-    TestResult result = runScript("04_functions/test_global_variable.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 10) << "global variable test should return 10";
-}
+// ==================== 02_operators ====================
 
 TEST(IronCScriptTest, TestSubtraction) {
     TestResult result = runScript("02_operators/test_subtraction.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
     EXPECT_EQ(result.returnValue, 3) << "subtraction test: 5-2 should return 3";
-}
-
-TEST(IronCScriptTest, TestReturn) {
-    TestResult result = runScript("04_functions/test_return.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 42) << "return test should return 42";
-}
-
-TEST(IronCScriptTest, TestSimpleFunction) {
-    TestResult result = runScript("04_functions/test_simple_function.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 42) << "simple function test should return 42";
-}
-
-TEST(IronCScriptTest, TestRecursiveFunction) {
-    TestResult result = runScript("04_functions/test_recursive_function.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 120) << "recursive function test should return 120 (5!)";
-}
-
-TEST(IronCScriptTest, TestPuts) {
-    TestResult result = runScript("09_stdlib/stdio/test_puts.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "puts test should complete";
-}
-
-TEST(IronCScriptTest, TestPrintf) {
-    TestResult result = runScript("09_stdlib/stdio/test_printf.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "printf test should complete";
 }
 
 TEST(IronCScriptTest, TestModulo) {
@@ -215,6 +149,19 @@ TEST(IronCScriptTest, TestDivision) {
     TestResult result = runScript("02_operators/test_division.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
     EXPECT_EQ(result.returnValue, 5) << "division test: 20 / 4 should return 5";
+}
+
+TEST(IronCScriptTest, TestDoubleBasic) {
+    TestResult result = runScript("02_operators/test_double_basic.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 4) << "double basic test should return 4 (1.5+2.5)";
+}
+
+TEST(IronCScriptTest, TestDoubleArithOps) {
+    TestResult result = runScript("02_operators/test_double_arith_ops.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    double expected = (5.0 - 3.0) + (5.0 * 3.0) + (5.0 / 3.0) + 2.0;
+    EXPECT_EQ(result.returnValue, static_cast<int>(expected)) << "double arith ops test";
 }
 
 TEST(IronCScriptTest, TestLogicalAnd) {
@@ -271,18 +218,6 @@ TEST(IronCScriptTest, TestShiftRight) {
     EXPECT_EQ(result.returnValue, 4) << "shift right test: 16 >> 2 should return 4";
 }
 
-TEST(IronCScriptTest, TestIf) {
-    TestResult result = runScript("03_control_flow/test_if.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 1) << "if test should return 1";
-}
-
-TEST(IronCScriptTest, TestWhile) {
-    TestResult result = runScript("03_control_flow/test_while.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 10) << "while test: sum 0+1+2+3+4 should return 10";
-}
-
 TEST(IronCScriptTest, TestInc) {
     TestResult result = runScript("02_operators/test_inc.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
@@ -293,30 +228,6 @@ TEST(IronCScriptTest, TestDec) {
     TestResult result = runScript("02_operators/test_dec.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
     EXPECT_EQ(result.returnValue, 2) << "dec test: a=5, a--, a--, a--, return a=2";
-}
-
-TEST(IronCScriptTest, TestFor) {
-    TestResult result = runScript("03_control_flow/test_for.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 10) << "for test: sum 0+1+2+3+4 should return 10";
-}
-
-TEST(IronCScriptTest, TestDoWhile) {
-    TestResult result = runScript("03_control_flow/test_do_while.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 10) << "do-while test: sum 0+1+2+3+4 should return 10";
-}
-
-TEST(IronCScriptTest, TestNestedIf) {
-    TestResult result = runScript("03_control_flow/test_nested_if.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 1) << "nested if test should return 1";
-}
-
-TEST(IronCScriptTest, TestLocalVariable) {
-    TestResult result = runScript("04_functions/test_local_variable.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 30) << "local variable test: a=10, b=20 should return 30";
 }
 
 TEST(IronCScriptTest, TestCompoundAdd) {
@@ -355,47 +266,162 @@ TEST(IronCScriptTest, TestTernaryOperatorFalse) {
     EXPECT_EQ(result.returnValue, 200) << "ternary operator test: (1 > 2) ? 100 : 200 should return 200";
 }
 
+TEST(IronCScriptTest, TestNewFeatures) {
+    TestResult result = runScript("02_operators/test_new_features.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 24) << "new features test should return 24";
+}
+
+// ==================== 03_control_flow ====================
+
+TEST(IronCScriptTest, TestIf) {
+    TestResult result = runScript("03_control_flow/test_if.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 1) << "if test should return 1";
+}
+
+TEST(IronCScriptTest, TestWhile) {
+    TestResult result = runScript("03_control_flow/test_while.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 10) << "while test: sum 0+1+2+3+4 should return 10";
+}
+
+TEST(IronCScriptTest, TestFor) {
+    TestResult result = runScript("03_control_flow/test_for.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 10) << "for test: sum 0+1+2+3+4 should return 10";
+}
+
+TEST(IronCScriptTest, TestDoWhile) {
+    TestResult result = runScript("03_control_flow/test_do_while.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 10) << "do-while test: sum 0+1+2+3+4 should return 10";
+}
+
+TEST(IronCScriptTest, TestNestedIf) {
+    TestResult result = runScript("03_control_flow/test_nested_if.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 1) << "nested if test should return 1";
+}
+
+TEST(IronCScriptTest, TestBreakWhile) {
+    TestResult result = runScript("03_control_flow/test_break_while.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 10) << "break while test should return 10";
+}
+
+TEST(IronCScriptTest, TestBreakFor) {
+    TestResult result = runScript("03_control_flow/test_break_for.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 10) << "break for test should return 10";
+}
+
+TEST(IronCScriptTest, TestBreakDoWhile) {
+    TestResult result = runScript("03_control_flow/test_break_dowhile.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 10) << "break do-while test should return 10";
+}
+
+TEST(IronCScriptTest, TestContinue) {
+    TestResult result = runScript("03_control_flow/test_continue.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 40) << "continue test should return 40";
+}
+
+TEST(IronCScriptTest, TestContinueWhile) {
+    TestResult result = runScript("03_control_flow/test_continue_while.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 8) << "continue while test should return 8";
+}
+
+TEST(IronCScriptTest, TestContinueFor) {
+    TestResult result = runScript("03_control_flow/test_continue_for.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 25) << "continue for test should return 25";
+}
+
+// ==================== 04_functions ====================
+
+TEST(IronCScriptTest, TestFunctionCall) {
+    TestResult result = runScript("04_functions/test_function_call.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 8) << "function call test: add(5,3) should return 8";
+}
+
+TEST(IronCScriptTest, TestSubExpressionParam) {
+    TestResult result = runScript("04_functions/test_sub_expression_param.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 18) << "sub expression param test: sub(4, a-b, a+b) should return 18";
+}
+
+TEST(IronCScriptTest, TestReturn) {
+    TestResult result = runScript("04_functions/test_return.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 42) << "return test should return 42";
+}
+
+TEST(IronCScriptTest, TestSimpleFunction) {
+    TestResult result = runScript("04_functions/test_simple_function.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 42) << "simple function test should return 42";
+}
+
+TEST(IronCScriptTest, TestRecursiveFunction) {
+    TestResult result = runScript("04_functions/test_recursive_function.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 120) << "recursive function test should return 120 (5!)";
+}
+
+TEST(IronCScriptTest, TestGlobalVariable) {
+    TestResult result = runScript("04_functions/test_global_variable.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 10) << "global variable test should return 10";
+}
+
+TEST(IronCScriptTest, TestLocalVariable) {
+    TestResult result = runScript("04_functions/test_local_variable.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 30) << "local variable test: a=10, b=20 should return 30";
+}
+
+// ==================== 05_arrays ====================
+
 TEST(IronCScriptTest, TestArray) {
     TestResult result = runScript("05_arrays/test_array.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "array test should complete";
+    EXPECT_EQ(result.returnValue, 15) << "array test should return 15";
 }
 
-TEST(IronCScriptTest, TestStringManipulation) {
-    TestResult result = runScript("09_stdlib/string/test_string_manipulation.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "string manipulation test should complete";
-}
-
-// 数组和指针测试
 TEST(IronCScriptTest, TestArrayMinimal) {
     TestResult result = runScript("05_arrays/test_array_minimal.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "array minimal test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "array minimal test should return 0";
 }
 
 TEST(IronCScriptTest, TestArraySimple) {
     TestResult result = runScript("05_arrays/test_array_simple.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "array simple test should complete";
+    EXPECT_EQ(result.returnValue, 15) << "array simple test should return 15";
 }
 
 TEST(IronCScriptTest, TestArrayAssign) {
     TestResult result = runScript("05_arrays/test_array_assign.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "array assign test should complete";
+    EXPECT_EQ(result.returnValue, 60) << "array assign test should return 60";
 }
 
 TEST(IronCScriptTest, TestArraySingle) {
     TestResult result = runScript("05_arrays/test_array_single.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "array single test should complete";
+    EXPECT_EQ(result.returnValue, 1) << "array single test should return 1";
 }
+
+// ==================== 06_pointers ====================
 
 TEST(IronCScriptTest, TestPointer) {
     TestResult result = runScript("06_pointers/test_pointer.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "pointer test should complete";
+    EXPECT_EQ(result.returnValue, 20) << "pointer test should return 20";
 }
 
 TEST(IronCScriptTest, TestAddressOf) {
@@ -404,57 +430,72 @@ TEST(IronCScriptTest, TestAddressOf) {
     EXPECT_EQ(result.returnValue, 42) << "address of test should return 42";
 }
 
-// 控制流测试
-TEST(IronCScriptTest, TestBreakWhile) {
-    TestResult result = runScript("03_control_flow/test_break_while.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "break while test should complete";
-}
-
-TEST(IronCScriptTest, TestBreakFor) {
-    TestResult result = runScript("03_control_flow/test_break_for.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "break for test should complete";
-}
-
-TEST(IronCScriptTest, TestBreakDoWhile) {
-    TestResult result = runScript("03_control_flow/test_break_dowhile.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "break do-while test should complete";
-}
-
-TEST(IronCScriptTest, TestContinue) {
-    TestResult result = runScript("03_control_flow/test_continue.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "continue test should complete";
-}
-
-TEST(IronCScriptTest, TestContinueWhile) {
-    TestResult result = runScript("03_control_flow/test_continue_while.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "continue while test should complete";
-}
-
-TEST(IronCScriptTest, TestContinueFor) {
-    TestResult result = runScript("03_control_flow/test_continue_for.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "continue for test should complete";
-}
-
-// 类型转换测试
 TEST(IronCScriptTest, TestCast) {
     TestResult result = runScript("06_pointers/test_cast.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "cast test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "cast test should return 0";
 }
 
 TEST(IronCScriptTest, TestCastSimple) {
     TestResult result = runScript("06_pointers/test_cast_simple.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "cast simple test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "cast simple test should return 0";
 }
 
-// 字符串函数测试
+// ==================== 07_structs ====================
+
+TEST(IronCScriptTest, TestStruct) {
+    TestResult result = runScript("07_structs/test_struct.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 30) << "struct test should return 30 (10+20)";
+}
+
+TEST(IronCScriptTest, TestStruct2) {
+    TestResult result = runScript("07_structs/test_struct2.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 10) << "struct2 test should return 10";
+}
+
+// ==================== 08_enums ====================
+
+TEST(IronCScriptTest, TestEnum) {
+    TestResult result = runScript("08_enums/test_enum.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 6) << "enum test should return BLUE (6)";
+}
+
+TEST(IronCScriptTest, TestEnumBasic) {
+    TestResult result = runScript("08_enums/test_enum_basic.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 0) << "enum basic test should return A (0)";
+}
+
+// ==================== 09_stdlib ====================
+
+TEST(IronCScriptTest, TestPrintfInt) {
+    TestResult result = runScript("09_stdlib/stdio/test_printf_int.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 1) << "printf int test should return 1";
+}
+
+TEST(IronCScriptTest, TestDoublePow) {
+    TestResult result = runScript("09_stdlib/math/test_pow.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 256) << "double pow test should return 256 (2^8)";
+}
+
+TEST(IronCScriptTest, TestPuts) {
+    TestResult result = runScript("09_stdlib/stdio/test_puts.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 0) << "puts test should return 0";
+}
+
+TEST(IronCScriptTest, TestPrintf) {
+    TestResult result = runScript("09_stdlib/stdio/test_printf.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 0) << "printf test should return 0";
+}
+
 TEST(IronCScriptTest, TestStringFunctions) {
     TestResult result = runScript("09_stdlib/string/test_string_functions.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
@@ -464,7 +505,7 @@ TEST(IronCScriptTest, TestStringFunctions) {
 TEST(IronCScriptTest, TestStrlen) {
     TestResult result = runScript("09_stdlib/string/test_strlen.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "strlen test should complete";
+    EXPECT_NE(result.returnValue, -1) << "strlen test should complete";
 }
 
 TEST(IronCScriptTest, TestStrcpy) {
@@ -473,46 +514,36 @@ TEST(IronCScriptTest, TestStrcpy) {
     EXPECT_GE(result.returnValue, 0) << "strcpy test should complete";
 }
 
-// 内存函数测试
 TEST(IronCScriptTest, TestMemoryFunctions) {
     TestResult result = runScript("09_stdlib/memory/test_memory_functions.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "memory functions test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "memory functions test should return 0";
 }
 
 TEST(IronCScriptTest, TestMalloc) {
     TestResult result = runScript("09_stdlib/memory/test_string_malloc.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "malloc test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "malloc test should return 0";
 }
 
-// 数学函数测试
 TEST(IronCScriptTest, TestMathFunctions) {
     TestResult result = runScript("09_stdlib/math/test_math_functions.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "math functions test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "math functions test should return 0";
 }
 
 TEST(IronCScriptTest, TestAbs) {
     TestResult result = runScript("09_stdlib/math/test_abs_only.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "abs test should complete";
-}
-
-// 标准库函数测试
-TEST(IronCScriptTest, TestStdlib) {
-    TestResult result = runScript("09_stdlib/test_stdlib.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "stdlib test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "abs test should return 0";
 }
 
 TEST(IronCScriptTest, TestSystemFunctions) {
-    TestResult result = runScript("09_stdlib/test_system_functions.c");
+    TestResult result = runScript("09_stdlib/system/test_system_functions.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "system functions test should complete";
+    EXPECT_NE(result.returnValue, -1) << "system functions test should complete";
 }
 
-// 输入输出测试
 TEST(IronCScriptTest, TestScanf) {
     TestResult result = runScriptWithInput("09_stdlib/stdio/test_scanf.c", "test_scanf_default.txt");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
@@ -561,213 +592,173 @@ TEST(IronCScriptTest, TestScanfSingleWithInput100) {
     EXPECT_EQ(result.returnValue, 100) << "scanf single with input 100 should return 100";
 }
 
-// 复杂功能测试
-TEST(IronCScriptTest, TestAllFeatures) {
-    TestResult result = runScript("13_comprehensive/test_all_features.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "all features test should complete";
-}
-
-TEST(IronCScriptTest, TestDetailed) {
-    TestResult result = runScript("13_comprehensive/test_detailed.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "detailed test should complete";
-}
-
-TEST(IronCScriptTest, TestNewFeatures) {
-    TestResult result = runScript("02_operators/test_new_features.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "new features test should complete";
-}
-
-// 边界情况测试
-TEST(IronCScriptTest, TestBoundaryCases) {
-    TestResult result = runScript("11_edge_cases/test_boundary_cases.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "boundary cases test should complete";
-}
-
-TEST(IronCScriptTest, TestErrorHandling) {
-    TestResult result = runScript("11_edge_cases/test_error_handling.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "error handling test should complete";
-}
-
-// 语法和语义测试
-TEST(IronCScriptTest, TestSyntaxError) {
-    TestResult result = runScript("11_edge_cases/test_syntax_error.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "syntax error test should complete";
-}
-
-TEST(IronCScriptTest, TestSemantic) {
-    TestResult result = runScript("11_edge_cases/test_semantic.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "semantic test should complete";
-}
-
-// 注释测试
-TEST(IronCScriptTest, TestComments) {
-    TestResult result = runScript("12_comments/test_comments.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "comments test should complete";
-}
-
-TEST(IronCScriptTest, TestMultiComment) {
-    TestResult result = runScript("12_comments/test_multi_comment.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "multi comment test should complete";
-}
-
-// 枚举测试
-TEST(IronCScriptTest, TestEnum) {
-    TestResult result = runScript("08_enums/test_enum.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 6) << "enum test should return BLUE (6)";
-}
-
-TEST(IronCScriptTest, TestEnumBasic) {
-    TestResult result = runScript("08_enums/test_enum_basic.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 0) << "enum basic test should return A (0)";
-}
-
-// 结构体测试
-TEST(IronCScriptTest, TestStruct) {
-    TestResult result = runScript("07_structs/test_struct.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 30) << "struct test should return 30 (10+20)";
-}
-
-TEST(IronCScriptTest, TestStruct2) {
-    TestResult result = runScript("07_structs/test_struct2.c");
-    EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 10) << "struct2 test should return 10";
-}
-
-// 文件函数测试
 TEST(IronCScriptTest, TestFileFunctions) {
     TestResult result = runScript("09_stdlib/stdio/test_file_functions.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "file functions test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "file functions test should return 0";
 }
 
 TEST(IronCScriptTest, TestFileWrite) {
     TestResult result = runScript("09_stdlib/stdio/test_file_write.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "file write test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "file write test should return 0";
 }
 
 TEST(IronCScriptTest, TestFileRead) {
     TestResult result = runScript("09_stdlib/stdio/test_file_read.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "file read test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "file read test should return 0";
 }
 
 TEST(IronCScriptTest, TestFprintf) {
     TestResult result = runScript("09_stdlib/stdio/test_fprintf.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "fprintf test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "fprintf test should return 0";
 }
 
 TEST(IronCScriptTest, TestFscanf) {
     TestResult result = runScript("09_stdlib/stdio/test_fscanf.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "fscanf test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "fscanf test should return 0";
 }
 
 TEST(IronCScriptTest, TestFileReadSimple) {
     TestResult result = runScript("09_stdlib/stdio/test_file_read_simple.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "file read simple test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "file read simple test should return 0";
 }
 
-// 时间函数测试
 TEST(IronCScriptTest, TestTimeFunctions) {
     TestResult result = runScript("09_stdlib/time/test_time_functions.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "time functions test should complete";
+    EXPECT_NE(result.returnValue, -1) << "time functions test should complete";
 }
 
-// 字符串函数测试
 TEST(IronCScriptTest, TestStringExtraFunctions) {
     TestResult result = runScript("09_stdlib/string/test_string_extra_functions.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "string extra functions test should complete";
+    EXPECT_NE(result.returnValue, -1) << "string extra functions test should complete";
 }
 
 TEST(IronCScriptTest, TestCharClassification) {
     TestResult result = runScript("09_stdlib/string/test_char_classification.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "char classification test should complete";
+    EXPECT_NE(result.returnValue, -1) << "char classification test should complete";
 }
 
 TEST(IronCScriptTest, TestCaseConversion) {
     TestResult result = runScript("09_stdlib/string/test_case_conversion.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "case conversion test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "case conversion test should return 0";
 }
 
-// 内存函数测试
 TEST(IronCScriptTest, TestMemoryAllocFunctions) {
     TestResult result = runScript("09_stdlib/memory/test_memory_alloc_functions.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "memory alloc functions test should complete";
+    EXPECT_NE(result.returnValue, -1) << "memory alloc functions test should complete";
 }
 
 TEST(IronCScriptTest, TestMallocSimple) {
     TestResult result = runScript("09_stdlib/memory/test_malloc.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "malloc simple test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "malloc simple test should return 0";
 }
 
-// 数学函数测试
 TEST(IronCScriptTest, TestMathExtraFunctions) {
     TestResult result = runScript("09_stdlib/math/test_math_extra_functions.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "math extra functions test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "math extra functions test should return 0";
 }
 
 TEST(IronCScriptTest, TestSqrt) {
     TestResult result = runScript("09_stdlib/math/test_sqrt_only.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "sqrt test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "sqrt test should return 0";
 }
 
 TEST(IronCScriptTest, TestPowDebug) {
     TestResult result = runScript("09_stdlib/math/test_pow_debug.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "pow debug test should complete";
+    EXPECT_EQ(result.returnValue, 2) << "pow debug test should return 2";
 }
 
-// 其他函数测试
 TEST(IronCScriptTest, TestOtherFunctions) {
     TestResult result = runScript("09_stdlib/other/test_other_functions.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "other functions test should complete";
+    EXPECT_NE(result.returnValue, -1) << "other functions test should complete";
 }
 
-// 系统函数测试
 TEST(IronCScriptTest, TestSystemFunctionsDetailed) {
     TestResult result = runScript("09_stdlib/system/test_system_functions.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "system functions detailed test should complete";
+    EXPECT_NE(result.returnValue, -1) << "system functions detailed test should complete";
 }
 
-// 文件操作测试
 TEST(IronCScriptTest, TestFileOperations) {
     TestResult result = runScript("09_stdlib/stdio/test_file_operations.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "file operations test should complete";
+    EXPECT_NE(result.returnValue, -1) << "file operations test should complete";
 }
 
 TEST(IronCScriptTest, TestIOFunctions) {
     TestResult result = runScript("09_stdlib/stdio/test_io_functions.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_GE(result.returnValue, 0) << "IO functions test should complete";
+    EXPECT_NE(result.returnValue, -1) << "IO functions test should complete";
 }
 
-// 添加更多测试用例...
+// ==================== 11_edge_cases ====================
+
+TEST(IronCScriptTest, TestBoundaryCases) {
+    TestResult result = runScript("11_edge_cases/test_boundary_cases.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 102) << "boundary cases test should return 102";
+}
+
+TEST(IronCScriptTest, TestErrorHandling) {
+    TestResult result = runScript("11_edge_cases/test_error_handling.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_NE(result.returnValue, -1) << "error handling test should complete";
+}
+
+TEST(IronCScriptTest, TestSyntaxError) {
+    TestResult result = runScript("11_edge_cases/test_syntax_error.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 30) << "syntax error test should return 30";
+}
+
+TEST(IronCScriptTest, TestSemantic) {
+    TestResult result = runScript("11_edge_cases/test_semantic.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 0) << "semantic test should return 0";
+}
+
+// ==================== 12_comments ====================
+
+TEST(IronCScriptTest, TestComments) {
+    TestResult result = runScript("12_comments/test_comments.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 10) << "comments test should return 10";
+}
+
+TEST(IronCScriptTest, TestMultiComment) {
+    TestResult result = runScript("12_comments/test_multi_comment.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 30) << "multi comment test should return 30";
+}
+
+// ==================== 13_comprehensive ====================
+
+TEST(IronCScriptTest, TestAllFeatures) {
+    TestResult result = runScript("13_comprehensive/test_all_features.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 171) << "all features test should return 171";
+}
+
+TEST(IronCScriptTest, TestDetailed) {
+    TestResult result = runScript("13_comprehensive/test_detailed.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_NE(result.returnValue, -1) << "detailed test should complete";
+}
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);

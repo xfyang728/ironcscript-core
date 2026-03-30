@@ -1,5 +1,5 @@
 int main() {
-    char* s = "Hello, World!";
-    int len = strlen(s);
+    const char* str = "Hello World";
+    int len = strlen(str);
     return len;
 }
