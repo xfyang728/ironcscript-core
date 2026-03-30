@@ -229,6 +229,9 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
                         }
                     }
                 }
+                uint32_t destSlot = getVariableSlot(dest);
+                emit(OpCode::STORE_VAR, destSlot);
+                m_LastStoredTemp.clear();
                 break;
             }
 
@@ -290,10 +293,11 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
                 default: op = OpCode::NOP; break;
             }
 
-            bool isSub = (quad.getOp() == OpEnum::SUB);
-            const std::string& firstArg = isSub ? quad.getArg2() : quad.getArg1();
-            const std::string& secondArg = isSub ? quad.getArg1() : quad.getArg2();
+            const std::string& firstArg = quad.getArg1();
+            const std::string& secondArg = quad.getArg2();
 
+            // For all operations, load first argument first, then second argument
+            // VM will pop them in reverse order (second, then first)
             if (firstArg.find('$') == 0) {
                 emit(OpCode::LOAD_VAR, std::stoul(firstArg.substr(1)));
             } else if (firstArg.length() > 1 && firstArg[0] == 't' &&
@@ -436,16 +440,11 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
             const std::string& dest = quad.getResult();
             if (arg.find("param_") == 0) {
                 uint32_t srcSlot = getVariableSlot(arg);
-                uint32_t destSlot = getVariableSlot(dest);
                 emit(OpCode::LOAD_VAR, srcSlot);
-                emit(OpCode::STORE_VAR, destSlot);
             } else if (arg.find("t") == 0) {
                 uint32_t srcSlot = getVariableSlot(arg);
-                uint32_t destSlot = getVariableSlot(dest);
                 emit(OpCode::LOAD_VAR, srcSlot);
-                emit(OpCode::STORE_VAR, destSlot);
             } else if (arg.find_first_not_of("0123456789.-") == std::string::npos) {
-                uint32_t destSlot = getVariableSlot(dest);
                 if (arg.find('.') != std::string::npos) {
                     double val = std::stod(arg);
                     uint32_t idx = addConstant(ConstantPoolEntry::makeDouble(val));
@@ -455,12 +454,9 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
                     uint32_t idx = addConstant(ConstantPoolEntry::makeInt(val));
                     emit(OpCode::LOAD_CONST, idx);
                 }
-                emit(OpCode::STORE_VAR, destSlot);
             } else {
                 uint32_t srcSlot = getVariableSlot(arg);
-                uint32_t destSlot = getVariableSlot(dest);
                 emit(OpCode::LOAD_VAR, srcSlot);
-                emit(OpCode::STORE_VAR, destSlot);
             }
             break;
         }

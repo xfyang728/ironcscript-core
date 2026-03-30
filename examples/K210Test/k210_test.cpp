@@ -67,7 +67,13 @@ void nativeSerialPrint(cse::BytecodeVM* vm) {
 }
 
 void nativeSerialPrintln(cse::BytecodeVM* vm) {
-    std::cout << "[STUB] Serial.println" << std::endl;
+    int32_t argCount = vm->getArgCount();
+    if (argCount > 0) {
+        int value = static_cast<int>(vm->getArg(0).value.intVal);
+        std::cout << "[STUB] Serial.println(" << value << ")" << std::endl;
+    } else {
+        std::cout << "[STUB] Serial.println" << std::endl;
+    }
 }
 
 void nativeDumpConstants(cse::BytecodeVM* vm) {

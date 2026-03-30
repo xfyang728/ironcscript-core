@@ -1302,12 +1302,11 @@ namespace cse
                                 else if (paramIndex == 2) xmmReg = 2;
                                 else if (paramIndex == 3) xmmReg = 3;
                             } else {
-                                if (paramIndex == 0) paramReg = 7;  // rdi
-                                else if (paramIndex == 1) paramReg = 6;  // rsi
-                                else if (paramIndex == 2) paramReg = 2;  // rdx
-                                else if (paramIndex == 3) paramReg = 1;  // rcx
-                                else if (paramIndex == 4) paramReg = 8;  // r8
-                                else if (paramIndex == 5) paramReg = 9;  // r9
+                                if (paramIndex == 0) paramReg = 1;  // rcx
+                                else if (paramIndex == 1) paramReg = 2;  // rdx
+                                else if (paramIndex == 2) paramReg = 8;  // r8
+                                else if (paramIndex == 3) paramReg = 9;  // r9
+                                else paramReg = -1;  // 栈参数
                             }
                             std::cout << "[DEBUG] ASSIGN: paramReg=" << paramReg << ", xmmReg=" << xmmReg << std::endl;
                         } else if (result == "rcx") {
@@ -1881,12 +1880,10 @@ namespace cse
                     std::string result = quad.getResult();
 
                     int paramReg;
-                    if (m_StackArgCount == 0) paramReg = 7;  // rdi
-                    else if (m_StackArgCount == 1) paramReg = 6;  // rsi
-                    else if (m_StackArgCount == 2) paramReg = 2;  // rdx
-                    else if (m_StackArgCount == 3) paramReg = 1;  // rcx
-                    else if (m_StackArgCount == 4) paramReg = 8;  // r8
-                    else if (m_StackArgCount == 5) paramReg = 9;  // r9
+                    if (m_StackArgCount == 0) paramReg = 1;  // rcx
+                    else if (m_StackArgCount == 1) paramReg = 2;  // rdx
+                    else if (m_StackArgCount == 2) paramReg = 8;  // r8
+                    else if (m_StackArgCount == 3) paramReg = 9;  // r9
                     else paramReg = -1;  // 栈参数
 
                     // 检查参数类型，确定使用通用寄存器还是 xmm 寄存器
@@ -2138,6 +2135,15 @@ namespace cse
                         if (IsStandardLibraryFunction(funcName.c_str()))
                         {
                             CallStandardLibraryFunction(funcName.c_str());
+
+                            m_CodeBuffer.push_back(0x48);
+                            m_CodeBuffer.push_back(0xB8);
+                            for (int i = 0; i < 8; i++) {
+                                m_CodeBuffer.push_back(0x00);
+                            }
+                            m_CodeBuffer.push_back(0xFF);
+                            m_CodeBuffer.push_back(0xD0);
+
                             m_StackArgCount = 0;
                             m_XmmRegCount = 0;
                             if (!result.empty())

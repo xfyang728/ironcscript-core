@@ -122,7 +122,7 @@ ProcessRunner::ProcessResult ProcessRunner::runProcess(const std::string& execut
     
     // 提取返回值
     result.returnValue = extractReturnValue(result.output, result.exitCode);
-    
+
     return result;
 }
 
@@ -230,7 +230,10 @@ ProcessRunner::ProcessResult ProcessRunner::runProcessWithInput(const std::strin
     
     // 提取返回值
     result.returnValue = extractReturnValue(result.output, result.exitCode);
-    
+
+    // 删除临时批处理文件
+    DeleteFileA(batchFile.c_str());
+
     return result;
 }
 

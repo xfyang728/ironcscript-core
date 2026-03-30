@@ -18,10 +18,54 @@ struct TestResult {
 
 static int testCounter = 0;
 
+void cleanupTestOutput() {
+    std::string outputDir = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output";
+    std::string searchPattern = outputDir + "\\test_output_*.txt";
+    WIN32_FIND_DATAA findData;
+    HANDLE hFind = FindFirstFileA(searchPattern.c_str(), &findData);
+    if (hFind != INVALID_HANDLE_VALUE) {
+        do {
+            std::string fullPath = outputDir + "\\" + findData.cFileName;
+            DeleteFileA(fullPath.c_str());
+        } while (FindNextFileA(hFind, &findData));
+        FindClose(hFind);
+    }
+}
+
+bool findOutputLine(const std::string& outputPath, const std::string& searchText) {
+    std::ifstream outputFile(outputPath);
+    if (!outputFile.is_open()) {
+        return false;
+    }
+    std::string line;
+    while (std::getline(outputFile, line)) {
+        if (line.find(searchText) != std::string::npos &&
+            line.find("[DEBUG]") == std::string::npos) {
+            outputFile.close();
+            return true;
+        }
+    }
+    outputFile.close();
+    return false;
+}
+
+std::string readFullOutput(const std::string& outputPath) {
+    std::string fullOutput;
+    std::ifstream outputFile(outputPath);
+    if (outputFile.is_open()) {
+        std::string line;
+        while (std::getline(outputFile, line)) {
+            fullOutput += line;
+            fullOutput += "\n";
+        }
+        outputFile.close();
+    }
+    return fullOutput;
+}
+
 TestResult runScript(const char* scriptPath) {
     TestResult result;
-    testCounter++;
-    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output_" + std::to_string(testCounter) + ".txt";
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
     std::string scriptFullPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\scripts\\" + std::string(scriptPath);
     std::string exeFullPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\build\\IronCScriptCLI.exe";
 
@@ -50,8 +94,7 @@ TestResult runScript(const char* scriptPath) {
 
 TestResult runScriptWithInput(const char* scriptPath, const char* inputPath) {
     TestResult result;
-    testCounter++;
-    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output_" + std::to_string(testCounter) + ".txt";
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
     std::string inputFullPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\inputs\\" + std::string(inputPath);
     std::string scriptFullPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\scripts\\" + std::string(scriptPath);
     std::string exeFullPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\build\\IronCScriptCLI.exe";
@@ -473,9 +516,14 @@ TEST(IronCScriptTest, TestEnumBasic) {
 // ==================== 09_stdlib ====================
 
 TEST(IronCScriptTest, TestPrintfInt) {
+    cleanupTestOutput();
     TestResult result = runScript("09_stdlib/stdio/test_printf_int.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
     EXPECT_EQ(result.returnValue, 1) << "printf int test should return 1";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "x = 1"))
+        << "Output should contain 'x = 1' from printf, got: " << readFullOutput(outputPath);
 }
 
 TEST(IronCScriptTest, TestDoublePow) {
@@ -485,21 +533,36 @@ TEST(IronCScriptTest, TestDoublePow) {
 }
 
 TEST(IronCScriptTest, TestPuts) {
+    cleanupTestOutput();
     TestResult result = runScript("09_stdlib/stdio/test_puts.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
     EXPECT_EQ(result.returnValue, 0) << "puts test should return 0";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "Hello, World!"))
+        << "Output should contain 'Hello, World!' from puts, got: " << readFullOutput(outputPath);
 }
 
 TEST(IronCScriptTest, TestPrintf) {
+    cleanupTestOutput();
     TestResult result = runScript("09_stdlib/stdio/test_printf.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
     EXPECT_EQ(result.returnValue, 0) << "printf test should return 0";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "Hello, World!"))
+        << "Output should contain 'Hello, World!' from printf, got: " << readFullOutput(outputPath);
 }
 
 TEST(IronCScriptTest, TestStringFunctions) {
+    cleanupTestOutput();
     TestResult result = runScript("09_stdlib/string/test_string_functions.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
     EXPECT_GE(result.returnValue, 0) << "string functions test should complete";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "strlen"))
+        << "Output should contain 'strlen', got: " << readFullOutput(outputPath);
 }
 
 TEST(IronCScriptTest, TestStrlen) {
@@ -509,9 +572,14 @@ TEST(IronCScriptTest, TestStrlen) {
 }
 
 TEST(IronCScriptTest, TestStrcpy) {
+    cleanupTestOutput();
     TestResult result = runScript("09_stdlib/string/test_strcpy_simple.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
     EXPECT_GE(result.returnValue, 0) << "strcpy test should complete";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "Hello"))
+        << "Output should contain 'Hello', got: " << readFullOutput(outputPath);
 }
 
 TEST(IronCScriptTest, TestMemoryFunctions) {
@@ -527,9 +595,14 @@ TEST(IronCScriptTest, TestMalloc) {
 }
 
 TEST(IronCScriptTest, TestMathFunctions) {
+    cleanupTestOutput();
     TestResult result = runScript("09_stdlib/math/test_math_functions.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
     EXPECT_EQ(result.returnValue, 0) << "math functions test should return 0";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "sqrt"))
+        << "Output should contain 'sqrt', got: " << readFullOutput(outputPath);
 }
 
 TEST(IronCScriptTest, TestAbs) {
@@ -647,9 +720,16 @@ TEST(IronCScriptTest, TestCharClassification) {
 }
 
 TEST(IronCScriptTest, TestCaseConversion) {
+    cleanupTestOutput();
     TestResult result = runScript("09_stdlib/string/test_case_conversion.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
     EXPECT_EQ(result.returnValue, 0) << "case conversion test should return 0";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "a"))  // toupper('a') = 'A'
+        << "Output should contain 'a' (tolower result), got: " << readFullOutput(outputPath);
+    EXPECT_TRUE(findOutputLine(outputPath, "A"))  // toupper('a') = 'A'
+        << "Output should contain 'A' (toupper result), got: " << readFullOutput(outputPath);
 }
 
 TEST(IronCScriptTest, TestMemoryAllocFunctions) {
@@ -671,9 +751,14 @@ TEST(IronCScriptTest, TestMathExtraFunctions) {
 }
 
 TEST(IronCScriptTest, TestSqrt) {
+    cleanupTestOutput();
     TestResult result = runScript("09_stdlib/math/test_sqrt_only.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 0) << "sqrt test should return 0";
+    EXPECT_EQ(result.returnValue, 2) << "sqrt test should return 2 (sqrt(4.0))";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "4.0"))
+        << "Output should contain '4.0' (sqrt input), got: " << readFullOutput(outputPath);
 }
 
 TEST(IronCScriptTest, TestPowDebug) {
@@ -695,15 +780,25 @@ TEST(IronCScriptTest, TestSystemFunctionsDetailed) {
 }
 
 TEST(IronCScriptTest, TestFileOperations) {
+    cleanupTestOutput();
     TestResult result = runScript("09_stdlib/stdio/test_file_operations.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
     EXPECT_NE(result.returnValue, -1) << "file operations test should complete";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "Hello, File Operations!"))
+        << "Output should contain 'Hello, File Operations!', got: " << readFullOutput(outputPath);
 }
 
 TEST(IronCScriptTest, TestIOFunctions) {
+    cleanupTestOutput();
     TestResult result = runScript("09_stdlib/stdio/test_io_functions.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
     EXPECT_NE(result.returnValue, -1) << "IO functions test should complete";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "Testing"))
+        << "Output should contain 'Testing', got: " << readFullOutput(outputPath);
 }
 
 // ==================== 11_edge_cases ====================

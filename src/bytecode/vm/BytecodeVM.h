@@ -52,7 +52,7 @@ public:
     VMValue getArg(int32_t index) {
         if (index < 0 || m_FrameCount == 0) return VMValue::makeNil();
         VMFrame& frame = m_Frames[m_FrameCount - 1];
-        int32_t stackIndex = frame.localBase + index;
+        int32_t stackIndex = frame.localBase + (frame.localCount - 1 - index);
         if (stackIndex < 0 || stackIndex >= (int32_t)m_StackSize) return VMValue::makeNil();
         return m_Stack[stackIndex];
     }
