@@ -9,6 +9,6 @@ void main() {
     println(1000);
     int a = 10;
     int b = 3;
-    testsub(a + b, a - b);
+    testsub(3, a - b);
     println(2000);
 }

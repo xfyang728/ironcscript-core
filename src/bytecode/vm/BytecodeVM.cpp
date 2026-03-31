@@ -132,11 +132,26 @@ bool BytecodeVM::callFunction(uint32_t funcIndex, uint32_t paramCount) {
         return false;
     }
 
+    const BytecodeFunction& func = m_Module->functions[funcIndex];
+    uint32_t localCount = func.localCount;
+    uint32_t funcParamCount = func.paramCount;
+
+    printf("[VM] callFunction: funcIndex=%u, paramCount=%u, localCount=%u, funcParamCount=%u\r\n",
+           funcIndex, paramCount, localCount, funcParamCount);
+
+    for (uint32_t i = funcParamCount; i < localCount; i++) {
+        push(VMValue::makeInt(0));
+    }
+
+    printf("[VM] callFunction: After push locals, stackTop=%d\r\n", m_StackTop - m_Stack);
+
     VMFrame frame;
     frame.functionIndex = funcIndex;
     frame.pc = 0;
-    frame.localBase = m_StackTop - m_Stack - paramCount;
-    frame.localCount = paramCount;
+    frame.localBase = m_StackTop - m_Stack - localCount;
+    frame.localCount = funcParamCount;
+
+    printf("[VM] callFunction: localBase=%d\r\n", frame.localBase);
 
     m_Frames[m_FrameCount++] = frame;
     return true;
@@ -156,7 +171,12 @@ VMValue& BytecodeVM::getLocal(uint32_t slot) {
         return nil;
     }
     VMFrame& frame = m_Frames[m_FrameCount - 1];
-    int32_t actualSlot = frame.localBase + slot;
+    int32_t actualSlot;
+    if (slot < frame.localCount) {
+        actualSlot = frame.localBase + slot;
+    } else {
+        actualSlot = frame.localBase + frame.localCount + (slot - frame.localCount);
+    }
     if (actualSlot >= m_StackSize || actualSlot < 0) {
         return nil;
     }
@@ -224,13 +244,34 @@ bool BytecodeVM::executeInstruction(OpCode op, uint32_t operand) {
         }
 
         case OpCode::LOAD_VAR: {
+            printf("[VM] LOAD_VAR: slot=%u, localBase=%d, actualSlot=%d\r\n",
+                   operand, m_Frames[m_FrameCount - 1].localBase,
+                   m_Frames[m_FrameCount - 1].localBase + operand);
             VMValue val = getLocal(operand);
+            printf("[VM] LOAD_VAR: loaded value=%lld\r\n", (long long)val.value.intVal);
             push(val);
             break;
         }
 
         case OpCode::STORE_VAR: {
             VMValue val = pop();
+            VMFrame& frame = m_Frames[m_FrameCount - 1];
+            int32_t actualSlot;
+            if (operand < frame.localCount) {
+                actualSlot = frame.localBase + operand;
+            } else {
+                actualSlot = frame.localBase + frame.localCount + (operand - frame.localCount);
+            }
+            printf("[VM] STORE_VAR: slot=%u, localBase=%d, localCount=%u, actualSlot=%d, value=%lld\r\n",
+                   operand, frame.localBase, frame.localCount, actualSlot, (long long)val.value.intVal);
+            if (actualSlot >= 0 && actualSlot < (int32_t)m_StackSize) {
+                m_Stack[actualSlot] = val;
+            }
+            break;
+        }
+
+        case OpCode::PEEK_VAR: {
+            VMValue val = peek();
             VMFrame& frame = m_Frames[m_FrameCount - 1];
             int32_t actualSlot = frame.localBase + operand;
             if (actualSlot >= 0 && actualSlot < (int32_t)m_StackSize) {
@@ -253,6 +294,9 @@ bool BytecodeVM::executeInstruction(OpCode op, uint32_t operand) {
         case OpCode::SUB: {
             VMValue b = pop();
             VMValue a = pop();
+            printf("[VM] SUB: a=%lld, b=%lld, result=%lld\r\n", 
+                   (long long)a.value.intVal, (long long)b.value.intVal, 
+                   (long long)(a.value.intVal - b.value.intVal));
             if (a.type == ValueType::INTEGER && b.type == ValueType::INTEGER) {
                 push(VMValue::makeInt(a.value.intVal - b.value.intVal));
             } else {
@@ -392,9 +436,19 @@ bool BytecodeVM::executeInstruction(OpCode op, uint32_t operand) {
             uint32_t encoded = operand;
             uint32_t funcIndex = encoded & 0xFFFF;
             uint32_t paramCount = encoded >> 16;
+            int32_t currentStackTop = m_StackTop - m_Stack;
+            printf("[VM] CALL: funcIndex=%u, paramCount=%u, stackTop=%d\r\n",
+                   funcIndex, paramCount, currentStackTop);
+            printf("[VM] CALL: Stack before call: ");
+            for (int i = 0; i < currentStackTop && i < 20; i++) {
+                printf("[%d]=%lld ", i, (long long)m_Stack[i].value.intVal);
+            }
+            printf("\r\n");
             if (!callFunction(funcIndex, paramCount)) {
                 return false;
             }
+            printf("[VM] CALL: After setup frame, localBase=%d\r\n",
+                   m_Frames[m_FrameCount - 1].localBase);
             break;
         }
 

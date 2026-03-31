@@ -205,7 +205,8 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
             if (isParamDest) {
                 if (src == m_LastStoredTemp && src.length() > 1 && src[0] == 't' &&
                     src.find_first_not_of("0123456789", 1) == std::string::npos) {
-                    m_LastStoredTemp.clear();
+                    uint32_t srcSlot = getVariableSlot(src);
+                    emit(OpCode::LOAD_VAR, srcSlot);
                 } else if (src.find('$') == 0) {
                     uint32_t srcSlot = std::stoul(src.substr(1));
                     emit(OpCode::LOAD_VAR, srcSlot);
@@ -229,8 +230,7 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
                         }
                     }
                 }
-                uint32_t destSlot = getVariableSlot(dest);
-                emit(OpCode::STORE_VAR, destSlot);
+                getVariableSlot(dest);
                 m_LastStoredTemp.clear();
                 break;
             }
@@ -249,8 +249,13 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
                         emit(OpCode::LOAD_VAR, srcSlot);
                     }
                 } else {
-                    uint32_t idx = addConstant(ConstantPoolEntry::makeString(getStringOffset(src)));
-                    emit(OpCode::LOAD_CONST, idx);
+                    auto it = m_VariableToSlot.find(src);
+                    if (it != m_VariableToSlot.end()) {
+                        emit(OpCode::LOAD_VAR, it->second);
+                    } else {
+                        uint32_t idx = addConstant(ConstantPoolEntry::makeString(getStringOffset(src)));
+                        emit(OpCode::LOAD_CONST, idx);
+                    }
                 }
             }
 
@@ -438,25 +443,36 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
         case OpEnum::PARAM: {
             const std::string& arg = quad.getArg1();
             const std::string& dest = quad.getResult();
+            
+            uint32_t srcSlot;
             if (arg.find("param_") == 0) {
-                uint32_t srcSlot = getVariableSlot(arg);
-                emit(OpCode::LOAD_VAR, srcSlot);
+                srcSlot = getVariableSlot(arg);
             } else if (arg.find("t") == 0) {
-                uint32_t srcSlot = getVariableSlot(arg);
-                emit(OpCode::LOAD_VAR, srcSlot);
+                srcSlot = getVariableSlot(arg);
             } else if (arg.find_first_not_of("0123456789.-") == std::string::npos) {
                 if (arg.find('.') != std::string::npos) {
                     double val = std::stod(arg);
                     uint32_t idx = addConstant(ConstantPoolEntry::makeDouble(val));
                     emit(OpCode::LOAD_CONST, idx);
+                    srcSlot = UINT32_MAX;
                 } else {
                     int64_t val = std::stoll(arg);
                     uint32_t idx = addConstant(ConstantPoolEntry::makeInt(val));
                     emit(OpCode::LOAD_CONST, idx);
+                    srcSlot = UINT32_MAX;
                 }
             } else {
-                uint32_t srcSlot = getVariableSlot(arg);
-                emit(OpCode::LOAD_VAR, srcSlot);
+                srcSlot = getVariableSlot(arg);
+            }
+            
+            if (!dest.empty()) {
+                if (srcSlot != UINT32_MAX && arg.find("param_") == 0) {
+                    m_VariableToSlot[dest] = srcSlot;
+                    std::cerr << "[DEBUG BC] Mapping parameter name '" << dest << "' to param slot " << srcSlot << std::endl;
+                } else {
+                    uint32_t destSlot = getVariableSlot(dest);
+                    emit(OpCode::STORE_VAR, destSlot);
+                }
             }
             break;
         }
@@ -574,8 +590,18 @@ BytecodeModule* BytecodeCompiler::compile(const std::list<Quad>& quadList, Symbo
 
         m_CurrentFunction = &func;
         m_CurrentFunctionName = f.name;
+        m_VariableToSlot.clear();
+        m_LocalVariables.clear();
 
         compileFunctionBody(f.start, f.end);
+
+        func.paramCount = 0;
+        for (const auto& var : m_LocalVariables) {
+            if (var.find("param_") == 0) {
+                func.paramCount++;
+            }
+        }
+        func.localCount = m_LocalVariables.size();
 
         emit(OpCode::RETURN, 0);
 
@@ -592,8 +618,12 @@ BytecodeModule* BytecodeCompiler::compile(const std::list<Quad>& quadList, Symbo
 
     m_CurrentFunction = &mainFunc;
     m_CurrentFunctionName = "main";
+    m_VariableToSlot.clear();
+    m_LocalVariables.clear();
 
     compileFunctionBody(mainRange.start, mainRange.end);
+
+    mainFunc.localCount = m_LocalVariables.size();
 
     if (mainFunc.instructions.empty() ||
         mainFunc.instructions.back().op != OpCode::HALT) {
@@ -640,6 +670,17 @@ void BytecodeCompiler::compileFunctionBody(
     std::list<Quad>::const_iterator end) {
 
     m_LastStoredTemp.clear();
+
+    for (auto it = std::next(start); it != end; ++it) {
+        const Quad& quad = *it;
+        if (quad.getOp() == OpEnum::PARAM) {
+            const std::string& arg = quad.getArg1();
+            if (arg.find("param_") == 0) {
+                getVariableSlot(arg);
+            }
+        }
+    }
+
     int nestedDepth = 0;
 
     for (auto it = std::next(start); it != end; ++it) {
