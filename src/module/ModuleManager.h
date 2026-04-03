@@ -45,6 +45,18 @@ public:
 };
 
 /**
+ * @brief 已解析 AST 块的缓存条目
+ */
+struct ParsedIncludeCache {
+    NBlock* ast;
+    std::string filePath;
+    time_t mtime;
+
+    ParsedIncludeCache(NBlock* a, const std::string& path, time_t mt)
+        : ast(a), filePath(path), mtime(mt) {}
+};
+
+/**
  * @brief 模块管理器类
  * @details 负责模块加载、路径解析、循环检测和include文件处理
  */
@@ -58,10 +70,18 @@ private:
     size_t maxIncludeDepth;
     size_t currentIncludeDepth;
 
+    std::map<std::string, std::unique_ptr<ParsedIncludeCache>> includeCache;
+    size_t cacheHits;
+    size_t cacheMisses;
+
 public:
     static size_t globalIncludeDepth;
     static size_t globalFailedIncludes;
     static constexpr size_t DEFAULT_MAX_INCLUDE_DEPTH = 10;
+
+    size_t getCacheHits() const { return cacheHits; }
+    size_t getCacheMisses() const { return cacheMisses; }
+    void resetCacheStats() { cacheHits = 0; cacheMisses = 0; }
 
     /**
      * @brief 解析模块路径

@@ -5,6 +5,7 @@
 #include <string>
 #include <cstdlib>
 #include <cstring>
+#include <sys/stat.h>
 
 // 确保在使用类型前包含必要的头文件
 #include "frontend/parser/node.h"
@@ -130,6 +131,8 @@ ModuleManager::ModuleManager() {
     scriptDirectory = ".";
     maxIncludeDepth = 10;
     currentIncludeDepth = 0;
+    cacheHits = 0;
+    cacheMisses = 0;
 #else
     try {
         currentDirectory = getCurrentDirectory();
@@ -139,6 +142,8 @@ ModuleManager::ModuleManager() {
     scriptDirectory = currentDirectory;
     maxIncludeDepth = 10;
     currentIncludeDepth = 0;
+    cacheHits = 0;
+    cacheMisses = 0;
 
     moduleSearchPaths.push_back(currentDirectory);
     moduleSearchPaths.push_back(scriptDirectory);
@@ -552,6 +557,33 @@ bool ModuleManager::includeFile(const std::string& filePath, NBlock& block,
         return false;
     }
 
+    if (resolvedPath.empty()) {
+        std::cerr << location << "[MODULE] Cannot resolve include path: " << filePath << std::endl;
+        ++globalFailedIncludes;
+        return false;
+    }
+
+    struct _stat fileStat;
+    if (_stat(resolvedPath.c_str(), &fileStat) != 0) {
+        std::cerr << location << "[MODULE] Cannot stat include file: " << resolvedPath << std::endl;
+        ++globalFailedIncludes;
+        return false;
+    }
+    time_t fileMtime = fileStat.st_mtime;
+
+    auto cacheIt = includeCache.find(resolvedPath);
+    if (cacheIt != includeCache.end() && cacheIt->second->mtime == fileMtime) {
+        ++cacheHits;
+        std::cerr << location << "[CACHE] Include cache hit: " << resolvedPath << std::endl;
+        NBlock* cachedAst = cacheIt->second->ast;
+        for (auto stmt : cachedAst->statements) {
+            block.statements.push_back(stmt);
+        }
+        return true;
+    }
+    ++cacheMisses;
+    std::cerr << location << "[CACHE] Include cache miss: " << resolvedPath << std::endl;
+
     std::ifstream file(resolvedPath);
     if (!file.is_open()) {
         std::cerr << location << "[MODULE] Cannot open include file: " << resolvedPath << std::endl;
@@ -601,6 +633,8 @@ bool ModuleManager::includeFile(const std::string& filePath, NBlock& block,
         ++globalFailedIncludes;
         return false;
     }
+
+    includeCache[resolvedPath] = std::make_unique<ParsedIncludeCache>(includeAst, resolvedPath, fileMtime);
 
     for (auto stmt : includeAst->statements) {
         block.statements.push_back(stmt);
