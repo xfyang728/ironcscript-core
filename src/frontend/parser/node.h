@@ -376,9 +376,18 @@ namespace cse {
     class NIncludeStatement : public NStatement {
     public:
         std::string filePath;
-        
-        NIncludeStatement(const std::string& filePath) :
-            filePath(filePath) { }
+        std::string sourceFile;
+        size_t line;
+        size_t column;
+
+        NIncludeStatement(const std::string& filePath,
+                         const std::string& sourceFile = "",
+                         size_t line = 0,
+                         size_t column = 0) :
+            filePath(filePath),
+            sourceFile(sourceFile),
+            line(line),
+            column(column) { }
     };
 }
 

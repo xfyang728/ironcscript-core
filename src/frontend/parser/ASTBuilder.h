@@ -232,9 +232,15 @@ T safe_any_cast_value(const antlrcpp::Any& anyVal) {
 }
 
 class ASTBuilder : public CScriptVisitor {
+private:
+    std::string currentSourceFile;
+
 public:
-    ASTBuilder() {}
+    ASTBuilder() : currentSourceFile("") {}
     ~ASTBuilder() {}
+
+    void setSourceFile(const std::string& file) { currentSourceFile = file; }
+    const std::string& getSourceFile() const { return currentSourceFile; }
 
     NBlock* build(CScriptParser::ProgramContext* ctx) {
         auto result = visitProgram(ctx);
@@ -1319,13 +1325,24 @@ public:
     antlrcpp::Any visitInclude_stmt(CScriptParser::Include_stmtContext* ctx) override {
         std::cout << "[DEBUG] visitInclude_stmt: entered" << std::endl;
 
+        std::string filePath;
         if (ctx->STRING()) {
-            std::string filePath = ctx->STRING()->getText();
+            filePath = ctx->STRING()->getText();
             if (filePath.size() >= 2) {
                 filePath = filePath.substr(1, filePath.size() - 2);
             }
+        } else if (ctx->ANGLE_STRING()) {
+            filePath = ctx->ANGLE_STRING()->getText();
+            if (filePath.size() >= 2) {
+                filePath = filePath.substr(1, filePath.size() - 2);
+            }
+        }
+
+        if (!filePath.empty()) {
             std::cout << "[DEBUG] visitInclude_stmt: filePath = " << filePath << std::endl;
-            return antlrcpp::Any(new NIncludeStatement(filePath));
+            size_t line = ctx->getStart()->getLine();
+            size_t col = ctx->getStart()->getCharPositionInLine();
+            return antlrcpp::Any(new NIncludeStatement(filePath, currentSourceFile, line, col));
         }
 
         return antlrcpp::Any(nullptr);

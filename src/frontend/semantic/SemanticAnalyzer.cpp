@@ -6,10 +6,14 @@
 
 namespace cse {
 
-SemanticAnalyzer::SemanticAnalyzer(SymbolTable& symTable, ModuleManager* moduleManager) : symbolTable(symTable), moduleManager(moduleManager), hasErrors(false), currentFunctionReturnType(""), currentBlock(nullptr) {
+SemanticAnalyzer::SemanticAnalyzer(SymbolTable& symTable, ModuleManager* moduleManager) : symbolTable(symTable), moduleManager(moduleManager), hasErrors(false), currentFunctionReturnType(""), currentSourceFile(""), currentBlock(nullptr) {
 }
 
 SemanticAnalyzer::~SemanticAnalyzer() {
+}
+
+void SemanticAnalyzer::setCurrentBlock(NBlock* block) {
+    currentBlock = block;
 }
 
 void SemanticAnalyzer::error(const std::string& message, const Node* node) {
@@ -66,6 +70,12 @@ void SemanticAnalyzer::analyzeStatement(NStatement* statement) {
 
         for (auto& param : externDecl->arguments) {
             symbol.paramTypes.push_back(param->type.name);
+        }
+
+        Symbol* builtin = symbolTable.findSymbol(funcName);
+        if (builtin && builtin->isVariadic) {
+            symbol.isVariadic = true;
+            symbol.paramTypes.clear();
         }
 
         symbolTable.insertSymbol(symbol);
@@ -148,6 +158,8 @@ void SemanticAnalyzer::analyzeVariableDeclaration(NVariableDeclaration* decl) {
     symbol.offset = symbolTable.getCurrentScope()->nextOffset;
     symbol.isConst = decl->isConst;
     symbol.constantValue = 0;
+    symbol.sourceFile = currentSourceFile;
+    symbol.isImported = !currentSourceFile.empty();
 
     if (decl->assignmentExpr) {
         analyzeExpression(decl->assignmentExpr);
@@ -184,6 +196,8 @@ void SemanticAnalyzer::analyzePointerDeclaration(NPointerDeclaration* decl) {
     symbol.isFunction = false;
     symbol.isGlobal = (symbolTable.getScopeLevel() == 1);
     symbol.offset = symbolTable.getCurrentScope()->nextOffset;
+    symbol.sourceFile = currentSourceFile;
+    symbol.isImported = !currentSourceFile.empty();
 
     symbolTable.getCurrentScope()->nextOffset += 8;
 
@@ -214,6 +228,8 @@ void SemanticAnalyzer::analyzeArrayDeclaration(NArrayDeclaration* decl) {
     symbol.isFunction = false;
     symbol.isGlobal = (symbolTable.getScopeLevel() == 1);
     symbol.offset = symbolTable.getCurrentScope()->nextOffset;
+    symbol.sourceFile = currentSourceFile;
+    symbol.isImported = !currentSourceFile.empty();
 
     symbolTable.getCurrentScope()->nextOffset += 8 * 100;
 
@@ -282,6 +298,8 @@ void SemanticAnalyzer::analyzeFunctionDeclaration(NFunctionDeclaration* decl) {
     symbol.type = returnType;
     symbol.isFunction = true;
     symbol.isGlobal = (symbolTable.getScopeLevel() == 1);
+    symbol.sourceFile = currentSourceFile;
+    symbol.isImported = !currentSourceFile.empty();
 
     for (auto& param : decl->arguments) {
         symbol.paramTypes.push_back(param->type.name);
@@ -572,6 +590,11 @@ bool SemanticAnalyzer::checkTypeCompatibility(const std::string& type1, const st
         return true;
     }
 
+    // char* is compatible with string (for printf/scanf compatibility)
+    if ((type1 == "string" && type2 == "char*") || (type1 == "char*" && type2 == "string")) {
+        return true;
+    }
+
     return false;
 }
 
@@ -720,7 +743,11 @@ void SemanticAnalyzer::analyzeIncludeStatement(NIncludeStatement* stmt) {
 
     if (moduleManager && currentBlock) {
         debug("Including file: " + stmt->filePath, stmt);
-        moduleManager->includeFile(stmt->filePath, *currentBlock);
+        std::string source = stmt->sourceFile.empty() ? currentSourceFile : stmt->sourceFile;
+        if (!moduleManager->includeFile(stmt->filePath, *currentBlock,
+            source, stmt->line, stmt->column)) {
+            hasErrors = true;
+        }
     } else {
         debug("ModuleManager not available, skipping include", stmt);
     }

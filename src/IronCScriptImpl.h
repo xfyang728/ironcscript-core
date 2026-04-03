@@ -94,6 +94,7 @@ public:
 
     std::string getPlatformName() const { return m_PlatformName; }
     void setPlatform(const std::string& platformName) { m_PlatformName = platformName; }
+    std::string getCurrentScriptPath() const { return m_CurrentScriptPath; }
 
     PlatformAbstraction* getPlatformAbstraction() { return m_PlatformAbstraction.get(); }
 

@@ -129,6 +129,9 @@ bool IronCScriptImpl::parseScript(const std::string& scriptCode, NBlock*& progra
 bool IronCScriptImpl::analyzeSemantic(NBlock* programBlock) {
     try {
         SemanticAnalyzer semanticAnalyzer(*m_SymbolTable, m_ModuleManager);
+        if (!m_CurrentScriptPath.empty()) {
+            semanticAnalyzer.setSourceFile(m_CurrentScriptPath);
+        }
         bool result = semanticAnalyzer.analyze(*programBlock);
         if (!result) {
             m_LastError = "Semantic analysis failed";

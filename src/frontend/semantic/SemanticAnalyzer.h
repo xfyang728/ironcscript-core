@@ -15,6 +15,9 @@ public:
     SemanticAnalyzer(SymbolTable& symbolTable, ModuleManager* moduleManager = nullptr);
     ~SemanticAnalyzer();
 
+    void setCurrentBlock(NBlock* block);
+    void setSourceFile(const std::string& file) { currentSourceFile = file; }
+    const std::string& getSourceFile() const { return currentSourceFile; }
     bool analyze(NBlock& root);
 
     void error(const std::string& message, const Node* node);
@@ -25,6 +28,7 @@ private:
     ModuleManager* moduleManager;
     bool hasErrors;
     std::string currentFunctionReturnType;
+    std::string currentSourceFile;
     NBlock* currentBlock;
 
     void analyzeStatement(NStatement* statement);

@@ -11,6 +11,8 @@
 #include "frontend/parser/ASTBuilder.h"
 #include "frontend/semantic/SymbolTable.h"
 #include "frontend/semantic/SemanticAnalyzer.h"
+#include "frontend/generated/CScriptLexer.h"
+#include "frontend/generated/CScriptParser.h"
 #include "IronCScriptImpl.h"
 
 // 确保使用正确的命名空间
@@ -102,24 +104,44 @@ inline std::string joinPath(const std::string& path1, const std::string& path2) 
 
 namespace cse {
 
+std::set<std::string> ModuleManager::loadingFiles;
+size_t ModuleManager::globalIncludeDepth = 0;
+size_t ModuleManager::globalFailedIncludes = 0;
+
+Module::Module(const std::string& name, const std::string& path)
+    : name(name), path(path), ast(nullptr), symbolTable(nullptr) {
+}
+
+Module::~Module() {
+    if (ast) {
+        for (auto stmt : ast->statements) {
+            delete stmt;
+        }
+        delete ast;
+    }
+    if (symbolTable) {
+        delete symbolTable;
+    }
+}
+
 ModuleManager::ModuleManager() {
 #ifdef CSE_EMBEDDED
-    // 嵌入式平台不支持模块系统
     currentDirectory = ".";
     scriptDirectory = ".";
+    maxIncludeDepth = 10;
+    currentIncludeDepth = 0;
 #else
-    // 设置当前目录为当前工作目录
     try {
         currentDirectory = getCurrentDirectory();
     } catch (...) {
         currentDirectory = ".";
     }
     scriptDirectory = currentDirectory;
-    
-    // 添加默认搜索路径
+    maxIncludeDepth = 10;
+    currentIncludeDepth = 0;
+
     moduleSearchPaths.push_back(currentDirectory);
     moduleSearchPaths.push_back(scriptDirectory);
-    // 添加系统模块目录（如果存在）
     std::string systemModuleDir = joinPath(currentDirectory, "modules");
     if (fileExists(systemModuleDir) && isDirectory(systemModuleDir)) {
         moduleSearchPaths.push_back(systemModuleDir);
@@ -141,10 +163,10 @@ void ModuleManager::setCurrentDirectory(const std::string& directory) {
 
 void ModuleManager::setScriptDirectory(const std::string& directory) {
 #ifdef CSE_EMBEDDED
-    // 嵌入式平台不支持模块系统
 #else
     scriptDirectory = directory;
-    // 更新搜索路径
+    loadingFiles.clear();
+    currentIncludeDepth = 0;
     bool found = false;
     for (size_t i = 0; i < moduleSearchPaths.size(); ++i) {
         if (moduleSearchPaths[i] == scriptDirectory) {
@@ -160,9 +182,104 @@ void ModuleManager::setScriptDirectory(const std::string& directory) {
 
 void ModuleManager::addModuleSearchPath(const std::string& path) {
 #ifdef CSE_EMBEDDED
-    // 嵌入式平台不支持模块系统
 #else
     moduleSearchPaths.push_back(path);
+#endif
+}
+
+void ModuleManager::setMaxIncludeDepth(size_t depth) {
+    maxIncludeDepth = depth;
+}
+
+void ModuleManager::setIncludeSearchPaths(const std::vector<std::string>& paths) {
+#ifdef CSE_EMBEDDED
+#else
+    moduleSearchPaths.clear();
+    moduleSearchPaths.push_back(currentDirectory);
+    if (!scriptDirectory.empty() && scriptDirectory != currentDirectory) {
+        moduleSearchPaths.push_back(scriptDirectory);
+    }
+    for (const auto& path : paths) {
+        bool found = false;
+        for (const auto& existing : moduleSearchPaths) {
+            if (existing == path) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            moduleSearchPaths.push_back(path);
+        }
+    }
+#endif
+}
+
+bool ModuleManager::isCurrentlyLoading(const std::string& filePath) const {
+    return loadingFiles.count(filePath) > 0;
+}
+
+std::string ModuleManager::resolveIncludePath(const std::string& filePath) {
+#ifdef CSE_EMBEDDED
+    return "";
+#else
+    if (filePath.empty()) {
+        return "";
+    }
+
+    bool isAbsolute = false;
+#ifdef _WIN32
+    isAbsolute = (filePath.size() >= 2 && filePath[1] == ':');
+#else
+    isAbsolute = (filePath.size() >= 1 && filePath[0] == '/');
+#endif
+
+    if (isAbsolute) {
+        return filePath;
+    }
+
+    std::vector<std::string> searchDirs;
+    if (!scriptDirectory.empty()) {
+        searchDirs.push_back(scriptDirectory);
+    }
+    for (const auto& path : moduleSearchPaths) {
+        bool found = false;
+        for (const auto& dir : searchDirs) {
+            if (dir == path) {
+                found = true;
+                break;
+            }
+        }
+        if (!found && !path.empty()) {
+            searchDirs.push_back(path);
+        }
+    }
+    if (currentDirectory != scriptDirectory) {
+        bool found = false;
+        for (const auto& dir : searchDirs) {
+            if (dir == currentDirectory) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            searchDirs.push_back(currentDirectory);
+        }
+    }
+
+    std::vector<std::string> extensions = {".cs", ".c", ""};
+    for (const auto& dir : searchDirs) {
+        for (const auto& ext : extensions) {
+            std::string fullPath = joinPath(dir, filePath);
+            if (!ext.empty() && fullPath.find_last_of('.') == std::string::npos) {
+                fullPath += ext;
+            }
+            if (fileExists(fullPath) && isRegularFile(fullPath)) {
+                return fullPath;
+            }
+        }
+    }
+
+    return joinPath(scriptDirectory.empty() ? currentDirectory : scriptDirectory, filePath);
 #endif
 }
 
@@ -409,44 +526,97 @@ bool ModuleManager::importNamedSymbols(const std::string& modulePath, const std:
 #endif
 }
 
-bool ModuleManager::includeFile(const std::string& filePath, NBlock& block) {
+bool ModuleManager::includeFile(const std::string& filePath, NBlock& block,
+                               const std::string& sourceFile, size_t line, size_t column) {
 #ifdef CSE_EMBEDDED
-    // 嵌入式平台不支持模块系统
     std::cerr << "[MODULE] Module system not supported on embedded platform" << std::endl;
     return false;
 #else
-    // 解析文件路径
-    std::string resolvedPath = resolveModulePath(filePath);
-    
-    // 读取文件内容
-    std::ifstream file(resolvedPath);
-    if (!file.is_open()) {
-        std::cerr << "[MODULE] Cannot open include file: " << resolvedPath << std::endl;
+    auto formatLocation = [](const std::string& src, size_t ln, size_t col) -> std::string {
+        if (src.empty()) return "";
+        return src + ":" + std::to_string(ln) + ":" + std::to_string(col) + ": ";
+    };
+
+    std::string location = formatLocation(sourceFile, line, column);
+    std::string resolvedPath = resolveIncludePath(filePath);
+
+    if (loadingFiles.count(resolvedPath) > 0) {
+        std::cerr << location << "[MODULE] Circular include detected: " << resolvedPath << std::endl;
+        ++globalFailedIncludes;
         return false;
     }
-    
+
+    if (globalIncludeDepth >= maxIncludeDepth) {
+        std::cerr << location << "[MODULE] Include depth limit exceeded: " << maxIncludeDepth << std::endl;
+        ++globalFailedIncludes;
+        return false;
+    }
+
+    std::ifstream file(resolvedPath);
+    if (!file.is_open()) {
+        std::cerr << location << "[MODULE] Cannot open include file: " << resolvedPath << std::endl;
+        ++globalFailedIncludes;
+        return false;
+    }
+
     std::stringstream buffer;
     buffer << file.rdbuf();
     std::string includeCode = buffer.str();
     file.close();
-    
-    // 解析包含的代码
-    IronCScriptImpl engine;
-    NBlock* includeAst = nullptr;
-    if (!engine.parseScript(includeCode, includeAst)) {
-        std::cerr << "[MODULE] Failed to parse include file: " << resolvedPath << std::endl;
+
+    loadingFiles.insert(resolvedPath);
+    ++globalIncludeDepth;
+
+    antlr4::ANTLRInputStream input(includeCode.c_str(), includeCode.size());
+    CScriptLexer lexer(&input);
+    antlr4::CommonTokenStream tokens(&lexer);
+    CScriptParser parser(&tokens);
+
+    ASTBuilder builder;
+    builder.setSourceFile(resolvedPath);
+    NBlock* includeAst = builder.build(parser.program());
+
+    if (includeAst == nullptr) {
+        std::cerr << location << "[MODULE] Failed to parse include file: " << resolvedPath << std::endl;
+        --globalIncludeDepth;
+        loadingFiles.erase(resolvedPath);
+        ++globalFailedIncludes;
         return false;
     }
-    
-    // 将包含的语句添加到当前块
+
+    SymbolTable tempSymbolTable;
+    SemanticAnalyzer semanticAnalyzer(tempSymbolTable, this);
+    semanticAnalyzer.setCurrentBlock(&block);
+    semanticAnalyzer.setSourceFile(resolvedPath);
+    size_t statementsBeforeAnalysis = block.statements.size();
+    if (!semanticAnalyzer.analyze(*includeAst)) {
+        std::cerr << location << "[MODULE] Semantic analysis failed for include file: " << resolvedPath << std::endl;
+        while (block.statements.size() > statementsBeforeAnalysis) {
+            delete block.statements.back();
+            block.statements.pop_back();
+        }
+        delete includeAst;
+        --globalIncludeDepth;
+        loadingFiles.erase(resolvedPath);
+        ++globalFailedIncludes;
+        return false;
+    }
+
     for (auto stmt : includeAst->statements) {
         block.statements.push_back(stmt);
     }
-    
-    // 释放 AST，但是保留语句（因为已经转移到 block 中）
+
     includeAst->statements.clear();
     delete includeAst;
-    
+
+    --globalIncludeDepth;
+    loadingFiles.erase(resolvedPath);
+
+    if (globalFailedIncludes > 0) {
+        --globalFailedIncludes;
+        return false;
+    }
+
     return true;
 #endif
 }
