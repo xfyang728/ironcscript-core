@@ -178,6 +178,21 @@ public:
                     const std::string& sourceFile = "", size_t line = 0, size_t column = 0);
 
     /**
+     * @brief 检查是否为标准库头文件
+     * @param headerName 头文件名（如 "stdio.h"）
+     * @return 如果是标准库头文件返回true
+     */
+    bool isStandardLibraryHeader(const std::string& headerName);
+
+    /**
+     * @brief 获取标准库函数声明
+     * @param headerName 头文件名
+     * @param funcName 函数名
+     * @return 函数声明指针，若未找到返回nullptr
+     */
+    const void* getStandardLibraryFunction(const std::string& headerName, const std::string& funcName);
+
+    /**
      * @brief 加载模块
      * @param modulePath 模块路径
      * @return 加载的模块指针，失败返回nullptr

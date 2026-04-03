@@ -1,4 +1,5 @@
 #include "ModuleManager.h"
+#include "StandardLibraryRegistry.h"
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -653,6 +654,15 @@ bool ModuleManager::includeFile(const std::string& filePath, NBlock& block,
 
     return true;
 #endif
+}
+
+bool ModuleManager::isStandardLibraryHeader(const std::string& headerName) {
+    return StandardLibraryRegistry::isStandardLibraryHeader(headerName);
+}
+
+const void* ModuleManager::getStandardLibraryFunction(const std::string& headerName, 
+                                                      const std::string& funcName) {
+    return StandardLibraryRegistry::findFunction(headerName, funcName);
 }
 
 } // namespace cse

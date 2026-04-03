@@ -1,13 +1,20 @@
+/**
+ * @file HardwareFactory.cpp
+ * @brief 硬件抽象层工厂类实现
+ */
 #include "HardwareFactory.h"
 #include "IStandardGPIO.h"
 #include "IStandardUART.h"
 #include "IStandardTimer.h"
+#include "IStandardStdio.h"
 #include "platform/k210/K210GPIO.h"
 #include "platform/k210/K210Timer.h"
 #include "platform/k210/K210UART.h"
+#include "platform/k210/K210Stdio.h"
 #include "platform/mock/MockGPIO.h"
 #include "platform/mock/MockTimer.h"
 #include "platform/mock/MockUART.h"
+#include "platform/mock/MockStdio.h"
 #include <cstdio>
 #include <cstring>
 
@@ -19,6 +26,7 @@
 #include "platform/stm32/STM32GPIO.h"
 #include "platform/stm32/STM32Timer.h"
 #include "platform/stm32/STM32UART.h"
+#include "platform/stm32/STM32Stdio.h"
 #endif
 
 namespace cse {
@@ -90,6 +98,8 @@ void HardwareFactory::shutdown() {
         m_Timers[i].reset();
     }
 
+    m_Stdio.reset();
+
     printf("[HardwareFactory] Shutdown complete\r\n");
 }
 
@@ -102,6 +112,7 @@ void HardwareFactory::createK210Hardware() {
     for (int i = 0; i < 4; i++) {
         m_Timers[i] = std::make_unique<K210Timer>(i);
     }
+    m_Stdio = std::make_unique<K210Stdio>();
     printf("[HardwareFactory] K210 hardware created\r\n");
 #else
     printf("[HardwareFactory] K210 platform not available on this host\r\n");
@@ -118,6 +129,7 @@ void HardwareFactory::createSTM32Hardware() {
     for (int i = 0; i < 4; i++) {
         m_Timers[i] = std::make_unique<STM32Timer>(i);
     }
+    m_Stdio = std::make_unique<STM32Stdio>();
     printf("[HardwareFactory] STM32 hardware created\r\n");
 #else
     printf("[HardwareFactory] STM32 platform not available on this host\r\n");
@@ -133,6 +145,7 @@ void HardwareFactory::createMockHardware() {
     for (int i = 0; i < 4; i++) {
         m_Timers[i] = std::make_unique<MockTimer>(i);
     }
+    m_Stdio = std::make_unique<MockStdio>();
     printf("[HardwareFactory] Mock hardware created\r\n");
 }
 

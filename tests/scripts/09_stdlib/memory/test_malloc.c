@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 int main() {
     int result = 0;
     char* ptr = malloc(100);

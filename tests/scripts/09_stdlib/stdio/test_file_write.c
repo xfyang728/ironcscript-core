@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 int write_file() {
     FILE* fp;
     fp = fopen("test_file.txt", "w");

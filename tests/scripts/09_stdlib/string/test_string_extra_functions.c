@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 int main() {
     char str1[50] = "Hello";
     char str2[50] = "World";

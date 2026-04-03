@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 int main() {
     FILE* fp;
     char buffer[100];

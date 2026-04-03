@@ -1,3 +1,5 @@
+#include <ctype.h>
+
 int main() {
     char c = '5';
     int d = isdigit(c);

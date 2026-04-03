@@ -1,11 +1,11 @@
-// #include <stdio.h>
-// #include <ctype.h>
+#include <stdio.h>
+#include <ctype.h>
 
 int main() {
     char lower = 'a';
     char upper = toupper(lower);
-    printf("%c", upper); // Fixed: Use format specifier "%c" for a single character
+    printf("%c\n", upper);
     char lower2 = tolower(upper);
-    printf("%c", lower2); // Fixed: Use format specifier "%c" for a single character
+    printf("%c\n", lower2);
     return 0;
 }

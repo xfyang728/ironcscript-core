@@ -1,5 +1,6 @@
 #include "IRGenerator.h"
 #include "frontend/parser/tokens.h"
+#include "module/StandardLibraryRegistry.h"
 
 #include <iostream>
 #include <sstream>
@@ -113,6 +114,35 @@ void IRGenerator::analyzeStatement(NStatement* statement) {
                   << " as " << regCallback->targetName.name << std::endl;
         quadList.push_back(Quad(OpEnum::REGISTER_CALLBACK, regCallback->targetName.name, "",
                                 regCallback->callbackName.name));
+    } else if (auto* includeStmt = dynamic_cast<NIncludeStatement*>(statement)) {
+        // #include <stdio.h> - 处理标准库头文件
+        std::string filePath = includeStmt->filePath;
+        std::cerr << "[DEBUG] IR generating include: " << filePath << std::endl;
+
+        // Check if this is a standard library header
+        std::string headerName = filePath;
+        bool isStdlib = false;
+        if (filePath.front() == '<' && filePath.back() == '>') {
+            headerName = filePath.substr(1, filePath.size() - 2);
+            isStdlib = true;
+        } else {
+            isStdlib = StandardLibraryRegistry::isStandardLibraryHeader(filePath);
+            if (isStdlib) {
+                headerName = filePath;
+            }
+        }
+
+        if (isStdlib) {
+            // Generate EXTERN quads for all functions in this header
+            const StdlibHeader* header = StandardLibraryRegistry::findHeader(headerName);
+            if (header) {
+                for (const auto& func : header->functions) {
+                    std::cerr << "[DEBUG] Generating EXTERN for stdlib function: " << func.name << std::endl;
+                    // EXTERN: type, "", name
+                    quadList.push_back(Quad(OpEnum::EXTERN, func.returnType, "", func.name));
+                }
+            }
+        }
     } else {
         std::cerr << "[WARNING] Unknown statement type in IRGenerator: " << typeid(*statement).name() << std::endl;
     }

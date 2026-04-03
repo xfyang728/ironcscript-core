@@ -1,4 +1,5 @@
-// 测试 scanf 格式化输入
+#include <stdio.h>
+
 int main() {
     int a;
     int b;

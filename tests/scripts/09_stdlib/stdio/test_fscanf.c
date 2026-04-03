@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 int test_fscanf() {
     FILE* fp;
     char buffer[100];

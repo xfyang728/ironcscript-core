@@ -151,10 +151,15 @@ if(NOT CMAKE_CROSSCOMPILING AND NOT CSE_COMMERCIAL_BUILD)
         tests/integration_tests/test_IronCScript.cpp
         tests/component_tests/test_ir.cpp
         tests/component_tests/test_codegen.cpp
+        tests/unit_tests/test_module_manager.cpp
     )
 
     add_executable(IronCScriptTests ${TEST_SOURCES})
-    target_link_libraries(IronCScriptTests PRIVATE GTest::gtest_main IronCScriptCoreLib ${CAPSTONE_LIB} ${ANTLR_STATIC_LIB} PlatformAbstraction ModuleManager)
+    if(MINGW)
+        target_link_libraries(IronCScriptTests PRIVATE -Wl,--start-group GTest::gtest_main IronCScriptCoreLib ${CAPSTONE_LIB} ${ANTLR_STATIC_LIB} PlatformAbstraction ModuleManager -Wl,--end-group)
+    else()
+        target_link_libraries(IronCScriptTests PRIVATE GTest::gtest_main IronCScriptCoreLib ${CAPSTONE_LIB} ${ANTLR_STATIC_LIB} PlatformAbstraction ModuleManager)
+    endif()
 
     add_test(NAME IronCScriptTests COMMAND IronCScriptTests WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 

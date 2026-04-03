@@ -31,7 +31,7 @@ import_stmt: 'import' STRING ('as' ident)? ';'
            | 'import' '{' ident (',' ident)* '}' 'from' STRING ';'
            ;
 
-include_stmt: 'include' STRING ';'
+include_stmt: HASH? 'include' (STRING |ANGLE_STRING) ';'
             ;
 
 register_callback_stmt: 'register' ident 'as' ident '(' func_decl_args? ')' ';' ;
@@ -227,6 +227,7 @@ INTEGER: [0-9]+ ;
 DOUBLE: [0-9]+ '.' [0-9]+ ;
 CHAR: '\'' (~['\\\r\n] | '\\' .) '\'' ;
 STRING: '"' ( '\\"' | '\\n' | '\\t' | '\\r' | '\\\\' | ~["\\] )* '"' ;
+ANGLE_STRING: '<' (~[>\r\n])* '>' ;
 IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]* ;
 
 // Operators
@@ -270,6 +271,9 @@ MOD_EQ: '%=' ;
 INC: '++' ;
 DEC: '--' ;
 ELLIPSIS: '...' ;
+
+// Preprocessor
+HASH: '#' ;
 
 // Skip
 COMMENT: '//' ~[\r\n]* -> skip ;

@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 int test_fprintf() {
     FILE* fp;
     fp = fopen("test_fprintf.txt", "w");

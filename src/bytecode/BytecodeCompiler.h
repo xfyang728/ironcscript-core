@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <list>
+#include <set>
 
 namespace cse {
 
@@ -59,13 +60,13 @@ private:
     std::string m_CurrentFunctionName;
     std::map<std::string, uint32_t> m_FunctionIndices;
 
-    uint32_t m_NextStringOffset;
     uint32_t m_NextConstantIndex;
     uint32_t m_NextFunctionIndex;
 
     std::map<std::string, uint32_t> m_VariableToSlot;
     std::vector<std::string> m_LocalVariables;
     std::map<std::string, int64_t> m_ConstTempValues;
+    std::set<std::string> m_StringTempVariables;
     std::string m_LastStoredTemp;
     SymbolTable* m_SymbolTable;
 };

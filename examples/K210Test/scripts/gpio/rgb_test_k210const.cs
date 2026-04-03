@@ -3,8 +3,7 @@
 // Uses K210Constants: GPIO3, GPIO4, GPIO5, FUNC_GPIO3, FUNC_GPIO4, FUNC_GPIO5, OUTPUT, HIGH, etc.
 
 extern void delay(int ms);
-extern void print(int value);
-extern void println(int value);
+extern void printf(...);
 extern void pinMode(int pin, int mode);
 extern void analogWrite(int pin, int value);
 extern void digitalWrite(int pin, int value);
@@ -37,10 +36,10 @@ void rgbWrite(int r, int g, int b) {
 }
 
 void main() {
-    println(111);
+    printf("%d\n", 111);
     rgbInit();
 
-    print(888);
+    printf("%d\n", 888);
     rgbWrite(255, 0, 0);
     delay(2000);
 
@@ -51,5 +50,5 @@ void main() {
     delay(2000);
 
     rgbWrite(0, 0, 0);
-    println(999);
+    printf("%d\n", 999);
 }

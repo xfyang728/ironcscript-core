@@ -2,27 +2,25 @@
 // 演示如何使用 print/println 输出整数调试信息
 
 extern void delay(int ms);
-extern void print(int value);
-extern void println(int value);
+extern void printf(...);
 
 void setup(int a) {
-    println(a);
-    print(200);
+    printf("%d\n", a);
+    printf("%d\n", 200);
 }
 int add(int a, int b) {
     return a + b;
 }
 
 void debugDelay() {
-    println(1000);
+    printf("%d\n", 1000);
     delay(500);
 }
 
 void main() {
     setup(100);
     int result = add(5, 7);
-    println(result);
+    printf("%d\n", result);
     debugDelay();
-    println(999);
-    // setup();
+    printf("%d\n", 999);
 }

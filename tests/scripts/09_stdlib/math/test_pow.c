@@ -1,3 +1,5 @@
+#include <math.h>
+
 double main() {
     double x = 2.0;
     double y = 8.0;

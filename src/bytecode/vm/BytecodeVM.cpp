@@ -139,6 +139,8 @@ bool BytecodeVM::callFunction(uint32_t funcIndex, uint32_t paramCount) {
     printf("[VM] callFunction: funcIndex=%u, paramCount=%u, localCount=%u, funcParamCount=%u\r\n",
            funcIndex, paramCount, localCount, funcParamCount);
 
+    int32_t currentStackTop = m_StackTop - m_Stack;
+
     for (uint32_t i = funcParamCount; i < localCount; i++) {
         push(VMValue::makeInt(0));
     }
@@ -148,7 +150,7 @@ bool BytecodeVM::callFunction(uint32_t funcIndex, uint32_t paramCount) {
     VMFrame frame;
     frame.functionIndex = funcIndex;
     frame.pc = 0;
-    frame.localBase = m_StackTop - m_Stack - localCount;
+    frame.localBase = currentStackTop - paramCount;
     frame.localCount = funcParamCount;
 
     printf("[VM] callFunction: localBase=%d\r\n", frame.localBase);
@@ -545,6 +547,11 @@ bool BytecodeVM::executeInstruction(OpCode op, uint32_t operand) {
 
         case OpCode::POP: {
             pop();
+            break;
+        }
+
+        case OpCode::PUSH_RETURN: {
+            push(m_ReturnValue);
             break;
         }
 

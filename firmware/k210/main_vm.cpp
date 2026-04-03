@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <cstring>
+#include <vector>
 
 #include "hal/CSError.h"
 #include "hal/IStandardGPIO.h"
@@ -128,54 +129,165 @@ private:
 
 static K210Watchdog g_Watchdog;
 
-// ========== Arduino Style API ==========
+// ========== C Standard Library Print Functions ==========
 
 /**
- * @brief Arduino风格打印函数 - 打印值（整数或字符串）
+ * @brief C标准库 printf 函数 - 格式化打印
  * @param vm 指向BytecodeVM实例的指针
- * @note 支持整数和字符串参数，使用getArg()获取参数，getStringFromConstant()获取字符串常量
+ * @note 支持格式说明符: %d(整数), %s(字符串), %f(浮点), %lld(长整数), %llx(十六进制)
+ * @note 使用方式: printf("value=%d, name=%s\n", intVal, strVal)
  */
-void nativePrint(cse::BytecodeVM* vm) {
+void nativePrintf(cse::BytecodeVM* vm) {
     int32_t argCount = vm->getArgCount();
-    for (int32_t i = 0; i < argCount; i++) {
-        cse::VMValue val = vm->getArg(i);
-        if (val.type == cse::ValueType::INTEGER) {
-            printf("%lld", (long long)val.value.intVal);
-        } else if (val.type == cse::ValueType::DOUBLE) {
-            printf("%f", val.value.doubleVal);
-        } else if (val.type == cse::ValueType::STRING) {
-            const char* str = vm->getStringFromConstant(val.value.intVal);
-            printf("%s", str);
-        }
+    if (argCount < 1) return;
+
+    cse::VMValue formatVal = vm->getArg(0);
+    if (formatVal.type != cse::ValueType::STRING) {
+        printf("[ERROR] printf: first argument must be a string format\r\n");
+        return;
     }
+
+    const char* format = vm->getStringFromConstant(formatVal.value.intVal);
+
+    if (argCount == 1) {
+        printf("%s", format);
+        return;
+    }
+
+    std::vector<cse::VMValue> args;
+    for (int32_t i = 1; i < argCount; i++) {
+        args.push_back(vm->getArg(i));
+    }
+
+    char buffer[1024];
+    int offset = 0;
+    const char* p = format;
+
+    while (*p) {
+        if (*p == '%' && *(p + 1)) {
+            char fmt[8] = "%";
+            int fmtLen = 1;
+            p++;
+
+            if (*p == 'l' && *(p + 1) == 'l' && *(p + 2) == 'd') {
+                strcat(fmt, "lld");
+                fmtLen = 3;
+                if (offset < (int)(sizeof(buffer) - 24)) {
+                    offset += snprintf(buffer + offset, sizeof(buffer) - offset, fmt,
+                                     (long long)args[0].value.intVal);
+                    args.erase(args.begin());
+                }
+                p += 2;
+            } else if (*p == 'l' && *(p + 1) == 'l' && *(p + 2) == 'x') {
+                strcat(fmt, "llx");
+                fmtLen = 3;
+                if (offset < (int)(sizeof(buffer) - 24)) {
+                    offset += snprintf(buffer + offset, sizeof(buffer) - offset, fmt,
+                                     (unsigned long long)args[0].value.intVal);
+                    args.erase(args.begin());
+                }
+                p += 2;
+            } else if (*p == 'l' && *(p + 1) == 'd') {
+                strcat(fmt, "ld");
+                fmtLen = 2;
+                if (offset < (int)(sizeof(buffer) - 24)) {
+                    offset += snprintf(buffer + offset, sizeof(buffer) - offset, fmt,
+                                     (long)args[0].value.intVal);
+                    args.erase(args.begin());
+                }
+                p++;
+            } else if (*p == 'd' || *p == 'i') {
+                fmt[1] = *p;
+                fmt[2] = '\0';
+                if (offset < (int)(sizeof(buffer) - 24)) {
+                    offset += snprintf(buffer + offset, sizeof(buffer) - offset, fmt,
+                                     (int)args[0].value.intVal);
+                    args.erase(args.begin());
+                }
+            } else if (*p == 's') {
+                fmt[1] = *p;
+                fmt[2] = '\0';
+                if (args[0].type == cse::ValueType::STRING) {
+                    const char* str = vm->getStringFromConstant(args[0].value.intVal);
+                    offset += snprintf(buffer + offset, sizeof(buffer) - offset, fmt, str);
+                } else {
+                    offset += snprintf(buffer + offset, sizeof(buffer) - offset, "(null)");
+                }
+                args.erase(args.begin());
+            } else if (*p == 'f' || *p == 'F') {
+                fmt[1] = *p;
+                fmt[2] = '\0';
+                if (offset < (int)(sizeof(buffer) - 64)) {
+                    offset += snprintf(buffer + offset, sizeof(buffer) - offset, fmt,
+                                     args[0].value.doubleVal);
+                    args.erase(args.begin());
+                }
+            } else if (*p == 'c') {
+                fmt[1] = *p;
+                fmt[2] = '\0';
+                if (offset < (int)(sizeof(buffer) - 4)) {
+                    offset += snprintf(buffer + offset, sizeof(buffer) - offset, fmt,
+                                     (char)args[0].value.intVal);
+                    args.erase(args.begin());
+                }
+            } else if (*p == 'x' || *p == 'X') {
+                fmt[1] = *p;
+                fmt[2] = '\0';
+                if (offset < (int)(sizeof(buffer) - 24)) {
+                    offset += snprintf(buffer + offset, sizeof(buffer) - offset, fmt,
+                                     (unsigned int)args[0].value.intVal);
+                    args.erase(args.begin());
+                }
+            } else {
+                buffer[offset++] = '%';
+                buffer[offset++] = *p;
+                buffer[offset] = '\0';
+            }
+            p++;
+        } else if (*p == '\\' && *(p + 1) == 'n') {
+            buffer[offset++] = '\n';
+            buffer[offset] = '\0';
+            p += 2;
+        } else if (*p == '\\' && *(p + 1) == 'r') {
+            buffer[offset++] = '\r';
+            buffer[offset] = '\0';
+            p += 2;
+        } else if (*p == '\\' && *(p + 1) == 't') {
+            buffer[offset++] = '\t';
+            buffer[offset] = '\0';
+            p += 2;
+        } else {
+            buffer[offset++] = *p++;
+            buffer[offset] = '\0';
+        }
+
+        if (offset >= (int)(sizeof(buffer) - 1)) break;
+    }
+
+    printf("%s", buffer);
 }
 
 /**
- * @brief Arduino风格打印函数 - 打印值并换行
+ * @brief C标准库 puts 函数 - 打印字符串并换行
  * @param vm 指向BytecodeVM实例的指针
- * @note 支持整数和字符串参数，使用getArg()获取参数，getStringFromConstant()获取字符串常量
+ * @note 等同于 printf("%s\n", str)
  */
-void nativePrintln(cse::BytecodeVM* vm) {
-    nativePrint(vm);
-    printf("\r\n");
-}
+void nativePuts(cse::BytecodeVM* vm) {
+    int32_t argCount = vm->getArgCount();
+    if (argCount < 1) {
+        printf("\r\n");
+        return;
+    }
 
-/**
- * @brief Arduino Serial.print 风格 - 打印值（无换行）
- * @param vm 指向BytecodeVM实例的指针
- * @note 等同于 print() 函数，为Arduino用户提供熟悉的接口
- */
-void nativeSerialPrint(cse::BytecodeVM* vm) {
-    nativePrint(vm);
-}
-
-/**
- * @brief Arduino Serial.println 风格 - 打印值并换行
- * @param vm 指向BytecodeVM实例的指针
- * @note 等同于 println() 函数，为Arduino用户提供熟悉的接口
- */
-void nativeSerialPrintln(cse::BytecodeVM* vm) {
-    nativePrintln(vm);
+    cse::VMValue val = vm->getArg(0);
+    if (val.type == cse::ValueType::STRING) {
+        const char* str = vm->getStringFromConstant(val.value.intVal);
+        printf("%s\r\n", str);
+    } else if (val.type == cse::ValueType::INTEGER) {
+        printf("%lld\r\n", (long long)val.value.intVal);
+    } else {
+        printf("(unknown)\r\n");
+    }
 }
 
 /**
@@ -456,20 +568,19 @@ cse::CSError initializeVM() {
         return cse::CSError::ERR_OUT_OF_MEMORY;
     }
 
-    g_VM->registerNativeFunction("print", nativePrint);
-    g_VM->registerNativeFunction("println", nativePrintln);
+    // C Standard Library Print Functions
+    g_VM->registerNativeFunction("printf", nativePrintf);
+    g_VM->registerNativeFunction("puts", nativePuts);
 
-    // Arduino Style API
+    // Hardware GPIO API
     g_VM->registerNativeFunction("pinMode", nativePinMode);
     g_VM->registerNativeFunction("digitalWrite", nativeDigitalWrite);
     g_VM->registerNativeFunction("digitalRead", nativeDigitalRead);
     g_VM->registerNativeFunction("analogWrite", nativeAnalogWrite);
+    g_VM->registerNativeFunction("rgb_set", nativeRgbSet);
+    g_VM->registerNativeFunction("fpioa_set_func", nativeFpioaSetFunc);
 
-    // Arduino Serial API
-    g_VM->registerNativeFunction("Serial.print", nativeSerialPrint);
-    g_VM->registerNativeFunction("Serial.println", nativeSerialPrintln);
-
-    // Legacy API
+    // Legacy GPIO API
     g_VM->registerNativeFunction("gpio_set_mode", nativeGpioSetMode);
     g_VM->registerNativeFunction("gpio_write", nativeGpioWrite);
     g_VM->registerNativeFunction("gpio_read", nativeGpioRead);

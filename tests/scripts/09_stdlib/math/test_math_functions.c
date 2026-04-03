@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+
 int main() {
     double x = 4.0;
     double y = 2.0;

@@ -4,10 +4,12 @@
 if(NOT CSE_EMBEDDED)
     set(SOURCE_FILES
         ModuleManager.cpp
+        StandardLibraryRegistry.cpp
     )
 
     set(HEADER_FILES
         ModuleManager.h
+        StandardLibraryRegistry.h
     )
 
     add_library(ModuleManager

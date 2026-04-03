@@ -4,9 +4,12 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <string>
-#include <chrono>
+#include <iomanip>
 #include <cstring>
+#include <vector>
+#include <string>
+#include <cstdint>
+#include <chrono>
 
 static uint32_t g_UptimeMs = 0;
 
@@ -62,17 +65,117 @@ void nativeFpioaSetFunc(cse::BytecodeVM* vm) {
     std::cout << "[STUB] fpioa_set_func(" << pin << ", " << func << ")" << std::endl;
 }
 
-void nativeSerialPrint(cse::BytecodeVM* vm) {
-    std::cout << "[STUB] Serial.print" << std::endl;
+void nativePrintf(cse::BytecodeVM* vm) {
+    int32_t argCount = vm->getArgCount();
+    if (argCount < 1) return;
+
+    cse::VMValue formatVal = vm->getArg(0);
+    if (formatVal.type != cse::ValueType::STRING) {
+        std::cout << "[ERROR] printf: first argument must be a string format" << std::endl;
+        return;
+    }
+
+    const char* format = vm->getStringFromConstant(formatVal.value.intVal);
+
+    if (argCount == 1) {
+        std::cout << format;
+        return;
+    }
+
+    std::vector<cse::VMValue> args;
+    for (int32_t i = 1; i < argCount; i++) {
+        args.push_back(vm->getArg(i));
+    }
+
+    std::string buffer;
+    const char* p = format;
+
+    while (*p) {
+        if (*p == '%' && *(p + 1)) {
+            char fmt[8] = "%";
+            p++;
+
+            if (*p == 'l' && *(p + 1) == 'l' && *(p + 2) == 'd') {
+                strcat(fmt, "lld");
+                if (!args.empty()) {
+                    buffer += std::to_string((long long)args[0].value.intVal);
+                    args.erase(args.begin());
+                }
+                p += 2;
+            } else if (*p == 'l' && *(p + 1) == 'd') {
+                strcat(fmt, "ld");
+                if (!args.empty()) {
+                    buffer += std::to_string((long)args[0].value.intVal);
+                    args.erase(args.begin());
+                }
+                p++;
+            } else if (*p == 'd' || *p == 'i') {
+                fmt[1] = *p;
+                fmt[2] = '\0';
+                if (!args.empty()) {
+                    buffer += std::to_string((int)args[0].value.intVal);
+                    args.erase(args.begin());
+                }
+            } else if (*p == 's') {
+                if (!args.empty() && args[0].type == cse::ValueType::STRING) {
+                    buffer += vm->getStringFromConstant(args[0].value.intVal);
+                    args.erase(args.begin());
+                }
+            } else if (*p == 'f' || *p == 'F') {
+                if (!args.empty()) {
+                    std::ostringstream oss;
+                    oss << std::fixed << std::setprecision(6) << args[0].value.doubleVal;
+                    buffer += oss.str();
+                    args.erase(args.begin());
+                }
+            } else if (*p == 'c') {
+                if (!args.empty()) {
+                    buffer += (char)args[0].value.intVal;
+                    args.erase(args.begin());
+                }
+            } else if (*p == 'x' || *p == 'X') {
+                if (!args.empty()) {
+                    std::ostringstream oss;
+                    oss << "0x" << std::hex << (unsigned int)args[0].value.intVal;
+                    buffer += oss.str();
+                    args.erase(args.begin());
+                }
+            } else {
+                buffer += '%';
+                buffer += *p;
+            }
+            p++;
+        } else if (*p == '\\' && *(p + 1) == 'n') {
+            buffer += '\n';
+            p += 2;
+        } else if (*p == '\\' && *(p + 1) == 'r') {
+            buffer += '\r';
+            p += 2;
+        } else if (*p == '\\' && *(p + 1) == 't') {
+            buffer += '\t';
+            p += 2;
+        } else {
+            buffer += *p++;
+        }
+    }
+
+    std::cout << buffer;
 }
 
-void nativeSerialPrintln(cse::BytecodeVM* vm) {
+void nativePuts(cse::BytecodeVM* vm) {
     int32_t argCount = vm->getArgCount();
-    if (argCount > 0) {
-        int value = static_cast<int>(vm->getArg(0).value.intVal);
-        std::cout << "[STUB] Serial.println(" << value << ")" << std::endl;
+    if (argCount < 1) {
+        std::cout << std::endl;
+        return;
+    }
+
+    cse::VMValue val = vm->getArg(0);
+    if (val.type == cse::ValueType::STRING) {
+        std::cout << vm->getStringFromConstant(val.value.intVal) << std::endl;
+    } else if (val.type == cse::ValueType::INTEGER) {
+        std::cout << val.value.intVal << std::endl;
     } else {
-        std::cout << "[STUB] Serial.println" << std::endl;
+        std::cout << "(unknown)" << std::endl;
     }
 }
 
@@ -231,10 +334,8 @@ int main(int argc, char* argv[]) {
     vm.registerNativeFunction("analogWrite", nativeAnalogWrite);
     vm.registerNativeFunction("rgb_set", nativeRgbSet);
     vm.registerNativeFunction("fpioa_set_func", nativeFpioaSetFunc);
-    vm.registerNativeFunction("Serial.print", nativeSerialPrint);
-    vm.registerNativeFunction("Serial.println", nativeSerialPrintln);
-    vm.registerNativeFunction("println", nativeSerialPrintln);
-    vm.registerNativeFunction("print", nativeSerialPrint);
+    vm.registerNativeFunction("printf", nativePrintf);
+    vm.registerNativeFunction("puts", nativePuts);
     vm.registerNativeFunction("dump_constants", nativeDumpConstants);
 
     if (!vm.loadModule(&module)) {

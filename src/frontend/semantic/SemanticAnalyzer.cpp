@@ -282,6 +282,28 @@ void SemanticAnalyzer::analyzeEnumDeclaration(NEnumDeclaration* decl) {
     }
 }
 
+void SemanticAnalyzer::registerStandardLibraryFunction(const std::string& name, 
+                                                       const std::string& returnType,
+                                                       const std::vector<std::string>& paramTypes,
+                                                       bool isVariadic) {
+    Symbol symbol;
+    symbol.name = name;
+    symbol.type = returnType;
+    symbol.isFunction = true;
+    symbol.isGlobal = true;
+    symbol.isVariadic = isVariadic;
+    symbol.isImported = true;
+    symbol.sourceFile = "<standard-library>";
+
+    for (const auto& param : paramTypes) {
+        symbol.paramTypes.push_back(param);
+    }
+
+    symbolTable.insertSymbol(symbol);
+    std::cout << "[DEBUG] Registered standard library function: " << name 
+              << " (returns " << returnType << ")" << std::endl;
+}
+
 void SemanticAnalyzer::analyzeFunctionDeclaration(NFunctionDeclaration* decl) {
     std::cout << "[DEBUG] analyzeFunctionDeclaration: " << decl->id.name << std::endl;
     std::string funcName = decl->id.name;
@@ -741,15 +763,41 @@ void SemanticAnalyzer::analyzeImportStatement(NImportStatement* stmt) {
 void SemanticAnalyzer::analyzeIncludeStatement(NIncludeStatement* stmt) {
     debug("Processing include statement: " + stmt->filePath, stmt);
 
-    if (moduleManager && currentBlock) {
-        debug("Including file: " + stmt->filePath, stmt);
+    if (!moduleManager) {
+        debug("ModuleManager not available, skipping include", stmt);
+        return;
+    }
+
+    std::string filePath = stmt->filePath;
+
+    // Check if this is a standard library header (e.g., <stdio.h>)
+    if ((filePath.front() == '<' && filePath.back() == '>') ||
+        moduleManager->isStandardLibraryHeader(filePath)) {
+
+        // Extract header name from <stdio.h> or just use the path as-is
+        std::string headerName = filePath;
+        if (filePath.front() == '<') {
+            headerName = filePath.substr(1, filePath.size() - 2);
+        }
+
+        debug("Including standard library header: " + headerName, stmt);
+
+        // Use ModuleManager's standard library registry to get function declarations
+        // The actual registration will be done by checking built-in function compatibility
+
+        // For now, we just mark this as processed - the IR generator will handle
+        // creating the appropriate EXTERN quads for stdio functions
+        debug("Standard library header processed: " + headerName, stmt);
+        return;
+    }
+
+    // Regular user include - delegate to ModuleManager
+    if (currentBlock) {
         std::string source = stmt->sourceFile.empty() ? currentSourceFile : stmt->sourceFile;
-        if (!moduleManager->includeFile(stmt->filePath, *currentBlock,
+        if (!moduleManager->includeFile(filePath, *currentBlock,
             source, stmt->line, stmt->column)) {
             hasErrors = true;
         }
-    } else {
-        debug("ModuleManager not available, skipping include", stmt);
     }
 }
 

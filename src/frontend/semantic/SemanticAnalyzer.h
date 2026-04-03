@@ -57,6 +57,9 @@ private:
     void analyzeImportStatement(NImportStatement* stmt);
     void analyzeIncludeStatement(NIncludeStatement* stmt);
 
+    void registerStandardLibraryFunction(const std::string& name, const std::string& returnType,
+                                       const std::vector<std::string>& paramTypes, bool isVariadic);
+
     std::string inferType(NExpression* expression);
     bool checkTypeCompatibility(const std::string& type1, const std::string& type2);
     bool checkAssignmentCompatibility(const std::string& lhsType, const std::string& rhsType);

@@ -764,7 +764,7 @@ TEST(IronCScriptTest, TestSqrt) {
 TEST(IronCScriptTest, TestPowDebug) {
     TestResult result = runScript("09_stdlib/math/test_pow_debug.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_EQ(result.returnValue, 2) << "pow debug test should return 2";
+    EXPECT_EQ(result.returnValue, 256) << "pow debug test should return 256 (2^8)";
 }
 
 TEST(IronCScriptTest, TestOtherFunctions) {
@@ -783,22 +783,132 @@ TEST(IronCScriptTest, TestFileOperations) {
     cleanupTestOutput();
     TestResult result = runScript("09_stdlib/stdio/test_file_operations.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_NE(result.returnValue, -1) << "file operations test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "file operations test should return 0";
 
     std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
-    EXPECT_TRUE(findOutputLine(outputPath, "Hello, File Operations!"))
-        << "Output should contain 'Hello, File Operations!', got: " << readFullOutput(outputPath);
+    EXPECT_TRUE(findOutputLine(outputPath, "fopen/fclose test"))
+        << "Output should contain 'fopen/fclose test', got: " << readFullOutput(outputPath);
 }
 
-TEST(IronCScriptTest, TestIOFunctions) {
+TEST(IronCScriptTest, TestFread) {
     cleanupTestOutput();
-    TestResult result = runScript("09_stdlib/stdio/test_io_functions.c");
+    TestResult result = runScript("09_stdlib/stdio/test_fread.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
-    EXPECT_NE(result.returnValue, -1) << "IO functions test should complete";
+    EXPECT_EQ(result.returnValue, 0) << "fread test should return 0";
 
     std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
-    EXPECT_TRUE(findOutputLine(outputPath, "Testing"))
-        << "Output should contain 'Testing', got: " << readFullOutput(outputPath);
+    EXPECT_TRUE(findOutputLine(outputPath, "fread test"))
+        << "Output should contain 'fread test', got: " << readFullOutput(outputPath);
+}
+
+TEST(IronCScriptTest, TestFwrite) {
+    cleanupTestOutput();
+    TestResult result = runScript("09_stdlib/stdio/test_fwrite.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 0) << "fwrite test should return 0";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "fwrite test"))
+        << "Output should contain 'fwrite test', got: " << readFullOutput(outputPath);
+}
+
+TEST(IronCScriptTest, TestFseek) {
+    cleanupTestOutput();
+    TestResult result = runScript("09_stdlib/stdio/test_fseek.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 0) << "fseek test should return 0";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "fseek test"))
+        << "Output should contain 'fseek test', got: " << readFullOutput(outputPath);
+}
+
+TEST(IronCScriptTest, TestFtell) {
+    cleanupTestOutput();
+    TestResult result = runScript("09_stdlib/stdio/test_ftell.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 0) << "ftell test should return 0";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "ftell test"))
+        << "Output should contain 'ftell test', got: " << readFullOutput(outputPath);
+}
+
+TEST(IronCScriptTest, TestRewind) {
+    cleanupTestOutput();
+    TestResult result = runScript("09_stdlib/stdio/test_rewind.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 0) << "rewind test should return 0";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "rewind test"))
+        << "Output should contain 'rewind test', got: " << readFullOutput(outputPath);
+}
+
+TEST(IronCScriptTest, TestFeof) {
+    cleanupTestOutput();
+    TestResult result = runScript("09_stdlib/stdio/test_feof.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 0) << "feof test should return 0";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "feof test"))
+        << "Output should contain 'feof test', got: " << readFullOutput(outputPath);
+}
+
+TEST(IronCScriptTest, TestFerror) {
+    cleanupTestOutput();
+    TestResult result = runScript("09_stdlib/stdio/test_ferror.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 0) << "ferror test should return 0";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "ferror test"))
+        << "Output should contain 'ferror test', got: " << readFullOutput(outputPath);
+}
+
+TEST(IronCScriptTest, TestClearerr) {
+    cleanupTestOutput();
+    TestResult result = runScript("09_stdlib/stdio/test_clearerr.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 0) << "clearerr test should return 0";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "clearerr test"))
+        << "Output should contain 'clearerr test', got: " << readFullOutput(outputPath);
+}
+
+TEST(IronCScriptTest, TestFgets) {
+    cleanupTestOutput();
+    TestResult result = runScript("09_stdlib/stdio/test_fgets.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 0) << "fgets test should return 0";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "fgets test"))
+        << "Output should contain 'fgets test', got: " << readFullOutput(outputPath);
+}
+
+TEST(IronCScriptTest, TestFputs) {
+    cleanupTestOutput();
+    TestResult result = runScript("09_stdlib/stdio/test_fputs.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 0) << "fputs test should return 0";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "fputs test"))
+        << "Output should contain 'fputs test', got: " << readFullOutput(outputPath);
+}
+
+TEST(IronCScriptTest, TestFflush) {
+    cleanupTestOutput();
+    TestResult result = runScript("09_stdlib/stdio/test_fflush.c");
+    EXPECT_FALSE(result.timedOut) << "Test should not time out";
+    EXPECT_EQ(result.returnValue, 0) << "fflush test should return 0";
+
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "fflush test"))
+        << "Output should contain 'fflush test', got: " << readFullOutput(outputPath);
 }
 
 // ==================== 11_edge_cases ====================

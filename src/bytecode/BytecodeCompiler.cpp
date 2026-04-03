@@ -10,7 +10,6 @@ namespace cse {
 BytecodeCompiler::BytecodeCompiler()
     : m_Module(nullptr)
     , m_CurrentFunction(nullptr)
-    , m_NextStringOffset(0)
     , m_NextConstantIndex(0)
     , m_NextFunctionIndex(0)
     , m_SymbolTable(nullptr)
@@ -29,12 +28,12 @@ void BytecodeCompiler::reset() {
     m_Functions.clear();
     m_FunctionIndices.clear();
     m_CurrentFunction = nullptr;
-    m_NextStringOffset = 0;
     m_NextConstantIndex = 0;
     m_NextFunctionIndex = 0;
     m_VariableToSlot.clear();
     m_LocalVariables.clear();
     m_ConstTempValues.clear();
+    m_StringTempVariables.clear();
     m_LastStoredTemp.clear();
     m_LastError.clear();
     m_SymbolTable = nullptr;
@@ -205,8 +204,16 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
             if (isParamDest) {
                 if (src == m_LastStoredTemp && src.length() > 1 && src[0] == 't' &&
                     src.find_first_not_of("0123456789", 1) == std::string::npos) {
-                    uint32_t srcSlot = getVariableSlot(src);
-                    emit(OpCode::LOAD_VAR, srcSlot);
+                    if (m_StringTempVariables.count(src) > 0) {
+                        auto it2 = m_ConstTempValues.find(src);
+                        if (it2 != m_ConstTempValues.end()) {
+                            uint32_t idx = addConstant(ConstantPoolEntry::makeString(static_cast<uint32_t>(it2->second)));
+                            emit(OpCode::LOAD_CONST, idx);
+                        }
+                    } else {
+                        uint32_t srcSlot = getVariableSlot(src);
+                        emit(OpCode::LOAD_VAR, srcSlot);
+                    }
                 } else if (src.find('$') == 0) {
                     uint32_t srcSlot = std::stoul(src.substr(1));
                     emit(OpCode::LOAD_VAR, srcSlot);
@@ -215,7 +222,12 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
                         src.find_first_not_of("0123456789", 1) == std::string::npos) {
                         auto it = m_ConstTempValues.find(src);
                         if (it != m_ConstTempValues.end()) {
-                            emit(OpCode::LOAD_CONST, addConstant(ConstantPoolEntry::makeInt(it->second)));
+                            if (m_StringTempVariables.count(src) > 0) {
+                                uint32_t idx = addConstant(ConstantPoolEntry::makeString(static_cast<uint32_t>(it->second)));
+                                emit(OpCode::LOAD_CONST, idx);
+                            } else {
+                                emit(OpCode::LOAD_CONST, addConstant(ConstantPoolEntry::makeInt(it->second)));
+                            }
                         } else {
                             uint32_t srcSlot = getVariableSlot(src);
                             emit(OpCode::LOAD_VAR, srcSlot);
@@ -243,7 +255,12 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
                     src.find_first_not_of("0123456789", 1) == std::string::npos) {
                     auto it = m_ConstTempValues.find(src);
                     if (it != m_ConstTempValues.end()) {
-                        emit(OpCode::LOAD_CONST, addConstant(ConstantPoolEntry::makeInt(it->second)));
+                        if (m_StringTempVariables.count(src) > 0) {
+                            uint32_t idx = addConstant(ConstantPoolEntry::makeString(static_cast<uint32_t>(it->second)));
+                            emit(OpCode::LOAD_CONST, idx);
+                        } else {
+                            emit(OpCode::LOAD_CONST, addConstant(ConstantPoolEntry::makeInt(it->second)));
+                        }
                     } else {
                         uint32_t srcSlot = getVariableSlot(src);
                         emit(OpCode::LOAD_VAR, srcSlot);
@@ -274,6 +291,12 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
                     } else {
                         m_ConstTempValues[dest] = std::stoll(src);
                     }
+                }
+                if (isTempDest && !src.empty() && src[0] == '"') {
+                    m_StringTempVariables.insert(dest);
+                    std::string unquoted = src.substr(1, src.length() - 2);
+                    uint32_t stringIdx = addString(unquoted);
+                    m_ConstTempValues[dest] = static_cast<int64_t>(stringIdx);
                 }
             }
             break;
@@ -443,36 +466,50 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
         case OpEnum::PARAM: {
             const std::string& arg = quad.getArg1();
             const std::string& dest = quad.getResult();
-            
-            uint32_t srcSlot;
-            if (arg.find("param_") == 0) {
-                srcSlot = getVariableSlot(arg);
-            } else if (arg.find("t") == 0) {
-                srcSlot = getVariableSlot(arg);
+
+            bool isParamArg = arg.find("param_") == 0;
+            bool isTempArg = arg.length() > 1 && arg[0] == 't' &&
+                             arg.find_first_not_of("0123456789", 1) == std::string::npos;
+
+            if (isParamArg) {
+                uint32_t srcSlot = getVariableSlot(arg);
+                emit(OpCode::LOAD_VAR, srcSlot);
             } else if (arg.find_first_not_of("0123456789.-") == std::string::npos) {
                 if (arg.find('.') != std::string::npos) {
                     double val = std::stod(arg);
                     uint32_t idx = addConstant(ConstantPoolEntry::makeDouble(val));
                     emit(OpCode::LOAD_CONST, idx);
-                    srcSlot = UINT32_MAX;
                 } else {
                     int64_t val = std::stoll(arg);
                     uint32_t idx = addConstant(ConstantPoolEntry::makeInt(val));
                     emit(OpCode::LOAD_CONST, idx);
-                    srcSlot = UINT32_MAX;
+                }
+            } else if (isTempArg) {
+                auto it = m_ConstTempValues.find(arg);
+                if (it != m_ConstTempValues.end()) {
+                    if (m_StringTempVariables.count(arg) > 0) {
+                        uint32_t idx = addConstant(ConstantPoolEntry::makeString(static_cast<uint32_t>(it->second)));
+                        emit(OpCode::LOAD_CONST, idx);
+                    } else {
+                        emit(OpCode::LOAD_CONST, addConstant(ConstantPoolEntry::makeInt(it->second)));
+                    }
+                } else {
+                    uint32_t srcSlot = getVariableSlot(arg);
+                    emit(OpCode::LOAD_VAR, srcSlot);
                 }
             } else {
-                srcSlot = getVariableSlot(arg);
-            }
-            
-            if (!dest.empty()) {
-                if (srcSlot != UINT32_MAX && arg.find("param_") == 0) {
-                    m_VariableToSlot[dest] = srcSlot;
-                    std::cerr << "[DEBUG BC] Mapping parameter name '" << dest << "' to param slot " << srcSlot << std::endl;
+                auto it = m_VariableToSlot.find(arg);
+                if (it != m_VariableToSlot.end()) {
+                    emit(OpCode::LOAD_VAR, it->second);
                 } else {
-                    uint32_t destSlot = getVariableSlot(dest);
-                    emit(OpCode::STORE_VAR, destSlot);
+                    uint32_t srcSlot = getVariableSlot(arg);
+                    emit(OpCode::LOAD_VAR, srcSlot);
                 }
+            }
+
+            if (!dest.empty()) {
+                uint32_t destSlot = getVariableSlot(dest);
+                emit(OpCode::STORE_VAR, destSlot);
             }
             break;
         }
@@ -480,6 +517,7 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
         case OpEnum::CALL: {
             const std::string& funcName = quad.getArg1();
             const std::string& arg2 = quad.getArg2();
+            const std::string& result = quad.getResult();
             int paramCount = 0;
             if (!arg2.empty()) {
                 paramCount = std::stoi(arg2);
@@ -488,9 +526,15 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
             if (it != m_FunctionIndices.end()) {
                 uint32_t funcIdx = it->second;
                 emit(OpCode::CALL, (paramCount << 16) | funcIdx);
+                if (!result.empty() && result != "_") {
+                    emit(OpCode::PUSH_RETURN, 0);
+                }
             } else {
                 uint32_t nameIdx = addString(funcName);
                 emit(OpCode::CALL_NATIVE, (paramCount << 16) | nameIdx);
+                if (!result.empty() && result != "_") {
+                    emit(OpCode::PUSH_RETURN, 0);
+                }
             }
             break;
         }
@@ -635,7 +679,7 @@ BytecodeModule* BytecodeCompiler::compile(const std::list<Quad>& quadList, Symbo
 
     m_Module->header.functionCount = m_Functions.size();
     m_Module->header.totalConstants = m_Module->globalConstants.size();
-    m_Module->header.stringPoolSize = m_NextStringOffset;
+    m_Module->header.stringPoolSize = m_Module->stringPool.size();
     m_Module->header.entryPointIndex = mainIndex;
 
     std::cerr << "[DEBUG BC] Final: functionCount=" << m_Module->header.functionCount
