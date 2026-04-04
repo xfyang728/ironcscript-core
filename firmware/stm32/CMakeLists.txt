@@ -59,6 +59,7 @@ set(VM_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/main_vm.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/syscalls.c
     ${CMAKE_CURRENT_SOURCE_DIR}/hardware/OLED.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/hardware/Serial.c
 )
 
 add_library(common STATIC ${COMMON_SOURCES})
