@@ -2,6 +2,7 @@
 #define CSE_STM32_UART_H
 
 #include "hal/IStandardUART.h"
+#include "STM32GPIO.h"
 #include <cstdint>
 #include <array>
 

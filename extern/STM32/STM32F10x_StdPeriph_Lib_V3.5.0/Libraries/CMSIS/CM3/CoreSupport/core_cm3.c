@@ -392,8 +392,19 @@ uint32_t __LDREXW(uint32_t *addr)
  */
 uint32_t __STREXB(uint8_t value, uint8_t *addr)
 {
-  __ASM("strexb r0, r0, [r1]");
-  __ASM("bx lr");
+  uint32_t result;
+  uint32_t addr_val = (uint32_t)addr;
+  uint32_t val = (uint32_t)value;
+  __asm__ volatile__(
+    "mov r0, %1\n\t"
+    "mov r1, %2\n\t"
+    "strexb r0, r1, [r0]\n\t"
+    "mov %0, r0"
+    : "=r" (result)
+    : "r" (addr_val), "r" (val)
+    : "r0", "r1", "memory"
+  );
+  return result;
 }
 
 /**
@@ -407,8 +418,19 @@ uint32_t __STREXB(uint8_t value, uint8_t *addr)
  */
 uint32_t __STREXH(uint16_t value, uint16_t *addr)
 {
-  __ASM("strexh r0, r0, [r1]");
-  __ASM("bx lr");
+  uint32_t result;
+  uint32_t addr_val = (uint32_t)addr;
+  uint32_t val = (uint32_t)value;
+  __asm__ volatile__(
+    "mov r0, %1\n\t"
+    "mov r1, %2\n\t"
+    "strexh r0, r1, [r0]\n\t"
+    "mov %0, r0"
+    : "=r" (result)
+    : "r" (addr_val), "r" (val)
+    : "r0", "r1", "memory"
+  );
+  return result;
 }
 
 /**
@@ -731,10 +753,16 @@ uint32_t __LDREXW(uint32_t *addr)
  */
 uint32_t __STREXB(uint8_t value, uint8_t *addr)
 {
-   uint32_t result=0;
-  
-   __ASM volatile ("strexb %0, %2, [%1]" : "=r" (result) : "r" (addr), "r" (value) );
-   return(result);
+   register uint32_t result;
+   __asm__ volatile(
+    "mov r2, %1\n\t"
+    "mov r1, %2\n\t"
+    "strexb %0, r1, [r2]"
+    : "=&r" (result)
+    : "r" ((uint32_t)addr), "r" ((uint32_t)value)
+    : "r1", "r2", "memory"
+   );
+   return result;
 }
 
 /**
@@ -748,10 +776,16 @@ uint32_t __STREXB(uint8_t value, uint8_t *addr)
  */
 uint32_t __STREXH(uint16_t value, uint16_t *addr)
 {
-   uint32_t result=0;
-  
-   __ASM volatile ("strexh %0, %2, [%1]" : "=r" (result) : "r" (addr), "r" (value) );
-   return(result);
+   register uint32_t result;
+   __asm__ volatile(
+    "mov r2, %1\n\t"
+    "mov r1, %2\n\t"
+    "strexh %0, r1, [r2]"
+    : "=&r" (result)
+    : "r" ((uint32_t)addr), "r" ((uint32_t)value)
+    : "r1", "r2", "memory"
+   );
+   return result;
 }
 
 /**

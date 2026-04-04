@@ -5,14 +5,16 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include "stm32f10x.h"
 
-extern int __end;
+extern caddr_t _end;
 
 caddr_t _sbrk(int incr) {
     static unsigned char *heap = NULL;
     unsigned char *prev_heap;
     if (heap == NULL) {
-        heap = (unsigned char *)&__end;
+        heap = (unsigned char *)&_end;
     }
     prev_heap = heap;
     heap += incr;
@@ -77,7 +79,12 @@ int _write(int file, char *ptr, int len) {
     (void)file;
     int i;
     for (i = 0; i < len; i++) {
-        if (ptr[i] == '\n') {
+        uint8_t ch = (uint8_t)ptr[i];
+        while ((USART1->SR & USART_SR_TXE) == 0);
+        USART1->DR = ch;
+        if (ch == '\n') {
+            while ((USART1->SR & USART_SR_TXE) == 0);
+            USART1->DR = '\r';
         }
     }
     return len;
@@ -100,4 +107,16 @@ void _exit_r(struct _reent *r, int status) {
     while (1) {
         __asm__ volatile ("WFI");
     }
+}
+
+void _fini(void) {
+}
+
+void __libc_init_array(void) {
+}
+
+void __libc_fini_array(void) {
+}
+
+void __dso_handle(void) {
 }

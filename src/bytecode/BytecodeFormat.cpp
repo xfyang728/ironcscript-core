@@ -1,10 +1,14 @@
 #include "bytecode/BytecodeFormat.h"
-#include <fstream>
 #include <cstring>
+
+#if defined(USE_STDIO) || !defined(EMBEDDED_BUILD)
+#include <fstream>
 #include <iostream>
+#endif
 
 namespace cse {
 
+#if defined(USE_STDIO) || !defined(EMBEDDED_BUILD)
 bool BytecodeModule::saveToFile(const std::string& path) const {
     std::ofstream file(path, std::ios::binary);
     if (!file.is_open()) {
