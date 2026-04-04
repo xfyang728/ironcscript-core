@@ -4,6 +4,14 @@
 
 extern void SystemInit(void);
 
+void Delay_ms(uint32_t ms)
+{
+    volatile uint32_t i, j;
+    for (i = 0; i < ms; i++) {
+        for (j = 0; j < 7200; j++);
+    }
+}
+
 int main(void) {
     SystemInit();
 
@@ -21,6 +29,7 @@ int main(void) {
         Serial_SendString("Counter: ");
         Serial_SendNumber(counter, 6);
         Serial_SendString("\r\n");
+        Delay_ms(1000);
     }
 
     return 0;
