@@ -5,8 +5,10 @@
 
 namespace cse {
 
+#if defined(STM32F10X_MD)
 extern "C" void Serial_SendString(const char* str);
 extern "C" void Serial_SendNumber(uint32_t Number, uint8_t Length);
+#endif
 
 BytecodeVM::BytecodeVM(const VMConfig& config)
     : m_Module(nullptr)
@@ -59,7 +61,9 @@ bool BytecodeVM::loadModule(const BytecodeModule* module) {
 bool BytecodeVM::push(const VMValue& val) {
     if (m_StackTop >= m_Stack + m_StackSize) {
         m_LastError = "Stack overflow";
+#if defined(STM32F10X_MD)
         Serial_SendString("[VM] push FAIL: overflow\r\n");
+#endif
         return false;
     }
     *m_StackTop++ = val;
@@ -216,7 +220,9 @@ bool BytecodeVM::executeInstruction(OpCode op, uint32_t operand) {
                         break;
                 }
             } else {
+#if defined(STM32F10X_MD)
                 Serial_SendString("[VM] LOAD_CONST OOR\r\n");
+#endif
             }
             break;
         }
@@ -458,10 +464,21 @@ bool BytecodeVM::executeInstruction(OpCode op, uint32_t operand) {
                     m_Frames[savedFrameCount - 1].localBase = savedLocalBase;
                     m_Frames[savedFrameCount - 1].pc = savedCallerPc;
                 }
+                
+                // 清理栈上的参数
+                for (uint32_t i = 0; i < paramCount; i++) {
+                    pop();
+                }
             } else {
+#if defined(STM32F10X_MD)
                 Serial_SendString("[VM] native not found: ");
                 Serial_SendString(funcName.c_str());
                 Serial_SendString("\r\n");
+#endif
+                // 即使函数没找到也要清理栈
+                for (uint32_t i = 0; i < paramCount; i++) {
+                    pop();
+                }
             }
             break;
         }
@@ -509,7 +526,9 @@ bool BytecodeVM::execute(uint32_t entryPoint) {
     reset();
     m_Running = true;
 
+#if defined(STM32F10X_MD)
     Serial_SendString("[VM] execute start\r\n");
+#endif
 
     if (entryPoint >= m_Module->functions.size()) {
         m_LastError = "Invalid entry point";
@@ -554,7 +573,9 @@ bool BytecodeVM::execute(uint32_t entryPoint) {
             return true;
         } else {
             if (!executeInstruction(op, operand)) {
+#if defined(STM32F10X_MD)
                 Serial_SendString("[VM] execInstr fail\r\n");
+#endif
                 m_Running = false;
                 return false;
             }
@@ -578,6 +599,7 @@ void BytecodeVM::registerNativeFunction(const char* name, NativeFunction func) {
 }
 
 void BytecodeVM::dumpNativeFunctions() const {
+#if defined(STM32F10X_MD)
     Serial_SendString("[VM] native funcs: ");
     Serial_SendNumber(m_NativeFunctionCount, 10);
     Serial_SendString("\r\n");
@@ -586,6 +608,7 @@ void BytecodeVM::dumpNativeFunctions() const {
         Serial_SendString(m_NativeFunctionNames[i]);
         Serial_SendString("\r\n");
     }
+#endif
 }
 
 }

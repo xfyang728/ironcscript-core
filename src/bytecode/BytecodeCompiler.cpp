@@ -35,6 +35,8 @@ void BytecodeCompiler::reset() {
     m_ConstTempValues.clear();
     m_StringTempVariables.clear();
     m_LastStoredTemp.clear();
+    m_Labels.clear();
+    m_PendingJumps.clear();
     m_LastError.clear();
     m_SymbolTable = nullptr;
 }
@@ -70,8 +72,9 @@ uint32_t BytecodeCompiler::addFunction(const BytecodeFunction& func) {
 
 void BytecodeCompiler::emit(OpCode op, uint32_t operand) {
     if (m_CurrentFunction) {
+        uint32_t pos = m_CurrentFunction->instructions.size();
         m_CurrentFunction->instructions.push_back(BytecodeInstruction(op, operand));
-        std::cerr << "[DEBUG BC] emit Op:" << static_cast<int>(op) << " operand:" << operand << std::endl;
+        std::cerr << "[DEBUG BC] emit Op:" << static_cast<int>(op) << " operand:" << operand << " at pos:" << pos << std::endl;
     }
 }
 
@@ -430,36 +433,149 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
             break;
         }
 
-        case OpEnum::LABEL:
+        case OpEnum::LABEL: {
+            const std::string& labelName = quad.getResult();
+            uint32_t pos = m_CurrentFunction->instructions.size();
+            m_Labels[labelName] = pos;
+            std::cerr << "[DEBUG BC] LABEL " << labelName << " at position " << pos << std::endl;
+            std::cerr << "[DEBUG BC] Pending jumps before patching: " << m_PendingJumps.size() << std::endl;
+            for (size_t i = 0; i < m_PendingJumps.size(); ++i) {
+                std::cerr << "[DEBUG BC]   Pending[" << i << "]: pos=" << m_PendingJumps[i].first 
+                          << ", label=" << m_PendingJumps[i].second << std::endl;
+            }
+            auto it = m_PendingJumps.begin();
+            while (it != m_PendingJumps.end()) {
+                if (it->second == labelName) {
+                    std::cerr << "[DEBUG BC] Patching jump at " << it->first << " to " << pos << std::endl;
+                    patchJump(it->first, pos);
+                    it = m_PendingJumps.erase(it);
+                } else {
+                    ++it;
+                }
+            }
+            std::cerr << "[DEBUG BC] Pending jumps after patching: " << m_PendingJumps.size() << std::endl;
             break;
+        }
 
         case OpEnum::JMP: {
             const std::string& target = quad.getResult();
+            std::cerr << "[DEBUG BC] JMP to target: " << target << std::endl;
             if (target.find_first_not_of("0123456789") == std::string::npos) {
                 emit(OpCode::JUMP, std::stoul(target));
+            } else if (m_Labels.count(target)) {
+                std::cerr << "[DEBUG BC] Label " << target << " already exists at " << m_Labels[target] << std::endl;
+                emit(OpCode::JUMP, m_Labels[target]);
             } else {
+                uint32_t jumpPos = m_CurrentFunction->instructions.size();
                 emit(OpCode::JUMP, 0);
+                m_PendingJumps.push_back({jumpPos, target});
+                std::cerr << "[DEBUG BC] Added pending jump: pos=" << jumpPos << ", label=" << target << std::endl;
             }
             break;
         }
 
         case OpEnum::JMPF: {
+            const std::string& condition = quad.getArg1();
             const std::string& target = quad.getResult();
+            
+            std::cerr << "[DEBUG BC] JMPF condition=" << condition << " target=" << target << std::endl;
+            
+            if (condition.find('$') == 0) {
+                emit(OpCode::LOAD_VAR, std::stoul(condition.substr(1)));
+            } else if (condition.length() > 1 && condition[0] == 't' &&
+                       condition.find_first_not_of("0123456789", 1) == std::string::npos) {
+                auto it = m_ConstTempValues.find(condition);
+                if (it != m_ConstTempValues.end()) {
+                    if (m_StringTempVariables.count(condition) > 0) {
+                        uint32_t idx = addConstant(ConstantPoolEntry::makeString(static_cast<uint32_t>(it->second)));
+                        emit(OpCode::LOAD_CONST, idx);
+                    } else {
+                        emit(OpCode::LOAD_CONST, addConstant(ConstantPoolEntry::makeInt(it->second)));
+                    }
+                } else {
+                    emit(OpCode::LOAD_VAR, getVariableSlot(condition));
+                }
+            } else if (condition.find_first_not_of("0123456789.-") == std::string::npos) {
+                if (condition.find('.') != std::string::npos) {
+                    double val = std::stod(condition);
+                    emit(OpCode::LOAD_CONST, addConstant(ConstantPoolEntry::makeDouble(val)));
+                } else {
+                    int64_t val = std::stoll(condition);
+                    emit(OpCode::LOAD_CONST, addConstant(ConstantPoolEntry::makeInt(val)));
+                }
+            } else {
+                auto it = m_VariableToSlot.find(condition);
+                if (it != m_VariableToSlot.end()) {
+                    emit(OpCode::LOAD_VAR, it->second);
+                } else {
+                    emit(OpCode::LOAD_VAR, getVariableSlot(condition));
+                }
+            }
+            
             if (target.find_first_not_of("0123456789") == std::string::npos) {
                 emit(OpCode::JUMP_IF_FALSE, std::stoul(target));
+            } else if (m_Labels.count(target)) {
+                std::cerr << "[DEBUG BC] Label " << target << " already exists at " << m_Labels[target] << std::endl;
+                emit(OpCode::JUMP_IF_FALSE, m_Labels[target]);
             } else {
+                uint32_t jumpPos = m_CurrentFunction->instructions.size();
                 emit(OpCode::JUMP_IF_FALSE, 0);
+                m_PendingJumps.push_back({jumpPos, target});
+                std::cerr << "[DEBUG BC] Added pending jump: pos=" << jumpPos << ", label=" << target << std::endl;
             }
             break;
         }
 
         case OpEnum::JMPT: {
+            const std::string& condition = quad.getArg1();
             const std::string& target = quad.getResult();
+            
+            if (condition.find('$') == 0) {
+                emit(OpCode::LOAD_VAR, std::stoul(condition.substr(1)));
+            } else if (condition.length() > 1 && condition[0] == 't' &&
+                       condition.find_first_not_of("0123456789", 1) == std::string::npos) {
+                auto it = m_ConstTempValues.find(condition);
+                if (it != m_ConstTempValues.end()) {
+                    if (m_StringTempVariables.count(condition) > 0) {
+                        uint32_t idx = addConstant(ConstantPoolEntry::makeString(static_cast<uint32_t>(it->second)));
+                        emit(OpCode::LOAD_CONST, idx);
+                    } else {
+                        emit(OpCode::LOAD_CONST, addConstant(ConstantPoolEntry::makeInt(it->second)));
+                    }
+                } else {
+                    emit(OpCode::LOAD_VAR, getVariableSlot(condition));
+                }
+            } else if (condition.find_first_not_of("0123456789.-") == std::string::npos) {
+                if (condition.find('.') != std::string::npos) {
+                    double val = std::stod(condition);
+                    emit(OpCode::LOAD_CONST, addConstant(ConstantPoolEntry::makeDouble(val)));
+                } else {
+                    int64_t val = std::stoll(condition);
+                    emit(OpCode::LOAD_CONST, addConstant(ConstantPoolEntry::makeInt(val)));
+                }
+            } else {
+                auto it = m_VariableToSlot.find(condition);
+                if (it != m_VariableToSlot.end()) {
+                    emit(OpCode::LOAD_VAR, it->second);
+                } else {
+                    emit(OpCode::LOAD_VAR, getVariableSlot(condition));
+                }
+            }
+            
             if (target.find_first_not_of("0123456789") == std::string::npos) {
                 emit(OpCode::JUMP_IF_TRUE, std::stoul(target));
+            } else if (m_Labels.count(target)) {
+                emit(OpCode::JUMP_IF_TRUE, m_Labels[target]);
             } else {
+                uint32_t jumpPos = m_CurrentFunction->instructions.size();
                 emit(OpCode::JUMP_IF_TRUE, 0);
+                m_PendingJumps.push_back({jumpPos, target});
             }
+            break;
+        }
+
+        case OpEnum::POP: {
+            emit(OpCode::POP, 0);
             break;
         }
 
@@ -714,6 +830,8 @@ void BytecodeCompiler::compileFunctionBody(
     std::list<Quad>::const_iterator end) {
 
     m_LastStoredTemp.clear();
+    m_Labels.clear();
+    m_PendingJumps.clear();
 
     for (auto it = std::next(start); it != end; ++it) {
         const Quad& quad = *it;

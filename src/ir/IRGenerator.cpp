@@ -151,18 +151,26 @@ void IRGenerator::analyzeStatement(NStatement* statement) {
 void IRGenerator::analyzeBlock(NBlock* block) {
     symbolTable.enterScope();
 
+    int oldParamEvalCounter = paramEvalVarCounter;
+    paramEvalVarCounter = 0;
+
     for (auto& statement : block->statements) {
         if (auto* enumDecl = dynamic_cast<NEnumDeclaration*>(statement)) {
             analyzeEnumDeclaration(enumDecl);
         }
     }
 
-    for (auto& statement : block->statements) {
+    std::cerr << "[DEBUG IR] analyzeBlock: processing " << block->statements.size() << " statements" << std::endl;
+    for (size_t i = 0; i < block->statements.size(); ++i) {
+        auto& statement = block->statements[i];
         if (!dynamic_cast<NEnumDeclaration*>(statement)) {
+            std::cerr << "[DEBUG IR] analyzeBlock: statement[" << i << "] typeid=" << typeid(*statement).name() << std::endl;
             analyzeStatement(statement);
+            std::cerr << "[DEBUG IR] analyzeBlock: after statement[" << i << "], quadList.size()=" << quadList.size() << std::endl;
         }
     }
 
+    paramEvalVarCounter = oldParamEvalCounter;
     symbolTable.exitScope();
 }
 
@@ -305,7 +313,9 @@ void IRGenerator::analyzeExpressionStatement(NExpressionStatement* stmt) {
             return;
         }
     }
-    analyzeExpression(&stmt->expression);
+    std::string result = analyzeExpression(&stmt->expression);
+    // 添加 POP 操作来清理栈上的表达式结果
+    quadList.push_back(Quad(OpEnum::POP, "", "", ""));
 }
 
 void IRGenerator::analyzeReturnStatement(NReturnStatement* stmt) {
@@ -343,15 +353,20 @@ void IRGenerator::analyzeWhileStatement(NWhileStatement* stmt) {
     currentLoopEndLabel = endLabel;
     currentLoopIncrementLabel = "";
     
+    std::cerr << "[DEBUG IR] analyzeWhileStatement: startLabel=" << startLabel << " endLabel=" << endLabel << std::endl;
     quadList.push_back(Quad(OpEnum::LABEL, "", "", startLabel));
+    std::cerr << "[DEBUG IR] Emitted LABEL quad for " << startLabel << std::endl;
     
     std::string condition = analyzeExpression(&stmt->condition);
     quadList.push_back(Quad(OpEnum::JMPF, condition, "", endLabel));
+    std::cerr << "[DEBUG IR] Emitted JMPF quad to " << endLabel << std::endl;
     
     analyzeBlock(&stmt->block);
     
     quadList.push_back(Quad(OpEnum::JMP, "", "", startLabel));
+    std::cerr << "[DEBUG IR] Emitted JMP quad to " << startLabel << std::endl;
     quadList.push_back(Quad(OpEnum::LABEL, "", "", endLabel));
+    std::cerr << "[DEBUG IR] Emitted LABEL quad for " << endLabel << std::endl;
     
     currentLoopStartLabel = oldStartLabel;
     currentLoopEndLabel = oldEndLabel;

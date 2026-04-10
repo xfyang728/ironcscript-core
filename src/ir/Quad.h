@@ -54,7 +54,8 @@ enum OpEnum
 	MEMBER_STORE,
 	EXTERN,
 	REGISTER_CALLBACK,
-	THROW
+	THROW,
+	POP
 };
 
 inline std::string opToString(OpEnum op)
@@ -108,6 +109,7 @@ inline std::string opToString(OpEnum op)
 	case EXTERN: return "EXTERN";
 	case REGISTER_CALLBACK: return "REGISTER_CALLBACK";
 	case THROW: return "THROW";
+	case POP: return "POP";
 	default: return "UNKNOWN";
 	}
 }

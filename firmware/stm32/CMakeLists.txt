@@ -7,6 +7,7 @@ set(TOOLCHAIN "D:/MyCode/IronCScript/ironcscript-core/extern/STM32/gcc-arm-none-
 include(CMakeForceCompiler)
 CMAKE_FORCE_C_COMPILER("${TOOLCHAIN}/arm-none-eabi-gcc.exe" GNU)
 CMAKE_FORCE_CXX_COMPILER("${TOOLCHAIN}/arm-none-eabi-g++.exe" GNU)
+set(CMAKE_OBJCOPY "${TOOLCHAIN}/arm-none-eabi-objcopy.exe")
 
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR ARM)
@@ -60,6 +61,7 @@ set(VM_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/syscalls.c
     ${CMAKE_CURRENT_SOURCE_DIR}/hardware/OLED.c
     ${CMAKE_CURRENT_SOURCE_DIR}/hardware/Serial.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/hardware/LED.c
 )
 
 add_library(common STATIC ${COMMON_SOURCES})
@@ -96,7 +98,7 @@ add_custom_command(OUTPUT IronCS_flash.bin
     COMMENT "Generating internal Flash firmware .bin file"
 )
 
-add_custom_target(flash_run DEPENDS IronCS_flash.bin)
+add_custom_target(flash_run ALL DEPENDS IronCS_flash.bin)
 
 enable_language(C)
 

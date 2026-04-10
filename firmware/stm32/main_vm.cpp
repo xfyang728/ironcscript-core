@@ -1,6 +1,7 @@
 #include "stm32f10x.h"
 #include "hardware/OLED.h"
 #include "hardware/Serial.h"
+#include "hardware/LED.h"
 #include "platform/stm32/STM32CSBLoader.h"
 #include "bytecode/vm/BytecodeVM.h"
 #include "bytecode/BytecodeFormat.h"
@@ -76,6 +77,9 @@ static void nativeDelay(cse::BytecodeVM* vm) {
     cse::VMValue arg = vm->getArg(0);
     if (arg.type == cse::ValueType::INTEGER) {
         int32_t ms = static_cast<int32_t>(arg.value.intVal);
+        Serial_SendString("[DELAY] ms=");
+        Serial_SendNumber(ms, 10);
+        Serial_SendString("\r\n");
         Delay_ms(ms);
         g_UptimeMs += ms;
     }
@@ -112,14 +116,75 @@ static void nativeLogInfo(cse::BytecodeVM* vm) {
 static void nativePrintf(cse::BytecodeVM* vm) {
     int32_t argCount = vm->getArgCount();
     if (argCount < 1) return;
-    cse::VMValue arg = vm->getArg(0);
-    if (arg.type == cse::ValueType::STRING) {
-        const char* str = vm->getStringFromConstant(arg.value.stringOffset);
-        Serial_SendString(str);
-    } else if (arg.type == cse::ValueType::INTEGER) {
-        Serial_SendNumber(static_cast<uint32_t>(arg.value.intVal), 10);
+
+    cse::VMValue formatArg = vm->getArg(0);
+    if (formatArg.type != cse::ValueType::STRING) {
+        if (formatArg.type == cse::ValueType::INTEGER) {
+            Serial_SendNumber(static_cast<uint32_t>(formatArg.value.intVal), 10);
+        }
+        return;
+    }
+
+    const char* format = vm->getStringFromConstant(formatArg.value.stringOffset);
+    const char* p = format;
+    int32_t argIdx = 1;
+    char buf[32];
+
+    while (*p) {
+        if (*p == '%' && *(p + 1)) {
+            p++;
+            if (*p == 'd' || *p == 'i') {
+                if (argIdx < argCount) {
+                    cse::VMValue arg = vm->getArg(argIdx++);
+                    if (arg.type == cse::ValueType::INTEGER) {
+                        Serial_SendNumber(static_cast<uint32_t>(arg.value.intVal), 10);
+                    }
+                }
+            } else if (*p == 's') {
+                if (argIdx < argCount) {
+                    cse::VMValue arg = vm->getArg(argIdx++);
+                    if (arg.type == cse::ValueType::STRING) {
+                        Serial_SendString(vm->getStringFromConstant(arg.value.stringOffset));
+                    }
+                }
+            } else if (*p == 'c') {
+                if (argIdx < argCount) {
+                    cse::VMValue arg = vm->getArg(argIdx++);
+                    if (arg.type == cse::ValueType::INTEGER) {
+                        char c = static_cast<char>(arg.value.intVal);
+                        Serial_SendString(&c);
+                    }
+                }
+            } else if (*p == '%') {
+                Serial_SendString("%");
+            }
+        } else if (*p == '\\' && *(p + 1) == 'n') {
+            Serial_SendString("\r\n");
+            p++;
+        } else {
+            char c = *p;
+            Serial_SendString(&c);
+        }
+        p++;
     }
     (void)argCount;
+}
+static void nativeLedInit(cse::BytecodeVM* vm) {
+    (void)vm;
+    Serial_SendString("[LED] Init\n");
+    LED_Init();
+}
+
+static void nativeLedOn(cse::BytecodeVM* vm) {
+    (void)vm;
+    Serial_SendString("[LED] On\n");
+    LED_On();
+}
+
+static void nativeLedOff(cse::BytecodeVM* vm) {
+    (void)vm;
+    Serial_SendString("[LED] Off\n");
+    LED_Off();
 }
 
 static bool initializeVM() {
@@ -157,6 +222,9 @@ static bool initializeVM() {
     g_VM->registerNativeFunction("pinMode", nativePinMode);
     g_VM->registerNativeFunction("log_info", nativeLogInfo);
     g_VM->registerNativeFunction("printf", nativePrintf);
+    g_VM->registerNativeFunction("ledInit", nativeLedInit);
+    g_VM->registerNativeFunction("ledOn", nativeLedOn);
+    g_VM->registerNativeFunction("ledOff", nativeLedOff);
 
     Serial_SendString("[VM] init complete\r\n");
     return true;

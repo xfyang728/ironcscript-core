@@ -69,6 +69,8 @@ private:
     std::set<std::string> m_StringTempVariables;
     std::string m_LastStoredTemp;
     SymbolTable* m_SymbolTable;
+    std::map<std::string, uint32_t> m_Labels;
+    std::vector<std::pair<uint32_t, std::string>> m_PendingJumps;
 };
 
 }
