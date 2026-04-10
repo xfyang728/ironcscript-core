@@ -2,11 +2,13 @@
 #include <cstdio>
 #include <cstring>
 
+extern "C" void Serial_SendString(const char* str);
+
 namespace cse {
 
 bool STM32CSBLoader::readFlash(uint32_t addr, void* buffer, size_t len) {
     if (addr < 0x08000000 || addr > 0x080FFFFF) {
-        printf("[CSB] ERROR: Invalid flash address 0x%08X\r\n", addr);
+        Serial_SendString("[CSB] ERR: bad addr\r\n");
         return false;
     }
     memcpy(buffer, reinterpret_cast<const void*>(addr), len);
@@ -22,27 +24,19 @@ bool STM32CSBLoader::isValidHeader(uint32_t addr) {
 }
 
 bool STM32CSBLoader::loadFromFlash(uint32_t addr, BytecodeModule& module) {
-    printf("[CSB] loadFromFlash addr=0x%08X\r\n", addr);
-    fflush(stdout);
+    Serial_SendString("[CSB] loadFromFlash\r\n");
 
     BytecodeHeader header;
     if (!readFlash(addr, &header, sizeof(header))) {
-        printf("[CSB] ERROR: readFlash header failed\r\n");
-        fflush(stdout);
+        Serial_SendString("[CSB] ERR: read header fail\r\n");
         return false;
     }
-
-    printf("[CSB] header bytes: %02X %02X %02X %02X\r\n",
-           header.magic[0], header.magic[1], header.magic[2], header.magic[3]);
-    fflush(stdout);
 
     if (!header.isValid()) {
-        printf("[CSB] ERROR: header invalid\r\n");
-        fflush(stdout);
+        Serial_SendString("[CSB] ERR: header invalid\r\n");
         return false;
     }
-    printf("[CSB] header valid\r\n");
-    fflush(stdout);
+    Serial_SendString("[CSB] header valid\r\n");
 
     module.header = header;
     module.functions.clear();
@@ -52,14 +46,7 @@ bool STM32CSBLoader::loadFromFlash(uint32_t addr, BytecodeModule& module) {
     uint32_t currentAddr = addr + sizeof(BytecodeHeader);
     uint32_t funcCount = header.functionCount;
 
-    printf("[CSB] funcCount=%u, sizeof(BytecodeHeader)=%u\r\n",
-           funcCount, (unsigned)sizeof(BytecodeHeader));
-    fflush(stdout);
-
     for (uint32_t i = 0; i < funcCount; ++i) {
-        printf("[CSB] === Loading func %u ===\r\n", i);
-        fflush(stdout);
-
         BytecodeFunction func;
         func.instructions.clear();
         func.constants.clear();
@@ -88,10 +75,6 @@ bool STM32CSBLoader::loadFromFlash(uint32_t addr, BytecodeModule& module) {
         if (!readFlash(currentAddr, &instrCount, sizeof(uint32_t))) return false;
         currentAddr += sizeof(uint32_t);
 
-        printf("[CSB] func[%u] instrCount=%u, instrBytes=%u\r\n",
-               i, instrCount, (unsigned)(instrCount * sizeof(BytecodeInstruction)));
-        fflush(stdout);
-
         func.instructions.resize(instrCount);
         if (instrCount > 0) {
             size_t totalInstrBytes = instrCount * sizeof(BytecodeInstruction);
@@ -108,13 +91,10 @@ bool STM32CSBLoader::loadFromFlash(uint32_t addr, BytecodeModule& module) {
         currentAddr += sizeof(uint32_t);
 
         if (constCount == 0xFFFFFFFF || constCount > 10000) {
-            printf("[CSB] ERROR: constCount invalid (%u)\r\n", constCount);
-            fflush(stdout);
+            Serial_SendString("[CSB] ERR: bad constCount\r\n");
             return false;
         }
 
-        printf("[CSB] func[%u] constCount=%u\r\n", i, constCount);
-        fflush(stdout);
         func.constants.resize(constCount);
 
         for (uint32_t j = 0; j < constCount; ++j) {
@@ -140,16 +120,12 @@ bool STM32CSBLoader::loadFromFlash(uint32_t addr, BytecodeModule& module) {
         }
 
         module.functions.push_back(func);
-        printf("[CSB] func[%u] loaded OK\r\n", i);
-        fflush(stdout);
+        Serial_SendString("[CSB] func loaded\r\n");
     }
 
     uint32_t globalConstCount = 0;
     if (!readFlash(currentAddr, &globalConstCount, sizeof(uint32_t))) return false;
     currentAddr += sizeof(uint32_t);
-
-    printf("[CSB] globalConstCount=%u\r\n", globalConstCount);
-    fflush(stdout);
 
     module.globalConstants.resize(globalConstCount);
     for (uint32_t i = 0; i < globalConstCount; ++i) {
@@ -178,9 +154,6 @@ bool STM32CSBLoader::loadFromFlash(uint32_t addr, BytecodeModule& module) {
     if (!readFlash(currentAddr, &stringCount, sizeof(uint32_t))) return false;
     currentAddr += sizeof(uint32_t);
 
-    printf("[CSB] stringCount=%u\r\n", stringCount);
-    fflush(stdout);
-
     module.stringPool.resize(stringCount);
     for (uint32_t i = 0; i < stringCount; ++i) {
         uint32_t len = 0;
@@ -193,12 +166,9 @@ bool STM32CSBLoader::loadFromFlash(uint32_t addr, BytecodeModule& module) {
             if (!readFlash(currentAddr, &module.stringPool[i][0], actualLen)) return false;
             currentAddr += len;
         }
-        printf("[CSB] stringPool[%u]: \"%s\" (len=%u)\r\n", i, module.stringPool[i].c_str(), actualLen);
-        fflush(stdout);
     }
 
-    printf("[CSB] All loaded successfully!\r\n");
-    fflush(stdout);
+    Serial_SendString("[CSB] load OK\r\n");
     return true;
 }
 

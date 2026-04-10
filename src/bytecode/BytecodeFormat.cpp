@@ -203,4 +203,6 @@ bool BytecodeModule::validate() const {
     return true;
 }
 
+#endif
+
 }

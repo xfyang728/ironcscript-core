@@ -17,8 +17,8 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
-set(CMAKE_C_FLAGS_INIT "-Os -fno-exceptions -ffunction-sections -fdata-sections -mcpu=cortex-m3 -DEMBEDDED_BUILD")
-set(CMAKE_CXX_FLAGS_INIT "-Os -fno-exceptions -fno-rtti -fno-threadsafe-statics -ffunction-sections -fdata-sections -mcpu=cortex-m3 -DEMBEDDED_BUILD")
+set(CMAKE_C_FLAGS_INIT "-Os -fno-exceptions -ffunction-sections -fdata-sections -mcpu=cortex-m3 -mthumb -DEMBEDDED_BUILD")
+set(CMAKE_CXX_FLAGS_INIT "-Os -fno-exceptions -fno-rtti -fno-threadsafe-statics -ffunction-sections -fdata-sections -mcpu=cortex-m3 -mthumb -DEMBEDDED_BUILD -fno-use-cxa-atexit")
 
 project(IronCS_STM32 C CXX ASM)
 
@@ -86,6 +86,8 @@ target_link_libraries(IronCS_flash.elf PUBLIC
     -lc
     -lm
     -lgcc
+    -lstdc++
+    -lsupc++
 )
 
 add_custom_command(OUTPUT IronCS_flash.bin

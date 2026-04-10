@@ -5,6 +5,9 @@
 
 namespace cse {
 
+extern "C" void Serial_SendString(const char* str);
+extern "C" void Serial_SendNumber(uint32_t Number, uint8_t Length);
+
 BytecodeVM::BytecodeVM(const VMConfig& config)
     : m_Module(nullptr)
     , m_HeapUsed(0)
@@ -13,6 +16,9 @@ BytecodeVM::BytecodeVM(const VMConfig& config)
     , m_Running(false)
     , m_StackSize(config.stackSize)
     , m_MaxCallDepth(config.maxCallDepth)
+    , m_NativeFunctions{}
+    , m_NativeFunctionNames{}
+    , m_NativeFunctionCount(0)
 {
     m_Stack = new VMValue[m_StackSize];
     m_Locals = new VMValue[m_StackSize];
@@ -53,16 +59,10 @@ bool BytecodeVM::loadModule(const BytecodeModule* module) {
 bool BytecodeVM::push(const VMValue& val) {
     if (m_StackTop >= m_Stack + m_StackSize) {
         m_LastError = "Stack overflow";
-        printf("[VM] push FAILED: stack overflow! stackTop=%ld, stackSize=%u\r\n",
-               (long)(m_StackTop - m_Stack), (unsigned)m_StackSize);
+        Serial_SendString("[VM] push FAIL: overflow\r\n");
         return false;
     }
-    int32_t slot = m_StackTop - m_Stack;
     *m_StackTop++ = val;
-    printf("[VM] push: slot=%d, val.type=%d, val.value=%lld\r\n",
-           slot, (int)val.type, (long long)val.value.intVal);
-    printf("[VM] push:   m_Stack[%d].type=%d, m_Stack[%d].value=%lld\r\n",
-           slot, (int)m_Stack[slot].type, slot, (long long)m_Stack[slot].value.intVal);
     return true;
 }
 
@@ -94,24 +94,16 @@ bool BytecodeVM::fetch(OpCode& outOp, uint32_t& outOperand) {
     outOperand = 0;
 
     if (!m_Module || m_FrameCount == 0) {
-        printf("[VM] fetch failed: no module or no frames\r\n");
-        fflush(stdout);
         return false;
     }
 
     VMFrame& frame = m_Frames[m_FrameCount - 1];
     if (frame.functionIndex >= m_Module->functions.size()) {
-        printf("[VM] fetch failed: funcIndex %u >= %u\r\n",
-               frame.functionIndex, (unsigned)m_Module->functions.size());
-        fflush(stdout);
         return false;
     }
 
     const BytecodeFunction& func = m_Module->functions[frame.functionIndex];
     if (frame.pc >= func.instructions.size()) {
-        printf("[VM] fetch failed: pc %u >= instrCount %u\r\n",
-               frame.pc, (unsigned)func.instructions.size());
-        fflush(stdout);
         return false;
     }
 
@@ -136,24 +128,17 @@ bool BytecodeVM::callFunction(uint32_t funcIndex, uint32_t paramCount) {
     uint32_t localCount = func.localCount;
     uint32_t funcParamCount = func.paramCount;
 
-    printf("[VM] callFunction: funcIndex=%u, paramCount=%u, localCount=%u, funcParamCount=%u\r\n",
-           funcIndex, paramCount, localCount, funcParamCount);
-
     int32_t currentStackTop = m_StackTop - m_Stack;
 
     for (uint32_t i = funcParamCount; i < localCount; i++) {
         push(VMValue::makeInt(0));
     }
 
-    printf("[VM] callFunction: After push locals, stackTop=%d\r\n", m_StackTop - m_Stack);
-
     VMFrame frame;
     frame.functionIndex = funcIndex;
     frame.pc = 0;
     frame.localBase = currentStackTop - paramCount;
     frame.localCount = funcParamCount;
-
-    printf("[VM] callFunction: localBase=%d\r\n", frame.localBase);
 
     m_Frames[m_FrameCount++] = frame;
     return true;
@@ -179,7 +164,7 @@ VMValue& BytecodeVM::getLocal(uint32_t slot) {
     } else {
         actualSlot = frame.localBase + frame.localCount + (slot - frame.localCount);
     }
-    if (actualSlot >= m_StackSize || actualSlot < 0) {
+    if (actualSlot >= (int32_t)m_StackSize || actualSlot < 0) {
         return nil;
     }
     return m_Stack[actualSlot];
@@ -211,20 +196,12 @@ bool BytecodeVM::executeInstruction(OpCode op, uint32_t operand) {
 
         case OpCode::LOAD_CONST: {
             uint32_t idx = operand;
-            int32_t currentStackTop = m_StackTop - m_Stack;
-            printf("[VM] LOAD_CONST idx=%u, globalConstants.size()=%u, stackTop=%d\r\n",
-                   idx, (unsigned)m_Module->globalConstants.size(), currentStackTop);
             if (idx < m_Module->globalConstants.size()) {
                 const auto& entry = m_Module->globalConstants[idx];
-                printf("[VM] LOAD_CONST entry.type=%d, value.intVal=%lld, value.doubleVal=%f\r\n",
-                       (int)entry.type, (long long)entry.value.intVal, entry.value.doubleVal);
                 switch (entry.type) {
-                    case ConstantPoolEntry::Type::INTEGER: {
-                        VMValue v = VMValue::makeInt(entry.value.intVal);
-                        printf("[VM] LOAD_CONST pushing INTEGER %lld to stack\r\n", (long long)v.value.intVal);
-                        push(v);
+                    case ConstantPoolEntry::Type::INTEGER:
+                        push(VMValue::makeInt(entry.value.intVal));
                         break;
-                    }
                     case ConstantPoolEntry::Type::DOUBLE:
                         push(VMValue::makeDouble(entry.value.doubleVal));
                         break;
@@ -238,19 +215,14 @@ bool BytecodeVM::executeInstruction(OpCode op, uint32_t operand) {
                         push(VMValue::makeNil());
                         break;
                 }
-                printf("[VM] LOAD_CONST done, new stackTop=%ld\r\n", (long)(m_StackTop - m_Stack));
             } else {
-                printf("[VM] LOAD_CONST idx=%u out of range!\r\n", idx);
+                Serial_SendString("[VM] LOAD_CONST OOR\r\n");
             }
             break;
         }
 
         case OpCode::LOAD_VAR: {
-            printf("[VM] LOAD_VAR: slot=%u, localBase=%d, actualSlot=%d\r\n",
-                   operand, m_Frames[m_FrameCount - 1].localBase,
-                   m_Frames[m_FrameCount - 1].localBase + operand);
             VMValue val = getLocal(operand);
-            printf("[VM] LOAD_VAR: loaded value=%lld\r\n", (long long)val.value.intVal);
             push(val);
             break;
         }
@@ -264,8 +236,6 @@ bool BytecodeVM::executeInstruction(OpCode op, uint32_t operand) {
             } else {
                 actualSlot = frame.localBase + frame.localCount + (operand - frame.localCount);
             }
-            printf("[VM] STORE_VAR: slot=%u, localBase=%d, localCount=%u, actualSlot=%d, value=%lld\r\n",
-                   operand, frame.localBase, frame.localCount, actualSlot, (long long)val.value.intVal);
             if (actualSlot >= 0 && actualSlot < (int32_t)m_StackSize) {
                 m_Stack[actualSlot] = val;
             }
@@ -296,9 +266,6 @@ bool BytecodeVM::executeInstruction(OpCode op, uint32_t operand) {
         case OpCode::SUB: {
             VMValue b = pop();
             VMValue a = pop();
-            printf("[VM] SUB: a=%lld, b=%lld, result=%lld\r\n", 
-                   (long long)a.value.intVal, (long long)b.value.intVal, 
-                   (long long)(a.value.intVal - b.value.intVal));
             if (a.type == ValueType::INTEGER && b.type == ValueType::INTEGER) {
                 push(VMValue::makeInt(a.value.intVal - b.value.intVal));
             } else {
@@ -438,19 +405,9 @@ bool BytecodeVM::executeInstruction(OpCode op, uint32_t operand) {
             uint32_t encoded = operand;
             uint32_t funcIndex = encoded & 0xFFFF;
             uint32_t paramCount = encoded >> 16;
-            int32_t currentStackTop = m_StackTop - m_Stack;
-            printf("[VM] CALL: funcIndex=%u, paramCount=%u, stackTop=%d\r\n",
-                   funcIndex, paramCount, currentStackTop);
-            printf("[VM] CALL: Stack before call: ");
-            for (int i = 0; i < currentStackTop && i < 20; i++) {
-                printf("[%d]=%lld ", i, (long long)m_Stack[i].value.intVal);
-            }
-            printf("\r\n");
             if (!callFunction(funcIndex, paramCount)) {
                 return false;
             }
-            printf("[VM] CALL: After setup frame, localBase=%d\r\n",
-                   m_Frames[m_FrameCount - 1].localBase);
             break;
         }
 
@@ -459,38 +416,21 @@ bool BytecodeVM::executeInstruction(OpCode op, uint32_t operand) {
             uint32_t stringPoolIndex = encoded & 0xFFFF;
             uint32_t paramCount = encoded >> 16;
             int32_t currentStackTop = m_StackTop - m_Stack;
-            printf("[VM] CALL_NATIVE: stringPoolIndex=%u, paramCount=%u, stackTop=%d\r\n",
-                   stringPoolIndex, paramCount, currentStackTop);
-            printf("[VM] Stack contents: ");
-            for (int i = 0; i < currentStackTop && i < 16; i++) {
-                printf("[%d]=%lld ", i, (long long)m_Stack[i].value.intVal);
-            }
-            printf("\r\n");
 
             std::string funcName;
             if (stringPoolIndex < m_Module->stringPool.size()) {
                 funcName = m_Module->stringPool[stringPoolIndex];
             }
-            printf("[VM] Calling native function: '%s'\r\n", funcName.c_str());
-            dumpNativeFunctions();
 
-            auto it = m_NativeFunctionMap.find(funcName);
-            if (it != m_NativeFunctionMap.end()) {
-                printf("[VM] Native function found\r\n");
-
-                int32_t localBaseForNative = currentStackTop - paramCount;
-                printf("[VM] Argument calculation: stackTop=%d - paramCount=%u = localBase=%d\r\n",
-                       currentStackTop, paramCount, localBaseForNative);
-
-                for (uint32_t i = 0; i < paramCount; i++) {
-                    int32_t argIndex = localBaseForNative + i;
-                    if (argIndex >= 0 && argIndex < currentStackTop) {
-                        printf("[VM]   arg[%u] -> stack[%d] = %lld\r\n",
-                               i, argIndex, (long long)m_Stack[argIndex].value.intVal);
-                    } else {
-                        printf("[VM]   arg[%u] -> stack[%d] = OUT_OF_RANGE\r\n", i, argIndex);
-                    }
+            NativeFunction funcToCall = nullptr;
+            for (size_t i = 0; i < m_NativeFunctionCount; i++) {
+                if (m_NativeFunctionNames[i] == funcName) {
+                    funcToCall = m_NativeFunctions[i];
+                    break;
                 }
+            }
+            if (funcToCall) {
+                int32_t localBaseForNative = currentStackTop - paramCount;
 
                 int32_t savedLocalBase = -1;
                 int savedFrameCount = m_FrameCount;
@@ -501,7 +441,6 @@ bool BytecodeVM::executeInstruction(OpCode op, uint32_t operand) {
                 uint32_t savedCallerPc = 0;
                 if (m_FrameCount > 0 && m_FrameCount < (int)16) {
                     savedCallerPc = m_Frames[m_FrameCount - 1].pc;
-                    printf("[VM] Saving caller pc=%u before native call\r\n", savedCallerPc);
                 }
 
                 if (m_FrameCount < (int)16) {
@@ -512,18 +451,17 @@ bool BytecodeVM::executeInstruction(OpCode op, uint32_t operand) {
                     m_FrameCount++;
                 }
 
-                NativeFunction func = it->second;
-                func(this);
+                funcToCall(this);
 
                 m_FrameCount = savedFrameCount;
                 if (savedFrameCount > 0 && savedLocalBase >= 0) {
                     m_Frames[savedFrameCount - 1].localBase = savedLocalBase;
                     m_Frames[savedFrameCount - 1].pc = savedCallerPc;
-                    printf("[VM] Restored caller pc to %u after native call\r\n", savedCallerPc);
                 }
             } else {
-                printf("[VM] ERROR: Native function '%s' not found\r\n", funcName.c_str());
-                fflush(stdout);
+                Serial_SendString("[VM] native not found: ");
+                Serial_SendString(funcName.c_str());
+                Serial_SendString("\r\n");
             }
             break;
         }
@@ -571,20 +509,13 @@ bool BytecodeVM::execute(uint32_t entryPoint) {
     reset();
     m_Running = true;
 
-    printf("[VM] execute entryPoint=%u, functions=%u\r\n",
-           entryPoint, (unsigned)m_Module->functions.size());
-    fflush(stdout);
+    Serial_SendString("[VM] execute start\r\n");
 
     if (entryPoint >= m_Module->functions.size()) {
         m_LastError = "Invalid entry point";
         m_Running = false;
         return false;
     }
-
-    const auto& entryFunc = m_Module->functions[entryPoint];
-    printf("[VM] entryFunc: instrCount=%u, constCount=%u\r\n",
-           (unsigned)entryFunc.instructions.size(), (unsigned)entryFunc.constants.size());
-    fflush(stdout);
 
     if (!callFunction(entryPoint, 0)) {
         m_Running = false;
@@ -596,18 +527,12 @@ bool BytecodeVM::execute(uint32_t entryPoint) {
         OpCode op;
         uint32_t operand;
         if (!fetch(op, operand)) {
-            printf("[VM] fetch failed, checking if function ended normally\r\n");
-            fflush(stdout);
             if (m_FrameCount > 0) {
                 VMFrame& frame = m_Frames[m_FrameCount - 1];
                 const BytecodeFunction& func = m_Module->functions[frame.functionIndex];
                 if (frame.pc >= func.instructions.size() && m_FrameCount > 0) {
-                    printf("[VM] function ended, returning\r\n");
-                    fflush(stdout);
                     returnFromFunction();
                     if (m_FrameCount == 0) {
-                        printf("[VM] no more frames, execution complete\r\n");
-                        fflush(stdout);
                         m_Running = false;
                         return true;
                     }
@@ -619,19 +544,17 @@ bool BytecodeVM::execute(uint32_t entryPoint) {
         }
 
         if (op == OpCode::RETURN) {
-            printf("[VM] RETURN\r\n");
             VMValue v = pop();
             m_ReturnValue = v;
             if (!returnFromFunction()) {
                 shouldContinue = false;
             }
         } else if (op == OpCode::HALT) {
-            printf("[VM] HALT\r\n");
             m_Running = false;
             return true;
         } else {
-            printf("[VM] opcode=%d operand=%u\r\n", (int)op, operand);
             if (!executeInstruction(op, operand)) {
+                Serial_SendString("[VM] execInstr fail\r\n");
                 m_Running = false;
                 return false;
             }
@@ -646,36 +569,23 @@ void BytecodeVM::stop() {
     m_Running = false;
 }
 
-void BytecodeVM::registerNativeFunction(const std::string& name, NativeFunction func) {
-    printf("[VM] registerNativeFunction: %s\r\n", name.c_str());
-    fflush(stdout);
-    m_NativeFunctions.push_back(func);
-    m_NativeFunctionMap[name] = func;
-    m_NativeFunctionNames.push_back(name);
-}
-
-void BytecodeVM::registerConstant(const std::string& name, int64_t value) {
-    printf("[VM] registerConstant: %s = %lld\r\n", name.c_str(), (long long)value);
-    fflush(stdout);
-    m_RegisteredConstants[name] = value;
-}
-
-bool BytecodeVM::findRegisteredConstant(const std::string& name, int64_t& outValue) const {
-    auto it = m_RegisteredConstants.find(name);
-    if (it != m_RegisteredConstants.end()) {
-        outValue = it->second;
-        return true;
+void BytecodeVM::registerNativeFunction(const char* name, NativeFunction func) {
+    if (m_NativeFunctionCount < MAX_NATIVE_FUNCTIONS) {
+        m_NativeFunctions[m_NativeFunctionCount] = func;
+        m_NativeFunctionNames[m_NativeFunctionCount] = name;
+        m_NativeFunctionCount++;
     }
-    return false;
 }
 
-void BytecodeVM::dumpConstants() const {
-    printf("=== VM Registered Constants (%zu) ===\r\n", m_RegisteredConstants.size());
-    for (const auto& pair : m_RegisteredConstants) {
-        printf("  %s = %lld\r\n", pair.first.c_str(), (long long)pair.second);
+void BytecodeVM::dumpNativeFunctions() const {
+    Serial_SendString("[VM] native funcs: ");
+    Serial_SendNumber(m_NativeFunctionCount, 10);
+    Serial_SendString("\r\n");
+    for (size_t i = 0; i < m_NativeFunctionCount; i++) {
+        Serial_SendString("  ");
+        Serial_SendString(m_NativeFunctionNames[i]);
+        Serial_SendString("\r\n");
     }
-    printf("======================================\r\n");
-    fflush(stdout);
 }
 
 }

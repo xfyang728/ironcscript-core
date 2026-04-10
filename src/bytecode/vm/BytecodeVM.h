@@ -29,21 +29,8 @@ public:
     void stop();
 
     using NativeFunction = void (*)(BytecodeVM*);
-    void registerNativeFunction(const std::string& name, NativeFunction func);
-    bool hasNativeFunction(const std::string& name) const {
-        return m_NativeFunctionMap.find(name) != m_NativeFunctionMap.end();
-    }
-    void dumpNativeFunctions() const {
-        printf("[VM] Dumping m_NativeFunctionMap (%zu entries):\r\n", m_NativeFunctionMap.size());
-        for (const auto& pair : m_NativeFunctionMap) {
-            printf("[VM]   Entry: len=%zu, hex=[", pair.first.size());
-            for (size_t j = 0; j < pair.first.size(); j++) {
-                printf("%02X", (unsigned char)pair.first[j]);
-            }
-            printf("]\r\n");
-        }
-        fflush(stdout);
-    }
+    void registerNativeFunction(const char* name, NativeFunction func);
+    bool hasNativeFunction(const char* name) const;
 
     VMValue& getReturnValue() { return m_ReturnValue; }
     const std::string& getLastError() const { return m_LastError; }
@@ -71,11 +58,7 @@ public:
     VMValue& getConstant(uint32_t index);
     const char* getStringFromConstant(uint32_t index);
     uint32_t getStringPoolSize() const { return m_Module ? static_cast<uint32_t>(m_Module->stringPool.size()) : 0; }
-
-    void registerConstant(const std::string& name, int64_t value);
-    bool findRegisteredConstant(const std::string& name, int64_t& outValue) const;
-    const std::map<std::string, int64_t>& getRegisteredConstants() const { return m_RegisteredConstants; }
-    void dumpConstants() const;
+    void dumpNativeFunctions() const;
 
 private:
     void reset();
@@ -87,6 +70,8 @@ private:
     bool fetch(OpCode& outOp, uint32_t& outOperand);
     bool callFunction(uint32_t funcIndex, uint32_t argCount);
     bool returnFromFunction();
+
+    static constexpr size_t MAX_NATIVE_FUNCTIONS = 32;
 
     const BytecodeModule* m_Module;
     VMValue* m_Stack;
@@ -105,10 +90,9 @@ private:
     std::string m_LastError;
     bool m_Running;
 
-    std::vector<NativeFunction> m_NativeFunctions;
-    std::map<std::string, NativeFunction> m_NativeFunctionMap;
-    std::vector<std::string> m_NativeFunctionNames;
-    std::map<std::string, int64_t> m_RegisteredConstants;
+    NativeFunction m_NativeFunctions[MAX_NATIVE_FUNCTIONS];
+    const char* m_NativeFunctionNames[MAX_NATIVE_FUNCTIONS];
+    size_t m_NativeFunctionCount;
 };
 
 }
