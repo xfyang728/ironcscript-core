@@ -77,6 +77,7 @@ enum class OpCode : uint8_t {
     AWAIT,
 
     CALL_NATIVE,
+    CALL_NATIVE_VOID,
 };
 
 enum class ValueType : uint8_t {

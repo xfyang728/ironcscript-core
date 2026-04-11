@@ -2,6 +2,7 @@
 #include "hardware/OLED.h"
 #include "hardware/Serial.h"
 #include "hardware/LED.h"
+#include "hardware/LightSensor.h"
 #include "platform/stm32/STM32CSBLoader.h"
 #include "bytecode/vm/BytecodeVM.h"
 #include "bytecode/BytecodeFormat.h"
@@ -187,6 +188,20 @@ static void nativeLedOff(cse::BytecodeVM* vm) {
     LED_Off();
 }
 
+static void nativeLightSensorInit(cse::BytecodeVM* vm) {
+    (void)vm;
+    Serial_SendString("[LightSensor] Init\n");
+    LightSensor_Init();
+}
+
+static void nativeLightSensorGet(cse::BytecodeVM* vm) {
+    uint8_t value = LightSensor_Get();
+    Serial_SendString("[LightSensor] Get=");
+    Serial_SendNumber(value, 10);
+    Serial_SendString("\n");
+    vm->getReturnValue() = cse::VMValue::makeInt(value);
+}
+
 static bool initializeVM() {
     Serial_SendString("[VM] init start\r\n");
 
@@ -225,6 +240,8 @@ static bool initializeVM() {
     g_VM->registerNativeFunction("ledInit", nativeLedInit);
     g_VM->registerNativeFunction("ledOn", nativeLedOn);
     g_VM->registerNativeFunction("ledOff", nativeLedOff);
+    g_VM->registerNativeFunction("lightSensorInit", nativeLightSensorInit);
+    g_VM->registerNativeFunction("lightSensorGet", nativeLightSensorGet);
 
     Serial_SendString("[VM] init complete\r\n");
     return true;

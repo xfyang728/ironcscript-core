@@ -59,6 +59,7 @@ private:
     BytecodeFunction* m_CurrentFunction;
     std::string m_CurrentFunctionName;
     std::map<std::string, uint32_t> m_FunctionIndices;
+    std::set<std::string> m_VoidNativeFunctions;
 
     uint32_t m_NextConstantIndex;
     uint32_t m_NextFunctionIndex;

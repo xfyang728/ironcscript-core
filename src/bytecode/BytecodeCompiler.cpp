@@ -27,6 +27,7 @@ void BytecodeCompiler::reset() {
     m_StringToOffset.clear();
     m_Functions.clear();
     m_FunctionIndices.clear();
+    m_VoidNativeFunctions.clear();
     m_CurrentFunction = nullptr;
     m_NextConstantIndex = 0;
     m_NextFunctionIndex = 0;
@@ -306,6 +307,9 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
         }
 
         case OpEnum::EXTERN: {
+            if (quad.getArg1() == "void") {
+                m_VoidNativeFunctions.insert(quad.getResult());
+            }
             break;
         }
 
@@ -425,6 +429,54 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
                 case OpEnum::GE: op = OpCode::GTE; break;
                 default: op = OpCode::NOP; break;
             }
+
+            const std::string& firstArg = quad.getArg1();
+            const std::string& secondArg = quad.getArg2();
+
+            if (firstArg.find('$') == 0) {
+                emit(OpCode::LOAD_VAR, std::stoul(firstArg.substr(1)));
+            } else if (firstArg.length() > 1 && firstArg[0] == 't' &&
+                       firstArg.find_first_not_of("0123456789", 1) == std::string::npos) {
+                emit(OpCode::LOAD_VAR, getVariableSlot(firstArg));
+            } else if (firstArg.find_first_not_of("0123456789.-") == std::string::npos) {
+                if (firstArg.find('.') != std::string::npos) {
+                    double val = std::stod(firstArg);
+                    emit(OpCode::LOAD_CONST, addConstant(ConstantPoolEntry::makeDouble(val)));
+                } else {
+                    int64_t val = std::stoll(firstArg);
+                    emit(OpCode::LOAD_CONST, addConstant(ConstantPoolEntry::makeInt(val)));
+                }
+            } else {
+                auto it = m_VariableToSlot.find(firstArg);
+                if (it != m_VariableToSlot.end()) {
+                    emit(OpCode::LOAD_VAR, it->second);
+                } else {
+                    emit(OpCode::LOAD_VAR, getVariableSlot(firstArg));
+                }
+            }
+
+            if (secondArg.find('$') == 0) {
+                emit(OpCode::LOAD_VAR, std::stoul(secondArg.substr(1)));
+            } else if (secondArg.length() > 1 && secondArg[0] == 't' &&
+                       secondArg.find_first_not_of("0123456789", 1) == std::string::npos) {
+                emit(OpCode::LOAD_VAR, getVariableSlot(secondArg));
+            } else if (secondArg.find_first_not_of("0123456789.-") == std::string::npos) {
+                if (secondArg.find('.') != std::string::npos) {
+                    double val = std::stod(secondArg);
+                    emit(OpCode::LOAD_CONST, addConstant(ConstantPoolEntry::makeDouble(val)));
+                } else {
+                    int64_t val = std::stoll(secondArg);
+                    emit(OpCode::LOAD_CONST, addConstant(ConstantPoolEntry::makeInt(val)));
+                }
+            } else {
+                auto it = m_VariableToSlot.find(secondArg);
+                if (it != m_VariableToSlot.end()) {
+                    emit(OpCode::LOAD_VAR, it->second);
+                } else {
+                    emit(OpCode::LOAD_VAR, getVariableSlot(secondArg));
+                }
+            }
+
             emit(op, 0);
             if (!quad.getResult().empty() && quad.getResult() != "_" &&
                 quad.getResult()[0] == 't') {
@@ -647,8 +699,10 @@ void BytecodeCompiler::compileQuad(const Quad& quad) {
                 }
             } else {
                 uint32_t nameIdx = addString(funcName);
-                emit(OpCode::CALL_NATIVE, (paramCount << 16) | nameIdx);
-                if (!result.empty() && result != "_") {
+                bool isVoidFunc = m_VoidNativeFunctions.count(funcName) > 0;
+                emit(isVoidFunc ? OpCode::CALL_NATIVE_VOID : OpCode::CALL_NATIVE,
+                     (paramCount << 16) | nameIdx);
+                if (!result.empty() && result != "_" && !isVoidFunc) {
                     emit(OpCode::PUSH_RETURN, 0);
                 }
             }
@@ -735,6 +789,10 @@ BytecodeModule* BytecodeCompiler::compile(const std::list<Quad>& quadList, Symbo
                 std::cerr << "[DEBUG] User function " << funcName << " range: "
                           << std::distance(quadList.begin(), it) << " to "
                           << std::distance(quadList.begin(), endIt) << std::endl;
+            }
+        } else if (quad.getOp() == OpEnum::EXTERN) {
+            if (quad.getArg1() == "void") {
+                m_VoidNativeFunctions.insert(quad.getResult());
             }
         }
     }

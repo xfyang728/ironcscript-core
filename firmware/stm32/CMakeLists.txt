@@ -62,6 +62,7 @@ set(VM_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/hardware/OLED.c
     ${CMAKE_CURRENT_SOURCE_DIR}/hardware/Serial.c
     ${CMAKE_CURRENT_SOURCE_DIR}/hardware/LED.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/hardware/LightSensor.c
 )
 
 add_library(common STATIC ${COMMON_SOURCES})

@@ -219,10 +219,6 @@ bool BytecodeVM::executeInstruction(OpCode op, uint32_t operand) {
                         push(VMValue::makeNil());
                         break;
                 }
-            } else {
-#if defined(STM32F10X_MD)
-                Serial_SendString("[VM] LOAD_CONST OOR\r\n");
-#endif
             }
             break;
         }
@@ -423,6 +419,8 @@ bool BytecodeVM::executeInstruction(OpCode op, uint32_t operand) {
             uint32_t paramCount = encoded >> 16;
             int32_t currentStackTop = m_StackTop - m_Stack;
 
+            m_ReturnValue = VMValue::makeNil();
+
             std::string funcName;
             if (stringPoolIndex < m_Module->stringPool.size()) {
                 funcName = m_Module->stringPool[stringPoolIndex];
@@ -464,8 +462,51 @@ bool BytecodeVM::executeInstruction(OpCode op, uint32_t operand) {
                     m_Frames[savedFrameCount - 1].localBase = savedLocalBase;
                     m_Frames[savedFrameCount - 1].pc = savedCallerPc;
                 }
-                
-                // 清理栈上的参数
+
+                for (uint32_t i = 0; i < paramCount; i++) {
+                    pop();
+                }
+
+                if (paramCount > 0) {
+                    push(m_ReturnValue);
+                }
+            } else {
+#if defined(STM32F10X_MD)
+                Serial_SendString("[VM] native not found: ");
+                Serial_SendString(funcName.c_str());
+                Serial_SendString("\r\n");
+#endif
+                for (uint32_t i = 0; i < paramCount; i++) {
+                    pop();
+                }
+            }
+            break;
+        }
+
+        case OpCode::CALL_NATIVE_VOID: {
+            uint32_t encoded = operand;
+            uint32_t stringPoolIndex = encoded & 0xFFFF;
+            uint32_t paramCount = encoded >> 16;
+
+            m_ReturnValue = VMValue::makeNil();
+
+            std::string funcName;
+            if (stringPoolIndex < m_Module->stringPool.size()) {
+                funcName = m_Module->stringPool[stringPoolIndex];
+            }
+
+            NativeFunction funcToCall = nullptr;
+            for (size_t i = 0; i < m_NativeFunctionCount; i++) {
+                if (m_NativeFunctionNames[i] == funcName) {
+                    funcToCall = m_NativeFunctions[i];
+                    break;
+                }
+            }
+            if (funcToCall) {
+                int32_t savedFrameCount = m_FrameCount;
+                funcToCall(this);
+                m_FrameCount = savedFrameCount;
+
                 for (uint32_t i = 0; i < paramCount; i++) {
                     pop();
                 }
@@ -475,7 +516,6 @@ bool BytecodeVM::executeInstruction(OpCode op, uint32_t operand) {
                 Serial_SendString(funcName.c_str());
                 Serial_SendString("\r\n");
 #endif
-                // 即使函数没找到也要清理栈
                 for (uint32_t i = 0; i < paramCount; i++) {
                     pop();
                 }
