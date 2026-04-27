@@ -67,6 +67,7 @@ private:
     std::string scriptDirectory;
     std::vector<std::string> moduleSearchPaths;
     static std::set<std::string> loadingFiles;
+    static std::set<std::string> importingModules;
     size_t maxIncludeDepth;
     size_t currentIncludeDepth;
 

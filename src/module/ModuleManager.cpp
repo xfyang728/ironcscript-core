@@ -107,6 +107,7 @@ inline std::string joinPath(const std::string& path1, const std::string& path2) 
 namespace cse {
 
 std::set<std::string> ModuleManager::loadingFiles;
+std::set<std::string> ModuleManager::importingModules;
 size_t ModuleManager::globalIncludeDepth = 0;
 size_t ModuleManager::globalFailedIncludes = 0;
 
@@ -294,8 +295,8 @@ std::string ModuleManager::findModuleFile(const std::string& modulePath) {
     // 嵌入式平台不支持模块系统
     return "";
 #else
-    // 尝试不同的扩展名
-    std::vector<std::string> extensions = {".c", ""};
+    // 尝试不同的扩展名，与 include 对齐：.cs → .c → 无扩展名
+    std::vector<std::string> extensions = {".cs", ".c", ""};
     
     for (const auto& searchPath : moduleSearchPaths) {
         for (const auto& ext : extensions) {
@@ -378,60 +379,84 @@ Module* ModuleManager::loadModule(const std::string& modulePath) {
 #else
     // 解析模块路径
     std::string resolvedPath = resolveModulePath(modulePath);
-    
+    if (resolvedPath.empty()) {
+        std::cerr << "[MODULE] Cannot resolve module path: " << modulePath << std::endl;
+        return nullptr;
+    }
+
     // 检查模块是否已经加载
     std::string moduleName = getModuleNameFromPath(resolvedPath);
     if (modules.find(moduleName) != modules.end()) {
+        std::cerr << "[MODULE] Module already loaded (cache hit): " << moduleName << std::endl;
         return modules[moduleName].get();
     }
-    
+
+    // 循环 import 检测
+    if (importingModules.count(resolvedPath) > 0) {
+        std::cerr << "[MODULE] Circular import detected: " << resolvedPath << std::endl;
+        return nullptr;
+    }
+
     // 读取模块文件
     std::ifstream file(resolvedPath);
     if (!file.is_open()) {
         std::cerr << "[MODULE] Cannot open module file: " << resolvedPath << std::endl;
         return nullptr;
     }
-    
+
     std::stringstream buffer;
     buffer << file.rdbuf();
     std::string moduleCode = buffer.str();
     file.close();
-    
-    // 解析模块代码
-    IronCScriptImpl engine;
-    NBlock* ast = nullptr;
-    if (!engine.parseScript(moduleCode, ast)) {
+
+    // 标记为正在导入
+    importingModules.insert(resolvedPath);
+
+    // 使用直接 ANTLR 解析器（不创建 IronCScriptImpl 实例）
+    antlr4::ANTLRInputStream input(moduleCode.c_str(), moduleCode.size());
+    CScriptLexer lexer(&input);
+    antlr4::CommonTokenStream tokens(&lexer);
+    CScriptParser parser(&tokens);
+
+    ASTBuilder builder;
+    builder.setSourceFile(resolvedPath);
+    NBlock* ast = builder.build(parser.program());
+
+    if (ast == nullptr) {
         std::cerr << "[MODULE] Failed to parse module: " << resolvedPath << std::endl;
+        importingModules.erase(resolvedPath);
         return nullptr;
     }
-    
-    // 语义分析
+
+    // 语义分析（模块自有符号表）— 直接在全局作用域分析，不使用 analyzeBlock
     SymbolTable* symbolTable = new SymbolTable();
     SemanticAnalyzer semanticAnalyzer(*symbolTable, this);
-    if (!semanticAnalyzer.analyze(*ast)) {
-        std::cerr << "[MODULE] Semantic analysis failed for module: " << resolvedPath << std::endl;
-        delete ast;
-        delete symbolTable;
-        return nullptr;
+    semanticAnalyzer.setSourceFile(resolvedPath);
+    // 逐一分析模块的顶层语句（不使用 analyzeBlock 以避免创建额外作用域）
+    for (auto& stmt : ast->statements) {
+        semanticAnalyzer.analyzeStatement(stmt);
     }
-    
+
     // 创建模块对象
     std::unique_ptr<Module> module(new Module(moduleName, resolvedPath));
     module->ast = ast;
     module->symbolTable = symbolTable;
-    
-    // 收集导出的符号
-    // 这里简化处理，导出所有全局符号
+
+    // 收集导出的符号（仅收集标记为 isExported 的符号）
     Scope* globalScope = symbolTable->getGlobalScope();
     if (globalScope) {
         for (const auto& symbolPair : globalScope->symbols) {
             const Symbol& symbol = symbolPair.second;
-            if (symbol.isGlobal) {
+            if (symbol.isExported) {
                 module->exports.push_back(symbol.name);
+                std::cerr << "[MODULE] Exporting symbol: " << symbol.name << " from " << moduleName << std::endl;
             }
         }
     }
-    
+
+    // 从正在导入集合中移除
+    importingModules.erase(resolvedPath);
+
     // 保存模块
     modules[moduleName] = std::move(module);
     return modules[moduleName].get();
@@ -461,35 +486,36 @@ bool ModuleManager::importModule(const std::string& modulePath, const std::strin
     if (!module) {
         return false;
     }
-    
-    // 获取模块的全局作用域
-    Scope* moduleScope = module->symbolTable->getGlobalScope();
-    if (!moduleScope) {
-        return false;
-    }
-    
-    // 导入所有符号，不只是导出的符号
-    for (const auto& pair : moduleScope->symbols) {
-        const std::string& symbolName = pair.first;
-        const Symbol& symbol = pair.second;
-        
-        // 只导入函数和全局变量
-        if (symbol.isFunction || symbol.isGlobal) {
-            // 创建导入的符号
-            Symbol importedSymbol = symbol;
-            if (!alias.empty()) {
-                importedSymbol.name = alias + "." + symbolName;
-            }
-            
-            // 添加到全局符号表
-            if (!symbolTable.insertSymbolToGlobalScope(importedSymbol)) {
-                std::cerr << "[MODULE] Failed to insert symbol: " << importedSymbol.name << std::endl;
-            } else {
-                std::cerr << "[MODULE] Successfully imported symbol: " << importedSymbol.name << std::endl;
-            }
+
+    // 导入模块中 export 标记的符号
+    for (const std::string& exportName : module->exports) {
+        // 在模块的符号表中查找该符号
+        Scope* moduleScope = module->symbolTable->getGlobalScope();
+        if (!moduleScope) {
+            continue;
+        }
+
+        auto it = moduleScope->symbols.find(exportName);
+        if (it == moduleScope->symbols.end()) {
+            continue;
+        }
+
+        const Symbol& originalSymbol = it->second;
+        Symbol importedSymbol = originalSymbol;
+
+        // 使用别名前缀构造导入符号名
+        if (!alias.empty()) {
+            importedSymbol.name = alias + "." + exportName;
+        }
+
+        importedSymbol.isImported = true;
+        importedSymbol.isExported = false;  // 导入的符号不再标记为导出
+
+        if (!symbolTable.insertSymbolToGlobalScope(importedSymbol)) {
+            std::cerr << "[MODULE] Failed to insert symbol: " << importedSymbol.name << std::endl;
         }
     }
-    
+
     return true;
 #endif
 }
@@ -504,30 +530,42 @@ bool ModuleManager::importNamedSymbols(const std::string& modulePath, const std:
     if (!module) {
         return false;
     }
-    
+
     // 获取模块的全局作用域
     Scope* moduleScope = module->symbolTable->getGlobalScope();
     if (!moduleScope) {
         return false;
     }
-    
-    // 导入指定的符号
+
+    // 导入指定的符号（仅限已导出的符号）
     for (const std::string& symbolName : symbols) {
+        // 检查该符号是否在模块导出列表中
+        bool isExported = false;
+        for (const auto& exportName : module->exports) {
+            if (exportName == symbolName) {
+                isExported = true;
+                break;
+            }
+        }
+        if (!isExported) {
+            std::cerr << "[MODULE] Symbol not exported by module: " << symbolName << std::endl;
+            continue;
+        }
+
         auto it = moduleScope->symbols.find(symbolName);
         if (it != moduleScope->symbols.end()) {
-            const Symbol& symbol = it->second;
-            
-            // 添加到全局符号表
-            if (!symbolTable.insertSymbolToGlobalScope(symbol)) {
-                std::cerr << "[MODULE] Failed to insert symbol: " << symbol.name << std::endl;
-            } else {
-                std::cerr << "[MODULE] Successfully imported symbol: " << symbol.name << std::endl;
+            Symbol importedSymbol = it->second;
+            importedSymbol.isImported = true;
+            importedSymbol.isExported = false;
+
+            if (!symbolTable.insertSymbolToGlobalScope(importedSymbol)) {
+                std::cerr << "[MODULE] Failed to insert symbol: " << symbolName << std::endl;
             }
         } else {
             std::cerr << "[MODULE] Symbol not found in module: " << symbolName << std::endl;
         }
     }
-    
+
     return true;
 #endif
 }

@@ -22,6 +22,7 @@ public:
 
     void error(const std::string& message, const Node* node);
     void debug(const std::string& message, const Node* node);
+    void analyzeStatement(NStatement* statement);
 
 private:
     SymbolTable& symbolTable;
@@ -31,7 +32,6 @@ private:
     std::string currentSourceFile;
     NBlock* currentBlock;
 
-    void analyzeStatement(NStatement* statement);
     void analyzeExpression(NExpression* expression);
 
     void analyzeVariableDeclaration(NVariableDeclaration* decl);
@@ -56,6 +56,7 @@ private:
     void analyzeEnumDeclaration(NEnumDeclaration* decl);
     void analyzeImportStatement(NImportStatement* stmt);
     void analyzeIncludeStatement(NIncludeStatement* stmt);
+    void analyzeExportStatement(NExportStatement* stmt);
 
     void registerStandardLibraryFunction(const std::string& name, const std::string& returnType,
                                        const std::vector<std::string>& paramTypes, bool isVariadic);

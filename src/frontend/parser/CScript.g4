@@ -25,16 +25,23 @@ stmt
     | register_callback_stmt
     | import_stmt
     | include_stmt
+    | export_stmt
     ;
 
-import_stmt: 'import' STRING ('as' ident)? ';'
-           | 'import' '{' ident (',' ident)* '}' 'from' STRING ';'
+import_stmt: IMPORT STRING ('as' ident)? ';'
+           | IMPORT '{' ident (',' ident)* '}' 'from' STRING ';'
            ;
 
-include_stmt: HASH? 'include' (STRING |ANGLE_STRING) ';'
+include_stmt: HASH? INCLUDE (STRING |ANGLE_STRING) ';'?
             ;
 
 register_callback_stmt: 'register' ident 'as' ident '(' func_decl_args? ')' ';' ;
+
+export_stmt
+    : EXPORT var_decl  ';'?  #ExportVarDecl
+    | EXPORT func_decl         #ExportFuncDecl
+    | EXPORT enum_decl         #ExportEnumDecl
+    ;
 
 block: '{' stmt* '}' | '{' '}' ;
 
@@ -162,6 +169,7 @@ unary_expr
 primary_expr
     : ident '(' call_args? ')'
     | ident '[' expr ']'
+    | ident '.' ident '(' call_args? ')'
     | ident '.' ident
     | ident '::' ident
     | ident '++'
@@ -221,6 +229,9 @@ ENUM_KW: 'enum' ;
 CONST_KW: 'const' ;
 EXTERN_KW: 'extern' ;
 THROW: 'throw' ;
+EXPORT: 'export' ;
+IMPORT: 'import' ;
+INCLUDE: 'include' ;
 
 // Literals
 INTEGER: [0-9]+ ;

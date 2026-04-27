@@ -29,6 +29,12 @@ public:
 
     virtual std::any visitRegister_callback_stmt(CScriptParser::Register_callback_stmtContext *context) = 0;
 
+    virtual std::any visitExportVarDecl(CScriptParser::ExportVarDeclContext *context) = 0;
+
+    virtual std::any visitExportFuncDecl(CScriptParser::ExportFuncDeclContext *context) = 0;
+
+    virtual std::any visitExportEnumDecl(CScriptParser::ExportEnumDeclContext *context) = 0;
+
     virtual std::any visitBlock(CScriptParser::BlockContext *context) = 0;
 
     virtual std::any visitVar_decl(CScriptParser::Var_declContext *context) = 0;

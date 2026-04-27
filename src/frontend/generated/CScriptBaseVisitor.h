@@ -35,6 +35,18 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitExportVarDecl(CScriptParser::ExportVarDeclContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitExportFuncDecl(CScriptParser::ExportFuncDeclContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitExportEnumDecl(CScriptParser::ExportEnumDeclContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitBlock(CScriptParser::BlockContext *ctx) override {
     return visitChildren(ctx);
   }

@@ -12,34 +12,35 @@
 class  CScriptParser : public antlr4::Parser {
 public:
   enum {
-    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
-    T__7 = 8, RETURN = 9, IF = 10, ELSE = 11, WHILE = 12, FOR = 13, DO = 14, 
-    SWITCH = 15, CASE = 16, DEFAULT = 17, CONTINUE = 18, BREAK = 19, STRUCT_KW = 20, 
-    UNION_KW = 21, ENUM_KW = 22, CONST_KW = 23, EXTERN_KW = 24, THROW = 25, 
-    INTEGER = 26, DOUBLE = 27, CHAR = 28, STRING = 29, ANGLE_STRING = 30, 
-    IDENTIFIER = 31, PLUS = 32, MINUS = 33, MUL = 34, DIV = 35, MOD = 36, 
-    EQ = 37, NEQ = 38, LT = 39, LTE = 40, GT = 41, GTE = 42, AND = 43, OR = 44, 
-    NOT = 45, BITAND = 46, BITOR = 47, XOR = 48, NOTBIT = 49, LSHIFT = 50, 
-    RSHIFT = 51, QUESTION = 52, COLON = 53, COMMA = 54, SEMI = 55, LPAREN = 56, 
-    RPAREN = 57, LBRACE = 58, RBRACE = 59, LBRACKET = 60, RBRACKET = 61, 
-    DOT = 62, ASSIGN = 63, PLUS_EQ = 64, MINUS_EQ = 65, MUL_EQ = 66, DIV_EQ = 67, 
-    MOD_EQ = 68, INC = 69, DEC = 70, ELLIPSIS = 71, HASH = 72, COMMENT = 73, 
-    MULTI_LINE_COMMENT = 74, WS = 75
+    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, RETURN = 7, 
+    IF = 8, ELSE = 9, WHILE = 10, FOR = 11, DO = 12, SWITCH = 13, CASE = 14, 
+    DEFAULT = 15, CONTINUE = 16, BREAK = 17, STRUCT_KW = 18, UNION_KW = 19, 
+    ENUM_KW = 20, CONST_KW = 21, EXTERN_KW = 22, THROW = 23, EXPORT = 24, 
+    IMPORT = 25, INCLUDE = 26, INTEGER = 27, DOUBLE = 28, CHAR = 29, STRING = 30, 
+    ANGLE_STRING = 31, IDENTIFIER = 32, PLUS = 33, MINUS = 34, MUL = 35, 
+    DIV = 36, MOD = 37, EQ = 38, NEQ = 39, LT = 40, LTE = 41, GT = 42, GTE = 43, 
+    AND = 44, OR = 45, NOT = 46, BITAND = 47, BITOR = 48, XOR = 49, NOTBIT = 50, 
+    LSHIFT = 51, RSHIFT = 52, QUESTION = 53, COLON = 54, COMMA = 55, SEMI = 56, 
+    LPAREN = 57, RPAREN = 58, LBRACE = 59, RBRACE = 60, LBRACKET = 61, RBRACKET = 62, 
+    DOT = 63, ASSIGN = 64, PLUS_EQ = 65, MINUS_EQ = 66, MUL_EQ = 67, DIV_EQ = 68, 
+    MOD_EQ = 69, INC = 70, DEC = 71, ELLIPSIS = 72, HASH = 73, COMMENT = 74, 
+    MULTI_LINE_COMMENT = 75, WS = 76
   };
 
   enum {
     RuleProgram = 0, RuleStmt = 1, RuleImport_stmt = 2, RuleInclude_stmt = 3, 
-    RuleRegister_callback_stmt = 4, RuleBlock = 5, RuleVar_decl = 6, RuleFunc_decl = 7, 
-    RuleExtern_decl = 8, RuleFunc_decl_args = 9, RuleIdent = 10, RuleType = 11, 
-    RuleStruct_decl = 12, RuleUnion_decl = 13, RuleStruct_members = 14, 
-    RuleEnum_decl = 15, RuleEnum_list = 16, RuleEnum_item = 17, RuleInit_list = 18, 
-    RuleExpr = 19, RuleOr_expr = 20, RuleAnd_expr = 21, RuleBit_or_expr = 22, 
-    RuleBit_xor_expr = 23, RuleBit_and_expr = 24, RuleEq_expr = 25, RuleRel_expr = 26, 
-    RuleShift_expr = 27, RuleAdd_expr = 28, RuleMul_expr = 29, RuleUnary_expr = 30, 
-    RulePrimary_expr = 31, RuleCall_args = 32, RuleNumeric = 33, RuleIf_stmt = 34, 
-    RuleWhile_stmt = 35, RuleFor_stmt = 36, RuleFor_init = 37, RuleFor_cond = 38, 
-    RuleFor_incr = 39, RuleDo_while_stmt = 40, RuleTry_catch_stmt = 41, 
-    RuleCatch_block = 42, RuleSwitch_stmt = 43, RuleCase_list = 44, RuleCase_stmt = 45
+    RuleRegister_callback_stmt = 4, RuleExport_stmt = 5, RuleBlock = 6, 
+    RuleVar_decl = 7, RuleFunc_decl = 8, RuleExtern_decl = 9, RuleFunc_decl_args = 10, 
+    RuleIdent = 11, RuleType = 12, RuleStruct_decl = 13, RuleUnion_decl = 14, 
+    RuleStruct_members = 15, RuleEnum_decl = 16, RuleEnum_list = 17, RuleEnum_item = 18, 
+    RuleInit_list = 19, RuleExpr = 20, RuleOr_expr = 21, RuleAnd_expr = 22, 
+    RuleBit_or_expr = 23, RuleBit_xor_expr = 24, RuleBit_and_expr = 25, 
+    RuleEq_expr = 26, RuleRel_expr = 27, RuleShift_expr = 28, RuleAdd_expr = 29, 
+    RuleMul_expr = 30, RuleUnary_expr = 31, RulePrimary_expr = 32, RuleCall_args = 33, 
+    RuleNumeric = 34, RuleIf_stmt = 35, RuleWhile_stmt = 36, RuleFor_stmt = 37, 
+    RuleFor_init = 38, RuleFor_cond = 39, RuleFor_incr = 40, RuleDo_while_stmt = 41, 
+    RuleTry_catch_stmt = 42, RuleCatch_block = 43, RuleSwitch_stmt = 44, 
+    RuleCase_list = 45, RuleCase_stmt = 46
   };
 
   explicit CScriptParser(antlr4::TokenStream *input);
@@ -64,6 +65,7 @@ public:
   class Import_stmtContext;
   class Include_stmtContext;
   class Register_callback_stmtContext;
+  class Export_stmtContext;
   class BlockContext;
   class Var_declContext;
   class Func_declContext;
@@ -148,6 +150,7 @@ public:
     Register_callback_stmtContext *register_callback_stmt();
     Import_stmtContext *import_stmt();
     Include_stmtContext *include_stmt();
+    Export_stmtContext *export_stmt();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -160,6 +163,7 @@ public:
   public:
     Import_stmtContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *IMPORT();
     antlr4::tree::TerminalNode *STRING();
     antlr4::tree::TerminalNode *SEMI();
     std::vector<IdentContext *> ident();
@@ -180,10 +184,11 @@ public:
   public:
     Include_stmtContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *SEMI();
+    antlr4::tree::TerminalNode *INCLUDE();
     antlr4::tree::TerminalNode *STRING();
     antlr4::tree::TerminalNode *ANGLE_STRING();
     antlr4::tree::TerminalNode *HASH();
+    antlr4::tree::TerminalNode *SEMI();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -209,6 +214,52 @@ public:
   };
 
   Register_callback_stmtContext* register_callback_stmt();
+
+  class  Export_stmtContext : public antlr4::ParserRuleContext {
+  public:
+    Export_stmtContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+   
+    Export_stmtContext() = default;
+    void copyFrom(Export_stmtContext *context);
+    using antlr4::ParserRuleContext::copyFrom;
+
+    virtual size_t getRuleIndex() const override;
+
+   
+  };
+
+  class  ExportFuncDeclContext : public Export_stmtContext {
+  public:
+    ExportFuncDeclContext(Export_stmtContext *ctx);
+
+    antlr4::tree::TerminalNode *EXPORT();
+    Func_declContext *func_decl();
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  ExportVarDeclContext : public Export_stmtContext {
+  public:
+    ExportVarDeclContext(Export_stmtContext *ctx);
+
+    antlr4::tree::TerminalNode *EXPORT();
+    Var_declContext *var_decl();
+    antlr4::tree::TerminalNode *SEMI();
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  ExportEnumDeclContext : public Export_stmtContext {
+  public:
+    ExportEnumDeclContext(Export_stmtContext *ctx);
+
+    antlr4::tree::TerminalNode *EXPORT();
+    Enum_declContext *enum_decl();
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  Export_stmtContext* export_stmt();
 
   class  BlockContext : public antlr4::ParserRuleContext {
   public:

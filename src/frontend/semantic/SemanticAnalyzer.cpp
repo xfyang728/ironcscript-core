@@ -88,6 +88,8 @@ void SemanticAnalyzer::analyzeStatement(NStatement* statement) {
         analyzeImportStatement(importStmt);
     } else if (NIncludeStatement* includeStmt = dynamic_cast<NIncludeStatement*>(statement)) {
         analyzeIncludeStatement(includeStmt);
+    } else if (NExportStatement* exportStmt = dynamic_cast<NExportStatement*>(statement)) {
+        analyzeExportStatement(exportStmt);
     }
 }
 
@@ -797,6 +799,46 @@ void SemanticAnalyzer::analyzeIncludeStatement(NIncludeStatement* stmt) {
         if (!moduleManager->includeFile(filePath, *currentBlock,
             source, stmt->line, stmt->column)) {
             hasErrors = true;
+        }
+    }
+}
+
+void SemanticAnalyzer::analyzeExportStatement(NExportStatement* stmt) {
+    if (!stmt->declaration) {
+        error("export statement has no declaration", stmt);
+        return;
+    }
+
+    // 先分析内部声明
+    analyzeStatement(stmt->declaration);
+
+    // 分析完成后，标记符号为已导出
+    std::string exportedName;
+    if (auto* varDecl = dynamic_cast<NVariableDeclaration*>(stmt->declaration)) {
+        exportedName = varDecl->id.name;
+    } else if (auto* funcDecl = dynamic_cast<NFunctionDeclaration*>(stmt->declaration)) {
+        exportedName = funcDecl->id.name;
+    } else if (auto* enumDecl = dynamic_cast<NEnumDeclaration*>(stmt->declaration)) {
+        exportedName = enumDecl->name.name;
+        // 标记枚举成员
+        for (auto& itemStmt : enumDecl->items.statements) {
+            if (auto* enumItem = dynamic_cast<NEnumItem*>(itemStmt)) {
+                Symbol* sym = symbolTable.findSymbol(enumItem->name.name);
+                if (sym) {
+                    sym->isExported = true;
+                    debug("Exported enum member: " + enumItem->name.name, stmt);
+                }
+            }
+        }
+    }
+
+    if (!exportedName.empty()) {
+        Symbol* sym = symbolTable.findSymbol(exportedName);
+        if (sym) {
+            sym->isExported = true;
+            debug("Exported symbol: " + exportedName, stmt);
+        } else {
+            error("Exported symbol not found: " + exportedName, stmt);
         }
     }
 }

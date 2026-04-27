@@ -359,6 +359,13 @@ namespace cse {
             expression(expression) { }
     };
     
+    class NExportStatement : public NStatement {
+    public:
+        NStatement* declaration;
+
+        NExportStatement(NStatement* decl) : declaration(decl) { }
+    };
+    
     class NImportStatement : public NStatement {
     public:
         std::string modulePath;

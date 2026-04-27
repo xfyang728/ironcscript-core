@@ -152,6 +152,7 @@ if(NOT CMAKE_CROSSCOMPILING AND NOT CSE_COMMERCIAL_BUILD)
         tests/component_tests/test_ir.cpp
         tests/component_tests/test_codegen.cpp
         tests/unit_tests/test_module_manager.cpp
+        tests/unit_tests/test_module_import.cpp
     )
 
     add_executable(IronCScriptTests ${TEST_SOURCES})

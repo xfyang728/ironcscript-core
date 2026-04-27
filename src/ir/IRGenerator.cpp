@@ -143,6 +143,15 @@ void IRGenerator::analyzeStatement(NStatement* statement) {
                 }
             }
         }
+    } else if (auto* exportStmt = dynamic_cast<NExportStatement*>(statement)) {
+        // export 语句：递归分析内部声明
+        if (exportStmt->declaration) {
+            analyzeStatement(exportStmt->declaration);
+        }
+    } else if (auto* importStmt = dynamic_cast<NImportStatement*>(statement)) {
+        // import 语句：导入的符号已在语义分析阶段处理
+        // IR 生成阶段无需特殊处理（函数调用通过 CALL 四元式完成）
+        std::cerr << "[DEBUG] IR import statement: " << importStmt->modulePath << std::endl;
     } else {
         std::cerr << "[WARNING] Unknown statement type in IRGenerator: " << typeid(*statement).name() << std::endl;
     }

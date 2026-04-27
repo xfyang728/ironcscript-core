@@ -148,10 +148,11 @@ struct Symbol {
     bool isVariadic;
     bool isConst;
     bool isExtern;
+    bool isExported;
     std::string sourceFile;
     bool isImported;
 
-    Symbol() : constantValue(0), isEnum(false), isEnumType(false), isVariadic(false), isConst(false), isExtern(false), sourceFile(""), isImported(false) {}
+    Symbol() : constantValue(0), isEnum(false), isEnumType(false), isVariadic(false), isConst(false), isExtern(false), isExported(false), sourceFile(""), isImported(false) {}
 };
 
 struct Scope {

@@ -169,6 +169,11 @@ T* safe_any_cast(const antlrcpp::Any& anyVal) {
                 return dynamic_cast<T*>(std::any_cast<NEnumDeclaration*>(anyVal));
             }
         }
+        if (anyVal.type() == typeid(NExportStatement*)) {
+            if constexpr (std::is_base_of_v<NStatement, T>) {
+                return dynamic_cast<T*>(std::any_cast<NExportStatement*>(anyVal));
+            }
+        }
         if (anyVal.type() == typeid(NStructDeclaration*)) {
             if constexpr (std::is_base_of_v<NStatement, T>) {
                 return dynamic_cast<T*>(std::any_cast<NStructDeclaration*>(anyVal));
@@ -326,6 +331,10 @@ public:
         if (ctx->include_stmt()) {
             std::cout << "[DEBUG] visitStmt: found include_stmt" << std::endl;
             return visitInclude_stmt(ctx->include_stmt());
+        }
+        if (ctx->export_stmt()) {
+            std::cout << "[DEBUG] visitStmt: found export_stmt" << std::endl;
+            return ctx->export_stmt()->accept(this);
         }
         if (ctx->RETURN() && ctx->expr()) {
             std::cout << "[DEBUG] visitStmt: found return statement" << std::endl;
@@ -575,6 +584,25 @@ public:
 
     antlrcpp::Any visitPrimary_expr(CScriptParser::Primary_exprContext* ctx) override {
         if (ctx->ident().size() > 0) {
+            // 处理 import 模块的成员函数调用: alias.funcName(args)
+            if (ctx->ident().size() >= 2 && ctx->DOT() && ctx->LPAREN()) {
+                std::string moduleName = ctx->ident(0)->getText();
+                std::string funcName = ctx->ident(1)->getText();
+                std::string fullName = moduleName + "." + funcName;
+                auto* funcId = new NIdentifier(fullName);
+                ExpressionList args;
+                if (ctx->call_args()) {
+                    for (auto exprCtx : ctx->call_args()->expr()) {
+                        auto argResult = visitExpr(exprCtx);
+                        NExpression* arg = safe_any_cast<NExpression>(argResult);
+                        if (arg) {
+                            args.push_back(arg);
+                        }
+                    }
+                }
+                std::cout << "[DEBUG] visitPrimary_expr: module call " << fullName << std::endl;
+                return antlrcpp::Any(new NMethodCall(*funcId, args));
+            }
             if (ctx->LPAREN()) {
                 std::string funcName = ctx->ident(0)->getText();
                 auto* funcId = new NIdentifier(funcName);
@@ -1345,6 +1373,36 @@ public:
             return antlrcpp::Any(new NIncludeStatement(filePath, currentSourceFile, line, col));
         }
 
+        return antlrcpp::Any(nullptr);
+    }
+
+    antlrcpp::Any visitExportVarDecl(CScriptParser::ExportVarDeclContext* ctx) override {
+        std::cout << "[DEBUG] visitExportVarDecl: entered" << std::endl;
+        auto result = visitVar_decl(ctx->var_decl());
+        NStatement* decl = safe_any_cast<NStatement>(result);
+        if (decl) {
+            return antlrcpp::Any(new NExportStatement(decl));
+        }
+        return antlrcpp::Any(nullptr);
+    }
+
+    antlrcpp::Any visitExportFuncDecl(CScriptParser::ExportFuncDeclContext* ctx) override {
+        std::cout << "[DEBUG] visitExportFuncDecl: entered" << std::endl;
+        auto result = visitFunc_decl(ctx->func_decl());
+        NStatement* decl = safe_any_cast<NStatement>(result);
+        if (decl) {
+            return antlrcpp::Any(new NExportStatement(decl));
+        }
+        return antlrcpp::Any(nullptr);
+    }
+
+    antlrcpp::Any visitExportEnumDecl(CScriptParser::ExportEnumDeclContext* ctx) override {
+        std::cout << "[DEBUG] visitExportEnumDecl: entered" << std::endl;
+        auto result = visitEnum_decl(ctx->enum_decl());
+        NStatement* decl = safe_any_cast<NStatement>(result);
+        if (decl) {
+            return antlrcpp::Any(new NExportStatement(decl));
+        }
         return antlrcpp::Any(nullptr);
     }
 
