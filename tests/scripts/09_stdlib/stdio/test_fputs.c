@@ -1,10 +1,17 @@
 #include <stdio.h>
 
 int main() {
-    int x;
-    int y;
-    x = 5;
-    y = 3;
-    printf("fputs test: %d*%d=%d\n", x, y, x * y);
-    return 0;
+    FILE* fp;
+    char buffer[100];
+
+    fp = fopen("test_fputs.txt", "w");
+    if (fp) {
+        printf("fputs test: calling fputs()\n");
+        fputs("Hello fputs!", fp);
+        fclose(fp);
+        printf("fputs test: PASSED\n");
+        return 0;
+    }
+    printf("fputs test: FAILED fopen\n");
+    return 1;
 }

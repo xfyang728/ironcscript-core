@@ -2,25 +2,27 @@
 
 int main() {
     FILE* fp;
-    int result = 0;
-
-    fp = fopen("test_ferror.txt", "r");
-    if (fp) {
-        fclose(fp);
-    } else {
-        printf("ferror test: file does not exist, ferror(fp)=%d\n", ferror(fp));
-    }
+    int err;
 
     fp = fopen("test_ferror.txt", "w");
     if (fp) {
-        fprintf(fp, "Testing ferror\n");
+        fprintf(fp, "Hello ferror");
         fclose(fp);
-        printf("ferror test: file written successfully\n");
-        result = 0;
-    } else {
-        printf("ferror test: failed to create file\n");
-        result = 1;
     }
 
-    return result;
+    fp = fopen("test_ferror.txt", "r");
+    if (fp) {
+        fgetc(fp);
+        fclose(fp);
+        err = ferror(fp);
+        printf("ferror test: error=%d\n", err);
+        if (err == 0) {
+            printf("ferror test: PASSED\n");
+            return 0;
+        }
+        printf("ferror test: FAILED expected 0\n");
+        return 1;
+    }
+    printf("ferror test: FAILED fopen\n");
+    return 1;
 }

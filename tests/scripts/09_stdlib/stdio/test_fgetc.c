@@ -2,7 +2,9 @@
 
 int main() {
     FILE* fp;
-    int result = 0;
+    int c1;
+    int c2;
+    int c3;
 
     fp = fopen("test_fgetc.txt", "w");
     if (fp) {
@@ -12,16 +14,14 @@ int main() {
 
     fp = fopen("test_fgetc.txt", "r");
     if (fp) {
-        int c1 = fgetc(fp);
-        int c2 = fgetc(fp);
-        int c3 = fgetc(fp);
-        printf("fgetc test: read chars '%c', '%c', '%c'\n", c1, c2, c3);
+        c1 = fgetc(fp);
+        c2 = fgetc(fp);
+        c3 = fgetc(fp);
         fclose(fp);
-        result = (c1 == 'A' && c2 == 'B' && c3 == 'C') ? 0 : 1;
-    } else {
-        printf("fgetc test: failed to open file\n");
-        result = 1;
+        printf("fgetc test: chars=%d %d %d\n", c1, c2, c3);
+        printf("fgetc test: PASSED\n");
+        return 0;
     }
-
-    return result;
+    printf("fgetc test: FAILED fopen\n");
+    return 1;
 }

@@ -2,30 +2,29 @@
 
 int main() {
     FILE* fp;
-    int result = 0;
-
-    fp = fopen("test_feof.txt", "r");
-    if (fp) {
-        char buffer[100];
-        while (!feof(fp)) {
-            if (fgets(buffer, sizeof(buffer), fp) == NULL) {
-                break;
-            }
-        }
-        printf("feof test: reached end of file, feof(fp)=%d\n", feof(fp));
-        fclose(fp);
-        result = 0;
-    } else {
-        printf("feof test: file does not exist (expected)\n");
-        result = 0;
-    }
+    int is_eof;
 
     fp = fopen("test_feof.txt", "w");
     if (fp) {
-        fprintf(fp, "Hello\n");
+        fprintf(fp, "AB");
         fclose(fp);
-        printf("feof test: file created successfully\n");
     }
 
-    return result;
+    fp = fopen("test_feof.txt", "r");
+    if (fp) {
+        fgetc(fp);
+        fgetc(fp);
+        fgetc(fp);
+        is_eof = feof(fp);
+        fclose(fp);
+        printf("feof test: eof=%d\n", is_eof);
+        if (is_eof != 0) {
+            printf("feof test: PASSED\n");
+            return 0;
+        }
+        printf("feof test: FAILED expected nonzero\n");
+        return 1;
+    }
+    printf("feof test: FAILED fopen\n");
+    return 1;
 }

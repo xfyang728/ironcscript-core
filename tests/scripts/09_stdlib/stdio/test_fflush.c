@@ -2,19 +2,17 @@
 
 int main() {
     FILE* fp;
-    int result = 0;
+    int ret;
 
     fp = fopen("test_fflush.txt", "w");
     if (fp) {
-        fprintf(fp, "Testing fflush\n");
-        fflush(fp);
-        printf("fflush test: flushed successfully\n");
+        fprintf(fp, "Testing fflush");
+        ret = fflush(fp);
         fclose(fp);
-        result = 0;
-    } else {
-        printf("fflush test: failed to open file\n");
-        result = 1;
+        printf("fflush test: flush_ret=%d\n", ret);
+        printf("fflush test: PASSED\n");
+        return 0;
     }
-
-    return result;
+    printf("fflush test: FAILED fopen\n");
+    return 1;
 }
