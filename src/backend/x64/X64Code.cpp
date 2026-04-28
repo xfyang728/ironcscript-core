@@ -2159,17 +2159,9 @@ namespace cse
                         {
                             std::cout << "Internal function call: " << funcName << std::endl;
 
-                            // 栈对齐处理：确保栈在函数调用前保持 16 字节对齐
-                            m_CodeBuffer.push_back(0x48);
-                            m_CodeBuffer.push_back(0x83);
-                            m_CodeBuffer.push_back(0xE4);
-                            m_CodeBuffer.push_back(0xF0); // and rsp, 0xFFFFFFFFFFFFFFF0
-
-                            FunctionCallSite site;
-                            site.codeOffset = m_CodeBuffer.size();
-                            site.funcName = funcName;
                             m_CallSites[m_CodeBuffer.size()] = funcName;
 
+                            // call rel32
                             m_CodeBuffer.push_back(0xE8);
                             m_CodeBuffer.push_back(0x00);
                             m_CodeBuffer.push_back(0x00);

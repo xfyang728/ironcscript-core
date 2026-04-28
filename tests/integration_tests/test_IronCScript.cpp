@@ -583,9 +583,12 @@ TEST(IronCScriptTest, TestStrcpy) {
 }
 
 TEST(IronCScriptTest, TestMemoryFunctions) {
+    cleanupTestOutput();
     TestResult result = runScript("09_stdlib/memory/test_memory_functions.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
     EXPECT_EQ(result.returnValue, 0) << "memory functions test should return 0";
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "malloc test: PASSED"));
 }
 
 TEST(IronCScriptTest, TestMalloc) {
@@ -678,9 +681,12 @@ TEST(IronCScriptTest, TestFileWrite) {
 }
 
 TEST(IronCScriptTest, TestFileRead) {
+    cleanupTestOutput();
     TestResult result = runScript("09_stdlib/stdio/test_file_read.c");
     EXPECT_FALSE(result.timedOut) << "Test should not time out";
     EXPECT_EQ(result.returnValue, 0) << "file read test should return 0";
+    std::string outputPath = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\test_output.txt";
+    EXPECT_TRUE(findOutputLine(outputPath, "file read test: PASSED"));
 }
 
 TEST(IronCScriptTest, TestFprintf) {

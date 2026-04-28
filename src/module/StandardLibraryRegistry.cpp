@@ -88,7 +88,34 @@ void StandardLibraryRegistry::initialize() {
         funcs.emplace_back("fabs", "double", std::vector<std::string>{"double"}, false);
         funcs.emplace_back("floor", "double", std::vector<std::string>{"double"}, false);
         funcs.emplace_back("ceil", "double", std::vector<std::string>{"double"}, false);
+        funcs.emplace_back("asin", "double", std::vector<std::string>{"double"}, false);
+        funcs.emplace_back("acos", "double", std::vector<std::string>{"double"}, false);
+        funcs.emplace_back("atan", "double", std::vector<std::string>{"double"}, false);
+        funcs.emplace_back("atan2", "double", std::vector<std::string>{"double", "double"}, false);
+        funcs.emplace_back("sinh", "double", std::vector<std::string>{"double"}, false);
+        funcs.emplace_back("cosh", "double", std::vector<std::string>{"double"}, false);
+        funcs.emplace_back("tanh", "double", std::vector<std::string>{"double"}, false);
+        funcs.emplace_back("log10", "double", std::vector<std::string>{"double"}, false);
+        funcs.emplace_back("log2", "double", std::vector<std::string>{"double"}, false);
         headers.emplace_back("math.h", funcs);
+    }
+
+    // ctype.h - Character classification and conversion
+    {
+        std::vector<StdlibFunction> funcs;
+        funcs.emplace_back("isalpha", "int", std::vector<std::string>{"int"}, false);
+        funcs.emplace_back("isdigit", "int", std::vector<std::string>{"int"}, false);
+        funcs.emplace_back("isalnum", "int", std::vector<std::string>{"int"}, false);
+        funcs.emplace_back("isspace", "int", std::vector<std::string>{"int"}, false);
+        funcs.emplace_back("isupper", "int", std::vector<std::string>{"int"}, false);
+        funcs.emplace_back("islower", "int", std::vector<std::string>{"int"}, false);
+        funcs.emplace_back("isprint", "int", std::vector<std::string>{"int"}, false);
+        funcs.emplace_back("ispunct", "int", std::vector<std::string>{"int"}, false);
+        funcs.emplace_back("iscntrl", "int", std::vector<std::string>{"int"}, false);
+        funcs.emplace_back("isgraph", "int", std::vector<std::string>{"int"}, false);
+        funcs.emplace_back("toupper", "int", std::vector<std::string>{"int"}, false);
+        funcs.emplace_back("tolower", "int", std::vector<std::string>{"int"}, false);
+        headers.emplace_back("ctype.h", funcs);
     }
 }
 

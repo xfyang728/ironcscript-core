@@ -4,11 +4,22 @@
 #ifdef _WIN32
 #include <Windows.h>
 #include <iostream>
+#include <cmath>
 #else
 #include <dlfcn.h>
+#include <cmath>
 #endif
 
 namespace cse {
+
+/**
+ * @brief log2 的静态包装函数 (msvcrt.dll 不导出 log2)
+ * @param x 输入值
+ * @return log2(x)
+ */
+static double log2_wrapper(double x) {
+    return log(x) / log(2.0);
+}
 
 void X64Platform::callStandardLibraryFunction(const std::string& funcName, const std::vector<void*>& args) {
     // 这里需要实现x64平台的标准库函数调用逻辑
@@ -21,6 +32,12 @@ std::string X64Platform::getPlatformName() const {
 
 void* X64Platform::getStandardLibraryFunctionAddress(const std::string& funcName) {
 #ifdef _WIN32
+    // msvcrt.dll 不导出 log2 (C99函数), 使用本地包装
+    if (funcName == "log2") {
+        std::cout << "[X64Platform] Using local wrapper for log2" << std::endl;
+        return reinterpret_cast<void*>(&log2_wrapper);
+    }
+
     // 只从 msvcrt.dll 中加载标准库函数，这是 Windows 中标准的 C 运行时库
     static HMODULE hModule = nullptr;
     if (!hModule) {

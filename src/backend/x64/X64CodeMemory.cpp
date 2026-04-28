@@ -92,7 +92,7 @@ namespace cse
                 if (type == Pointer) {
                     if (reg >= 8)
                     {
-                        m_CodeBuffer.push_back(0x49);
+                        m_CodeBuffer.push_back(0x4C);
                         m_CodeBuffer.push_back(0x8B);
                         m_CodeBuffer.push_back(0x05 + ((reg - 8) << 3));
                     }
@@ -105,7 +105,7 @@ namespace cse
                 } else {
                     if (reg >= 8)
                     {
-                        m_CodeBuffer.push_back(0x41);
+                        m_CodeBuffer.push_back(0x44);
                         m_CodeBuffer.push_back(0x8B);
                         m_CodeBuffer.push_back(0x05 + ((reg - 8) << 3));
                     }
@@ -159,7 +159,7 @@ namespace cse
                     if (type == Pointer) {
                         if (reg >= 8)
                         {
-                            m_CodeBuffer.push_back(0x49);
+                            m_CodeBuffer.push_back(0x4C);
                             m_CodeBuffer.push_back(0x8B);
                             m_CodeBuffer.push_back(0x85 + ((reg - 8) << 3));
                         }
@@ -172,7 +172,7 @@ namespace cse
                     } else {
                         if (reg >= 8)
                         {
-                            m_CodeBuffer.push_back(0x41);
+                            m_CodeBuffer.push_back(0x44);
                             m_CodeBuffer.push_back(0x8B);
                             m_CodeBuffer.push_back(0x85 + ((reg - 8) << 3));
                         }
@@ -220,7 +220,7 @@ namespace cse
                 if (type == Pointer) {
                     if (reg >= 8)
                     {
-                        m_CodeBuffer.push_back(0x49);
+                        m_CodeBuffer.push_back(0x4C);
                         m_CodeBuffer.push_back(0x89);
                         m_CodeBuffer.push_back(0x05 + ((reg - 8) << 3));
                     }
@@ -233,7 +233,7 @@ namespace cse
                 } else {
                     if (reg >= 8)
                     {
-                        m_CodeBuffer.push_back(0x41);
+                        m_CodeBuffer.push_back(0x44);
                         m_CodeBuffer.push_back(0x89);
                         m_CodeBuffer.push_back(0x05 + ((reg - 8) << 3));
                     }
@@ -268,7 +268,7 @@ namespace cse
                 if (type == Pointer) {
                     if (reg >= 8)
                     {
-                        m_CodeBuffer.push_back(0x49);
+                        m_CodeBuffer.push_back(0x4C);
                         m_CodeBuffer.push_back(0x89);
                         m_CodeBuffer.push_back(0x85 + ((reg - 8) << 3));
                     }
@@ -281,7 +281,7 @@ namespace cse
                 } else {
                     if (reg >= 8)
                     {
-                        m_CodeBuffer.push_back(0x41);
+                        m_CodeBuffer.push_back(0x44);
                         m_CodeBuffer.push_back(0x89);
                         m_CodeBuffer.push_back(0x85 + ((reg - 8) << 3));
                     }
