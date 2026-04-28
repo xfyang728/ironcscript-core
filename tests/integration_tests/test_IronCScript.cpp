@@ -1004,6 +1004,44 @@ TEST(IronCScriptTest, TestImportStringModule) {
     (void)result;
 }
 
+// ==================== 14_floating_point ====================
+
+TEST(IronCScriptTest, TestFPArithmetic) {
+    TestResult result = runScript("14_floating_point/test_fp_arithmetic.c");
+    EXPECT_FALSE(result.timedOut);
+    EXPECT_EQ(result.returnValue, 0);
+}
+
+TEST(IronCScriptTest, TestFPCompare) {
+    TestResult result = runScript("14_floating_point/test_fp_compare.c");
+    EXPECT_FALSE(result.timedOut);
+    EXPECT_EQ(result.returnValue, 0);
+}
+
+TEST(IronCScriptTest, TestFPFunction) {
+    TestResult result = runScript("14_floating_point/test_fp_function.c");
+    EXPECT_FALSE(result.timedOut);
+    EXPECT_EQ(result.returnValue, 0);
+}
+
+TEST(IronCScriptTest, TestFPReturn) {
+    TestResult result = runScript("14_floating_point/test_fp_return.c");
+    EXPECT_FALSE(result.timedOut);
+    EXPECT_EQ(result.returnValue, 0);
+}
+
+TEST(IronCScriptTest, TestFPCast) {
+    TestResult result = runScript("14_floating_point/test_fp_cast.c");
+    EXPECT_FALSE(result.timedOut);
+    EXPECT_EQ(result.returnValue, 0);
+}
+
+TEST(IronCScriptTest, TestFPMixed) {
+    TestResult result = runScript("14_floating_point/test_fp_mixed.c");
+    EXPECT_FALSE(result.timedOut);
+    EXPECT_EQ(result.returnValue, 0);
+}
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

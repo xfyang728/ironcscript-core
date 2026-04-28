@@ -443,77 +443,134 @@ namespace cse
                     std::string arg2 = quad.getArg2();
                     std::string result = quad.getResult();
 
-                    int reg1 = allocateRegister();
-                    int reg2 = allocateRegister();
+                    bool isDouble = false;
+                    if (arg1.find('.') != std::string::npos)
+                        isDouble = true;
+                    else if (VariableExists(arg1.c_str()) && GetVariableType(arg1.c_str()) == Double)
+                        isDouble = true;
+                    if (arg2.find('.') != std::string::npos)
+                        isDouble = true;
+                    else if (VariableExists(arg2.c_str()) && GetVariableType(arg2.c_str()) == Double)
+                        isDouble = true;
 
-                    if (isdigit(arg1[0]) || (arg1[0] == '-' && isdigit(arg1[1])))
+                    if (isDouble)
                     {
-                        int value = std::stoi(arg1);
-                        loadIntegerToRegister(value, reg1);
+                        if (arg1.find('.') != std::string::npos)
+                        {
+                            double value = std::stod(arg1);
+                            size_t dataOffset = StoreDouble(value);
+                            size_t instrPos = m_CodeBuffer.size();
+                            m_CodeBuffer.push_back(0xF2); m_CodeBuffer.push_back(0x0F);
+                            m_CodeBuffer.push_back(0x10); m_CodeBuffer.push_back(0x05);
+                            m_CodeBuffer.push_back(0x00); m_CodeBuffer.push_back(0x00);
+                            m_CodeBuffer.push_back(0x00); m_CodeBuffer.push_back(0x00);
+                            AddRipRelativeOffset(instrPos, dataOffset, 8);
+                        }
+                        else if (VariableExists(arg1.c_str()))
+                        {
+                            loadVariableToRegister(arg1, 0, Double);
+                        }
+
+                        if (arg2.find('.') != std::string::npos)
+                        {
+                            double value = std::stod(arg2);
+                            size_t dataOffset = StoreDouble(value);
+                            size_t instrPos = m_CodeBuffer.size();
+                            m_CodeBuffer.push_back(0xF2); m_CodeBuffer.push_back(0x0F);
+                            m_CodeBuffer.push_back(0x10); m_CodeBuffer.push_back(0x0D);
+                            m_CodeBuffer.push_back(0x00); m_CodeBuffer.push_back(0x00);
+                            m_CodeBuffer.push_back(0x00); m_CodeBuffer.push_back(0x00);
+                            AddRipRelativeOffset(instrPos, dataOffset, 8);
+                        }
+                        else if (VariableExists(arg2.c_str()))
+                        {
+                            loadVariableToRegister(arg2, 1, Double);
+                        }
+
+                        m_CodeBuffer.push_back(0x66);
+                        m_CodeBuffer.push_back(0x0F);
+                        m_CodeBuffer.push_back(0x2F);
+                        m_CodeBuffer.push_back(0xC1);
+
+                        m_CodeBuffer.push_back(0x0F);
+                        switch (quad.getOp())
+                        {
+                        case OpEnum::LT:  m_CodeBuffer.push_back(0x92); break;
+                        case OpEnum::LE:  m_CodeBuffer.push_back(0x96); break;
+                        case OpEnum::GT:  m_CodeBuffer.push_back(0x97); break;
+                        case OpEnum::GE:  m_CodeBuffer.push_back(0x93); break;
+                        case OpEnum::EQ:  m_CodeBuffer.push_back(0x94); break;
+                        case OpEnum::NE:  m_CodeBuffer.push_back(0x95); break;
+                        default: break;
+                        }
+                        m_CodeBuffer.push_back(0xC0);
+
+                        m_CodeBuffer.push_back(0x48);
+                        m_CodeBuffer.push_back(0x0F);
+                        m_CodeBuffer.push_back(0xBE);
+                        m_CodeBuffer.push_back(0xC0);
+
+                        if (!result.empty())
+                        {
+                            AllocateVariable(result.c_str(), Int);
+                            storeRegisterToVariable(0, result, Int);
+                        }
                     }
-                    else if (VariableExists(arg1.c_str()))
+                    else
                     {
-                        loadVariableToRegister(arg1, reg1, Int);
+                        int reg1 = allocateRegister();
+                        int reg2 = allocateRegister();
+
+                        if (isdigit(arg1[0]) || (arg1[0] == '-' && isdigit(arg1[1])))
+                        {
+                            int value = std::stoi(arg1);
+                            loadIntegerToRegister(value, reg1);
+                        }
+                        else if (VariableExists(arg1.c_str()))
+                        {
+                            loadVariableToRegister(arg1, reg1, Int);
+                        }
+
+                        if (isdigit(arg2[0]) || (arg2[0] == '-' && isdigit(arg2[1])))
+                        {
+                            int value = std::stoi(arg2);
+                            loadIntegerToRegister(value, reg2);
+                        }
+                        else if (VariableExists(arg2.c_str()))
+                        {
+                            loadVariableToRegister(arg2, reg2, Int);
+                        }
+
+                        m_CodeBuffer.push_back(0x48);
+                        m_CodeBuffer.push_back(0x39);
+                        m_CodeBuffer.push_back(0xC0 + (reg2 << 3) + reg1);
+
+                        m_CodeBuffer.push_back(0x0F);
+                        switch (quad.getOp())
+                        {
+                        case OpEnum::LT:  m_CodeBuffer.push_back(0x9C); m_CodeBuffer.push_back(0xC0); break;
+                        case OpEnum::LE:  m_CodeBuffer.push_back(0x9E); m_CodeBuffer.push_back(0xC0); break;
+                        case OpEnum::GT:  m_CodeBuffer.push_back(0x9F); m_CodeBuffer.push_back(0xC0); break;
+                        case OpEnum::GE:  m_CodeBuffer.push_back(0x9D); m_CodeBuffer.push_back(0xC0); break;
+                        case OpEnum::EQ:  m_CodeBuffer.push_back(0x94); m_CodeBuffer.push_back(0xC0); break;
+                        case OpEnum::NE:  m_CodeBuffer.push_back(0x95); m_CodeBuffer.push_back(0xC0); break;
+                        default: break;
+                        }
+
+                        m_CodeBuffer.push_back(0x48);
+                        m_CodeBuffer.push_back(0x0F);
+                        m_CodeBuffer.push_back(0xBE);
+                        m_CodeBuffer.push_back(0xC0);
+
+                        if (!result.empty())
+                        {
+                            AllocateVariable(result.c_str(), Int);
+                            storeRegisterToVariable(0, result, Int);
+                        }
+
+                        freeRegister(reg1);
+                        freeRegister(reg2);
                     }
-
-                    if (isdigit(arg2[0]) || (arg2[0] == '-' && isdigit(arg2[1])))
-                    {
-                        int value = std::stoi(arg2);
-                        loadIntegerToRegister(value, reg2);
-                    }
-                    else if (VariableExists(arg2.c_str()))
-                    {
-                        loadVariableToRegister(arg2, reg2, Int);
-                    }
-
-                    m_CodeBuffer.push_back(0x48);
-                    m_CodeBuffer.push_back(0x39);
-                    m_CodeBuffer.push_back(0xC0 + (reg2 << 3) + reg1);
-
-                    m_CodeBuffer.push_back(0x0F);
-                    switch (quad.getOp())
-                    {
-                    case OpEnum::LT:
-                        m_CodeBuffer.push_back(0x9C);
-                        m_CodeBuffer.push_back(0xC0);
-                        break;
-                    case OpEnum::LE:
-                        m_CodeBuffer.push_back(0x9E);
-                        m_CodeBuffer.push_back(0xC0);
-                        break;
-                    case OpEnum::GT:
-                        m_CodeBuffer.push_back(0x9F);
-                        m_CodeBuffer.push_back(0xC0);
-                        break;
-                    case OpEnum::GE:
-                        m_CodeBuffer.push_back(0x9D);
-                        m_CodeBuffer.push_back(0xC0);
-                        break;
-                    case OpEnum::EQ:
-                        m_CodeBuffer.push_back(0x94);
-                        m_CodeBuffer.push_back(0xC0);
-                        break;
-                    case OpEnum::NE:
-                        m_CodeBuffer.push_back(0x95);
-                        m_CodeBuffer.push_back(0xC0);
-                        break;
-                    default:
-                        break;
-                    }
-
-                    m_CodeBuffer.push_back(0x48);
-                    m_CodeBuffer.push_back(0x0F);
-                    m_CodeBuffer.push_back(0xBE);
-                    m_CodeBuffer.push_back(0xC0);
-
-                    if (!result.empty())
-                    {
-                        AllocateVariable(result.c_str(), Int);
-                        storeRegisterToVariable(0, result, Int);
-                    }
-
-                    freeRegister(reg1);
-                    freeRegister(reg2);
                 }
                 break;
                 case OpEnum::AND:
@@ -1366,6 +1423,7 @@ namespace cse
                                         m_CodeBuffer.push_back(static_cast<unsigned char>((offset >> 24) & 0xFF));
                                     }
                                 }
+                                m_XmmRegCount++;
                             } else if (isdigit(arg1[0]) || (arg1[0] == '-' && isdigit(arg1[1]))) {
                                 int value = std::stoi(arg1);
                                 loadIntegerToRegister(value, paramReg);
@@ -1844,17 +1902,20 @@ namespace cse
                 break;
                 case OpEnum::FUNC:
                 {
+                    std::string retType = quad.getArg1();
                     std::string funcName = quad.getResult();
                     if (!funcName.empty())
                     {
                         SetInFunction(true);
                         m_CurrentFunction = funcName;
+                        m_FunctionReturnTypes[funcName] = retType;
                         m_NextOffset = m_Architecture->getRegisterSize();
                         m_LocalVariableSize = 0;
                         m_FunctionHasReturn[funcName] = false;
                         m_FunctionArrays[funcName].clear();
                         m_StackArgCount = 0;
                         m_XmmRegCount = 0;
+                        m_XmmArgCount = 0;
                         
                         m_Functions[funcName] = m_CodeBuffer.size();
                         std::cout << "Function " << funcName << " starts at offset " << m_CodeBuffer.size() << std::endl;
@@ -1899,9 +1960,7 @@ namespace cse
                     }
 
                     if (isFloatParam) {
-                        // 浮点数参数使用 xmm 寄存器，单独计数
-                        static int xmmArgCount = 0;
-                        int xmmReg = xmmArgCount;
+                        int xmmReg = m_XmmArgCount;
                         if (xmmReg < 8) { // 前 8 个浮点数参数使用 xmm0-xmm7
                             if (!arg1.empty() && arg1 != result) {
                                 if (isdigit(arg1[0]) || (arg1[0] == '-' && isdigit(arg1[1]))) {
@@ -1934,7 +1993,7 @@ namespace cse
                                     }
                                 }
                             }
-                            xmmArgCount++;
+                            m_XmmArgCount++;
                         } else {
                             // 超过 8 个浮点数参数使用栈
                             if (!arg1.empty() && arg1 != result) {
@@ -2125,6 +2184,9 @@ namespace cse
                                               funcName == "asin" || funcName == "acos" || funcName == "atan" ||
                                               funcName == "atan2" || funcName == "floor" || funcName == "ceil" ||
                                               funcName == "round" || funcName == "fmod");
+                        if (!returnsDouble && m_FunctionReturnTypes.find(funcName) != m_FunctionReturnTypes.end()) {
+                            returnsDouble = (m_FunctionReturnTypes[funcName] == "double");
+                        }
                         bool returnsPointer = (funcName == "malloc" || funcName == "calloc" || funcName == "realloc" ||
                                                funcName == "strcpy" || funcName == "strcat" || funcName == "strstr" ||
                                                funcName == "fopen" || funcName == "freopen" || funcName == "tmpfile" ||
@@ -2134,6 +2196,10 @@ namespace cse
 
                         if (IsStandardLibraryFunction(funcName.c_str()))
                         {
+                            if (m_XmmRegCount > 0) {
+                                m_CodeBuffer.push_back(0xB0);
+                                m_CodeBuffer.push_back(static_cast<unsigned char>(m_XmmRegCount));
+                            }
                             CallStandardLibraryFunction(funcName.c_str());
 
                             m_CodeBuffer.push_back(0x48);

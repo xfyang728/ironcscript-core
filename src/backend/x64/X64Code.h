@@ -62,6 +62,8 @@ private:
     std::map<std::string, std::vector<size_t>> m_FunctionEpiloguePositions;
     int m_StackArgCount = 0;
     int m_XmmRegCount = 0;
+    int m_XmmArgCount = 0;
+    std::map<std::string, std::string> m_FunctionReturnTypes;
     
     // Entry code 相关信息，在 formatCode() 中处理
     std::vector<unsigned char> m_EntryCode;
