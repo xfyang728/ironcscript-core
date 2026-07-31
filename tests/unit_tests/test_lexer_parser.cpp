@@ -1,106 +1,92 @@
 #include <gtest/gtest.h>
-#include <iostream>
 #include <string>
-#include "../src/ir/IRGenerator.h"
-#include "../src/ir/Quad.h"
-#include "../src/flex_bison/node.h"
+#include "../common/AstPool.h"
+#include "../common/AstBuilders.h"
+#include "../src/frontend/parser/node.h"
 
 using namespace cse;
 
-class LexerParserIntegrationTest : public ::testing::Test {
-protected:
-    void SetUp() override {}
-};
-
-TEST_F(LexerParserIntegrationTest, TestIntegerTokenParsing) {
-    NInteger* intLit = new NInteger{123};
-    EXPECT_EQ(intLit->value, 123) << "Should parse integer 123";
+TEST(LexerParserIntegrationTest, IntegerTokenParsing) {
+    cse_test::AstPool pool;
+    auto* intLit = pool.make<NInteger>(123);
+    EXPECT_EQ(intLit->value, 123);
 }
 
-TEST_F(LexerParserIntegrationTest, TestFloatTokenParsing) {
-    NDouble* doubleLit = new NDouble{3.14};
-    EXPECT_DOUBLE_EQ(doubleLit->value, 3.14) << "Should parse float 3.14";
+TEST(LexerParserIntegrationTest, FloatTokenParsing) {
+    cse_test::AstPool pool;
+    auto* doubleLit = pool.make<NDouble>(3.14);
+    EXPECT_DOUBLE_EQ(doubleLit->value, 3.14);
 }
 
-TEST_F(LexerParserIntegrationTest, TestIdentifierParsing) {
-    NIdentifier* id = new NIdentifier{"myVar"};
-    EXPECT_EQ(id->name, "myVar") << "Should parse identifier myVar";
+TEST(LexerParserIntegrationTest, IdentifierParsing) {
+    cse_test::AstPool pool;
+    auto& id = cse_test::makeIdent(pool, "myVar");
+    EXPECT_EQ(id.name, "myVar");
 }
 
-TEST_F(LexerParserIntegrationTest, TestBinaryOperatorParsing) {
-    NBinaryOperator* addOp = new NBinaryOperator();
-    addOp->op = '+';
-    addOp->lhs = new NInteger{10};
-    addOp->rhs = new NInteger{20};
-
-    EXPECT_EQ(addOp->op, '+') << "Should parse + operator";
+TEST(LexerParserIntegrationTest, BinaryOperatorParsing) {
+    cse_test::AstPool pool;
+    auto* lhs = pool.make<NInteger>(10);
+    auto* rhs = pool.make<NInteger>(20);
+    // NBinaryOperator 引用成员，必须用构造函数
+    auto* addOp = pool.make<NBinaryOperator>(*lhs, '+', *rhs);
+    EXPECT_EQ(addOp->op, '+');
 }
 
-TEST_F(LexerParserIntegrationTest, TestVariableDeclarationParsing) {
-    NVariableDeclaration* varDecl = new NVariableDeclaration();
-    varDecl->type = NIdentifier{"int"};
-    varDecl->name = NIdentifier{"x"};
-    varDecl->assignmentExpr = new NInteger{42};
-
-    EXPECT_EQ(varDecl->type.name, "int") << "Should parse type int";
-    EXPECT_EQ(varDecl->name.name, "x") << "Should parse variable name x";
+TEST(LexerParserIntegrationTest, VariableDeclarationParsing) {
+    cse_test::AstPool pool;
+    auto* expr = pool.make<NInteger>(42);
+    auto* varDecl = cse_test::makeVarDecl(pool, "int", "x", expr);
+    // NVariableDeclaration.id 是引用，访问 .id.name
+    EXPECT_EQ(varDecl->id.name, "x");
+    EXPECT_EQ(varDecl->type.name, "int");
+    EXPECT_NE(varDecl->assignmentExpr, nullptr);
 }
 
-TEST_F(LexerParserIntegrationTest, TestFunctionDeclarationParsing) {
-    NFunctionDeclaration* funcDecl = new NFunctionDeclaration();
-    funcDecl->returnType = NIdentifier{"int"};
-    funcDecl->name = NIdentifier{"main"};
-
-    EXPECT_EQ(funcDecl->returnType.name, "int") << "Should parse return type int";
-    EXPECT_EQ(funcDecl->name.name, "main") << "Should parse function name main";
+TEST(LexerParserIntegrationTest, FunctionDeclarationParsing) {
+    cse_test::AstPool pool;
+    auto* block = cse_test::makeFuncBody(pool);
+    auto* funcDecl = cse_test::makeFuncDecl(pool, "int", "main", VariableList{}, block);
+    EXPECT_EQ(funcDecl->id.name, "main");
+    EXPECT_EQ(funcDecl->type.name, "int");
 }
 
-TEST_F(LexerParserIntegrationTest, TestReturnStatementParsing) {
-    NReturnStatement* retStmt = new NReturnStatement();
-    retStmt->expression = new NInteger{42};
-
-    EXPECT_NE(retStmt->expression, nullptr) << "Should parse return expression";
+TEST(LexerParserIntegrationTest, ReturnStatementParsing) {
+    cse_test::AstPool pool;
+    auto* expr = pool.make<NInteger>(42);
+    auto* retStmt = pool.make<NReturnStatement>(*expr);
+    EXPECT_NE(&retStmt->expression, nullptr);
 }
 
-TEST_F(LexerParserIntegrationTest, TestNestedExpressionParsing) {
-    NBinaryOperator* addOp = new NBinaryOperator();
-    addOp->op = '+';
-    addOp->lhs = new NInteger{10};
-    addOp->rhs = new NBinaryOperator();
-    addOp->rhs->op = '*';
-    addOp->rhs->lhs = new NInteger{2};
-    addOp->rhs->rhs = new NInteger{3};
-
-    EXPECT_EQ(addOp->op, '+') << "Should parse outer +";
-    EXPECT_EQ(addOp->rhs->op, '*') << "Should parse inner *";
+TEST(LexerParserIntegrationTest, NestedExpressionParsing) {
+    cse_test::AstPool pool;
+    auto* lhs = pool.make<NInteger>(10);
+    auto* innerLhs = pool.make<NInteger>(2);
+    auto* innerRhs = pool.make<NInteger>(3);
+    auto* innerMul = pool.make<NBinaryOperator>(*innerLhs, '*', *innerRhs);
+    auto* outerAdd = pool.make<NBinaryOperator>(*lhs, '+', *innerMul);
+    EXPECT_EQ(outerAdd->op, '+');
+    EXPECT_EQ(outerAdd->rhs.op, '*');
 }
 
-TEST_F(LexerParserIntegrationTest, TestBlockParsing) {
-    NBlock* block = new NBlock();
-
-    NVariableDeclaration* varDecl = new NVariableDeclaration();
-    varDecl->type = NIdentifier{"int"};
-    varDecl->name = NIdentifier{"x"};
-    varDecl->assignmentExpr = new NInteger{10};
+TEST(LexerParserIntegrationTest, BlockParsing) {
+    cse_test::AstPool pool;
+    auto* block = pool.make<NBlock>();
+    auto* varDecl = cse_test::makeVarDecl(pool, "int", "x", pool.make<NInteger>(10));
     block->statements.push_back(varDecl);
-
-    NReturnStatement* retStmt = new NReturnStatement();
-    retStmt->expression = new NIdentifier{"x"};
+    auto& retId = cse_test::makeIdent(pool, "x");
+    auto* retStmt = pool.make<NReturnStatement>(retId);
     block->statements.push_back(retStmt);
-
-    EXPECT_EQ(block->statements.size(), 2) << "Block should have 2 statements";
+    EXPECT_EQ(block->statements.size(), 2u);
 }
 
-TEST_F(LexerParserIntegrationTest, TestFunctionCallParsing) {
-    NFunctionCall* funcCall = new NFunctionCall();
-    funcCall->callee = NIdentifier{"printf"};
-    funcCall->arguments.push_back(new NInteger{42});
-
-    EXPECT_EQ(funcCall->callee.name, "printf") << "Should parse function name";
-    EXPECT_EQ(funcCall->arguments.size(), 1) << "Should have 1 argument";
-}
-
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+TEST(LexerParserIntegrationTest, FunctionCallParsing) {
+    // NFunctionCall 不存在，改用 NMethodCall
+    cse_test::AstPool pool;
+    auto& callee = cse_test::makeIdent(pool, "printf");
+    ExpressionList args;
+    args.push_back(pool.make<NInteger>(42));
+    auto* methodCall = pool.make<NMethodCall>(callee, args);
+    EXPECT_EQ(methodCall->id.name, "printf");
+    EXPECT_EQ(methodCall->arguments.size(), 1u);
 }
