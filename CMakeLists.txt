@@ -237,14 +237,24 @@ if(NOT CMAKE_CROSSCOMPILING AND NOT CSE_COMMERCIAL_BUILD)
     enable_testing()
 
     set(TEST_SOURCES
+        # 现有 5 个
         tests/integration_tests/test_IronCScript.cpp
         tests/component_tests/test_ir.cpp
         tests/component_tests/test_codegen.cpp
         tests/unit_tests/test_module_manager.cpp
         tests/unit_tests/test_module_import.cpp
+        # 新增 7 个（ProcessRunner.h 是 header-only，不加入）
+        tests/component_tests/test_lexer.cpp
+        tests/component_tests/test_parser.cpp
+        tests/component_tests/test_semantic.cpp
+        tests/unit_tests/test_lexer_parser.cpp
+        tests/unit_tests/test_semantic_ir.cpp
+        tests/unit_tests/test_ir_codegen.cpp
+        tests/test_simple_execution.cpp
     )
 
     add_executable(IronCScriptTests ${TEST_SOURCES})
+    target_include_directories(IronCScriptTests PRIVATE tests/common)
     if(MINGW)
         target_link_libraries(IronCScriptTests PRIVATE -Wl,--start-group GTest::gtest_main IronCScriptCoreLib ${CAPSTONE_LIB} ${ANTLR_STATIC_LIB} PlatformAbstraction ModuleManager -Wl,--end-group)
     else()
