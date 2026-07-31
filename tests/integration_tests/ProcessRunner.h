@@ -1,11 +1,24 @@
-#ifndef PROCESS_RUNNER_H
+﻿#ifndef PROCESS_RUNNER_H
 #define PROCESS_RUNNER_H
 
-#include <windows.h>
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
+#include <vector>
+#include <chrono>
+#include <thread>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <signal.h>
+#include <cstring>
+#endif
 
 class ProcessRunner {
 public:
@@ -14,282 +27,403 @@ public:
         int returnValue;
         bool hasOutput;
         std::string output;
-        DWORD processId;
+        int64_t processId;   // 统一类型（DWORD/pid_t 都容纳）
         bool timedOut;
     };
 
-    static ProcessResult runProcess(const std::string& executable, 
-                                   const std::string& arguments, 
-                                   const std::string& outputFile,
-                                   DWORD timeoutMs = 10000);
-    
-    static ProcessResult runProcessWithInput(const std::string& executable, 
-                                            const std::string& arguments, 
-                                            const std::string& inputFile,
-                                            const std::string& outputFile,
-                                            DWORD timeoutMs = 10000);
-    
+    static ProcessResult runProcess(const std::string& executable,
+                                    const std::string& arguments,
+                                    const std::string& outputFile,
+                                    int64_t timeoutMs = 10000);
+
+    static ProcessResult runProcessWithInput(const std::string& executable,
+                                             const std::string& arguments,
+                                             const std::string& inputFile,
+                                             const std::string& outputFile,
+                                             int64_t timeoutMs = 10000);
+
 private:
-    static std::string readOutputFileWithRetry(const std::string& filePath, 
-                                             int maxRetries, 
-                                             int retryDelayMs);
-    
+    static std::string readOutputFileWithRetry(const std::string& filePath,
+                                               int maxRetries,
+                                               int retryDelayMs);
     static int extractReturnValue(const std::string& output, int fallbackValue);
+
+#ifdef _WIN32
+    /// Windows: 创建子进程并重定向 stdout/stderr 到管道，再写入 outputFile
+    static ProcessResult runProcessWindows(const std::string& executable,
+                                           const std::string& arguments,
+                                           const std::string& outputFile,
+                                           int64_t timeoutMs,
+                                           const std::string& inputFile = "");
+#else
+    /// POSIX: 拆分 arguments 为 argv（简单空格分词，不处理引号嵌套）
+    static std::vector<char*> buildArgv(const std::string& executable,
+                                        const std::string& arguments,
+                                        std::vector<std::string>& storage);
+#endif
 };
 
-ProcessRunner::ProcessResult ProcessRunner::runProcess(const std::string& executable, 
-                                                      const std::string& arguments, 
-                                                      const std::string& outputFile,
-                                                      DWORD timeoutMs) {
-    ProcessResult result;
+// ============================================================================
+// Windows 实现
+// ============================================================================
+#ifdef _WIN32
+
+inline ProcessRunner::ProcessResult ProcessRunner::runProcessWindows(
+    const std::string& executable,
+    const std::string& arguments,
+    const std::string& outputFile,
+    int64_t timeoutMs,
+    const std::string& inputFile) {
+
+    ProcessResult result{};
     result.timedOut = false;
-    
-    // 创建进程
-    STARTUPINFOA si;
-    PROCESS_INFORMATION pi;
-    
-    ZeroMemory(&si, sizeof(si));
+    result.exitCode = -1;
+    result.returnValue = 0;
+    result.hasOutput = false;
+    result.processId = 0;
+
+    // 1. 创建 stdout 管道
+    HANDLE hReadPipe = nullptr, hWritePipe = nullptr;
+    SECURITY_ATTRIBUTES sa{sizeof(sa), nullptr, TRUE};
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &sa, 0)) {
+        std::cerr << "CreatePipe failed: " << GetLastError() << std::endl;
+        return result;
+    }
+    SetHandleInformation(hReadPipe, HANDLE_FLAG_INHERIT, 0);
+
+    // 2. 如有 inputFile，打开为 stdin
+    HANDLE hInputFile = nullptr;
+    if (!inputFile.empty()) {
+        hInputFile = CreateFileA(inputFile.c_str(), GENERIC_READ, FILE_SHARE_READ,
+                                 &sa, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+        if (hInputFile == INVALID_HANDLE_VALUE) {
+            std::cerr << "Failed to open input file: " << inputFile << std::endl;
+            CloseHandle(hReadPipe);
+            CloseHandle(hWritePipe);
+            return result;
+        }
+    }
+
+    // 3. 配置 STARTUPINFOA 重定向
+    STARTUPINFOA si{};
     si.cb = sizeof(si);
-    ZeroMemory(&pi, sizeof(pi));
-    
-    // 构建命令行（不包含重定向，重定向由cmd.exe处理）
+    si.dwFlags = STARTF_USESTDHANDLES;
+    si.hStdOutput = hWritePipe;
+    si.hStdError = hWritePipe;
+    si.hStdInput = hInputFile ? hInputFile : GetStdHandle(STD_INPUT_HANDLE);
+
+    PROCESS_INFORMATION pi{};
+
+    // 4. 构建命令行（不再用 cmd /c）
     std::string cmdLine = "\"" + executable + "\" " + arguments;
-    
-    // 使用cmd.exe来处理重定向
-    std::string fullCmd = "cmd /c \"" + cmdLine + " > \"" + outputFile + "\" 2>&1\"";
-    
-    std::cout << "Running process: " << fullCmd << std::endl;
-    
-    // 创建进程
-    if (!CreateProcessA(
-        NULL,                   // 应用程序名（使用命令行）
-        const_cast<char*>(fullCmd.c_str()), // 命令行
-        NULL,                   // 进程句柄不可继承
-        NULL,                   // 线程句柄不可继承
-        FALSE,                  // 不继承句柄
-        CREATE_NO_WINDOW,       // 创建标志（无窗口）
-        NULL,                   // 使用父进程环境
-        NULL,                   // 使用父进程目录
-        &si,                    // 启动信息
-        &pi                     // 进程信息
-    )) {
+
+    if (!CreateProcessA(nullptr, const_cast<LPSTR>(cmdLine.c_str()),
+                        nullptr, nullptr, TRUE,
+                        CREATE_NO_WINDOW, nullptr, nullptr, &si, &pi)) {
         std::cerr << "CreateProcess failed: " << GetLastError() << std::endl;
-        result.exitCode = -1;
+        CloseHandle(hReadPipe);
+        CloseHandle(hWritePipe);
+        if (hInputFile) CloseHandle(hInputFile);
         return result;
     }
-    
-    result.processId = pi.dwProcessId;
-    
-    // 等待进程完成（带超时）
-    DWORD waitResult = WaitForSingleObject(pi.hProcess, timeoutMs);
-    
+
+    result.processId = (int64_t)pi.dwProcessId;
+
+    // 5. 关闭写端，让子进程输出能被读端读到 EOF
+    CloseHandle(hWritePipe);
+    if (hInputFile) CloseHandle(hInputFile);
+
+    // 6. 等待进程（带超时）
+    DWORD waitResult = WaitForSingleObject(pi.hProcess, (DWORD)timeoutMs);
     if (waitResult == WAIT_TIMEOUT) {
         std::cerr << "Process timed out after " << timeoutMs << "ms" << std::endl;
         result.timedOut = true;
-        
-        // 尝试获取进程状态信息
-        DWORD exitCode;
-        if (GetExitCodeProcess(pi.hProcess, &exitCode)) {
-            std::cerr << "Process exit code before termination: " << exitCode << std::endl;
-        }
-        
-        // 强制终止进程树
         TerminateProcess(pi.hProcess, 1);
-    } else if (waitResult == WAIT_OBJECT_0) {
-        std::cout << "Process completed successfully" << std::endl;
-    } else {
-        std::cerr << "WaitForSingleObject failed: " << GetLastError() << std::endl;
     }
-    
-    // 获取退出代码
-    DWORD exitCode;
+
+    // 7. 读取管道内容
+    std::string output;
+    char buf[4096];
+    DWORD bytesRead = 0;
+    while (ReadFile(hReadPipe, buf, sizeof(buf), &bytesRead, nullptr) && bytesRead > 0) {
+        output.append(buf, bytesRead);
+    }
+    CloseHandle(hReadPipe);
+
+    // 8. 获取退出码并清理
+    DWORD exitCode = 0;
     if (GetExitCodeProcess(pi.hProcess, &exitCode)) {
-        result.exitCode = exitCode;
-    } else {
-        result.exitCode = -1;
+        result.exitCode = (int)exitCode;
     }
-    
-    // 关闭句柄
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
-    
-    // 等待文件写入完成
-    Sleep(200);
-    
-    // 读取输出文件
-    result.output = readOutputFileWithRetry(outputFile, 10, 50);
-    result.hasOutput = !result.output.empty();
-    
-    // 提取返回值
-    result.returnValue = extractReturnValue(result.output, result.exitCode);
 
+    // 9. 写入 outputFile（保留原约定：调用方从文件读取）
+    if (!outputFile.empty()) {
+        std::ofstream ofs(outputFile, std::ios::trunc);
+        if (ofs.is_open()) {
+            ofs << output;
+            ofs.close();
+        }
+    }
+
+    result.output = output;
+    result.hasOutput = !output.empty();
+    result.returnValue = extractReturnValue(output, result.exitCode);
     return result;
 }
 
-ProcessRunner::ProcessResult ProcessRunner::runProcessWithInput(const std::string& executable, 
-                                                                const std::string& arguments, 
-                                                                const std::string& inputFile,
-                                                                const std::string& outputFile,
-                                                                DWORD timeoutMs) {
-    ProcessResult result;
+inline ProcessRunner::ProcessResult ProcessRunner::runProcess(
+    const std::string& executable,
+    const std::string& arguments,
+    const std::string& outputFile,
+    int64_t timeoutMs) {
+    return runProcessWindows(executable, arguments, outputFile, timeoutMs, "");
+}
+
+inline ProcessRunner::ProcessResult ProcessRunner::runProcessWithInput(
+    const std::string& executable,
+    const std::string& arguments,
+    const std::string& inputFile,
+    const std::string& outputFile,
+    int64_t timeoutMs) {
+    return runProcessWindows(executable, arguments, outputFile, timeoutMs, inputFile);
+}
+
+#else
+// ============================================================================
+// POSIX 实现
+// ============================================================================
+
+static volatile sig_atomic_t g_alarmFired = 0;
+static void alarmHandler(int sig) { (void)sig; g_alarmFired = 1; }
+
+inline std::vector<char*> ProcessRunner::buildArgv(
+    const std::string& executable,
+    const std::string& arguments,
+    std::vector<std::string>& storage) {
+    storage.clear();
+    storage.push_back(executable);
+    std::istringstream iss(arguments);
+    std::string token;
+    while (iss >> token) {
+        storage.push_back(token);
+    }
+    std::vector<char*> argv;
+    argv.reserve(storage.size() + 1);
+    for (auto& s : storage) {
+        argv.push_back(s.data());
+    }
+    argv.push_back(nullptr);
+    return argv;
+}
+
+inline ProcessRunner::ProcessResult ProcessRunner::runProcess(
+    const std::string& executable,
+    const std::string& arguments,
+    const std::string& outputFile,
+    int64_t timeoutMs) {
+
+    ProcessResult result{};
     result.timedOut = false;
-    
-    // 创建临时批处理文件来处理输入重定向
-    std::string batchFile = "D:\\MyCode\\IronCScript\\ironcscript-core\\tests\\output\\temp_batch_" + std::to_string(GetCurrentProcessId()) + "_" + std::to_string(GetCurrentThreadId()) + ".bat";
-    
-    // 创建批处理文件内容
-    std::string batchContent = "@echo off\n";
-    batchContent += "\"" + executable + "\" " + arguments + " < \"" + inputFile + "\" > \"" + outputFile + "\" 2>&1\n";
-    batchContent += "echo Exit code: %errorlevel% >> \"" + outputFile + "\"\n";
-    
-    // 写入批处理文件
-    std::ofstream batchStream(batchFile);
-    if (!batchStream.is_open()) {
-        std::cerr << "Failed to create batch file: " << batchFile << std::endl;
-        result.exitCode = -1;
+    result.exitCode = -1;
+    result.returnValue = 0;
+    result.hasOutput = false;
+    result.processId = 0;
+
+    int pipefd[2];
+    if (pipe(pipefd) != 0) {
+        std::cerr << "pipe failed" << std::endl;
         return result;
     }
-    batchStream << batchContent;
-    batchStream.close();
-    
-    // 创建进程
-    STARTUPINFOA si;
-    PROCESS_INFORMATION pi;
-    
-    ZeroMemory(&si, sizeof(si));
-    si.cb = sizeof(si);
-    ZeroMemory(&pi, sizeof(pi));
-    
-    // 使用批处理文件执行
-    std::string fullCmd = "cmd /c \"" + batchFile + "\"";
-    
-    std::cout << "Running process with batch file: " << fullCmd << std::endl;
-    std::cout << "Batch file content:\n" << batchContent << std::endl;
-    
-    // 创建进程
-    if (!CreateProcessA(
-        NULL,                   // 应用程序名（使用命令行）
-        const_cast<char*>(fullCmd.c_str()), // 命令行
-        NULL,                   // 进程句柄不可继承
-        NULL,                   // 线程句柄不可继承
-        FALSE,                  // 不继承句柄
-        CREATE_NO_WINDOW,       // 创建标志（无窗口）
-        NULL,                   // 使用父进程环境
-        NULL,                   // 使用父进程目录
-        &si,                    // 启动信息
-        &pi                     // 进程信息
-    )) {
-        std::cerr << "CreateProcess failed: " << GetLastError() << std::endl;
-        // 删除临时批处理文件
-        DeleteFileA(batchFile.c_str());
-        result.exitCode = -1;
+
+    pid_t pid = fork();
+    if (pid < 0) {
+        std::cerr << "fork failed" << std::endl;
+        close(pipefd[0]);
+        close(pipefd[1]);
         return result;
     }
-    
-    result.processId = pi.dwProcessId;
-    
-    // 等待进程完成（带超时）
-    DWORD waitResult = WaitForSingleObject(pi.hProcess, timeoutMs);
-    
-    if (waitResult == WAIT_TIMEOUT) {
-        std::cerr << "Process timed out after " << timeoutMs << "ms" << std::endl;
+
+    if (pid == 0) {
+        // 子进程
+        close(pipefd[0]);
+        dup2(pipefd[1], STDOUT_FILENO);
+        dup2(pipefd[1], STDERR_FILENO);
+        close(pipefd[1]);
+
+        std::vector<std::string> storage;
+        auto argv = buildArgv(executable, arguments, storage);
+        execvp(executable.c_str(), argv.data());
+        _exit(127);
+    }
+
+    // 父进程
+    close(pipefd[1]);
+    result.processId = (int64_t)pid;
+
+    signal(SIGALRM, alarmHandler);
+    g_alarmFired = 0;
+    alarm((unsigned)(timeoutMs / 1000));
+
+    std::string output;
+    char buf[4096];
+    ssize_t n;
+    while ((n = read(pipefd[0], buf, sizeof(buf))) > 0) {
+        output.append(buf, (size_t)n);
+    }
+    close(pipefd[0]);
+
+    int status = 0;
+    waitpid(pid, &status, 0);
+    alarm(0);
+
+    if (g_alarmFired) {
+        kill(pid, SIGKILL);
         result.timedOut = true;
-        
-        // 尝试获取进程状态信息
-        DWORD exitCode;
-        if (GetExitCodeProcess(pi.hProcess, &exitCode)) {
-            std::cerr << "Process exit code before termination: " << exitCode << std::endl;
-        }
-        
-        // 强制终止进程树
-        TerminateProcess(pi.hProcess, 1);
-    } else if (waitResult == WAIT_OBJECT_0) {
-        std::cout << "Process completed successfully" << std::endl;
-    } else {
-        std::cerr << "WaitForSingleObject failed: " << GetLastError() << std::endl;
     }
-    
-    // 获取退出代码
-    DWORD exitCode;
-    if (GetExitCodeProcess(pi.hProcess, &exitCode)) {
-        result.exitCode = exitCode;
-    } else {
-        result.exitCode = -1;
+
+    result.exitCode = WIFEXITED(status) ? WEXITSTATUS(status) : -1;
+    result.output = output;
+    result.hasOutput = !output.empty();
+
+    if (!outputFile.empty()) {
+        std::ofstream ofs(outputFile, std::ios::trunc);
+        if (ofs.is_open()) ofs << output;
     }
-    
-    // 关闭句柄
-    CloseHandle(pi.hProcess);
-    CloseHandle(pi.hThread);
-    
-    // 等待文件写入完成
-    Sleep(200);
-    
-    // 读取输出文件
-    result.output = readOutputFileWithRetry(outputFile, 10, 50);
-    result.hasOutput = !result.output.empty();
-    
-    // 提取返回值
-    result.returnValue = extractReturnValue(result.output, result.exitCode);
 
-    // 删除临时批处理文件
-    DeleteFileA(batchFile.c_str());
-
+    result.returnValue = extractReturnValue(output, result.exitCode);
     return result;
 }
 
-std::string ProcessRunner::readOutputFileWithRetry(const std::string& filePath, 
-                                                 int maxRetries, 
-                                                 int retryDelayMs) {
-    std::ifstream infile;
-    int retryCount = 0;
-    
-    while (retryCount < maxRetries) {
-        infile.open(filePath);
+inline ProcessRunner::ProcessResult ProcessRunner::runProcessWithInput(
+    const std::string& executable,
+    const std::string& arguments,
+    const std::string& inputFile,
+    const std::string& outputFile,
+    int64_t timeoutMs) {
+
+    int stdoutPipe[2];
+    int stdinPipe[2];
+    if (pipe(stdoutPipe) != 0 || pipe(stdinPipe) != 0) {
+        std::cerr << "pipe failed" << std::endl;
+        return ProcessResult{};
+    }
+
+    pid_t pid = fork();
+    if (pid < 0) {
+        close(stdoutPipe[0]); close(stdoutPipe[1]);
+        close(stdinPipe[0]); close(stdinPipe[1]);
+        return ProcessResult{};
+    }
+
+    if (pid == 0) {
+        close(stdoutPipe[0]);
+        close(stdinPipe[1]);
+        dup2(stdoutPipe[1], STDOUT_FILENO);
+        dup2(stdoutPipe[1], STDERR_FILENO);
+        dup2(stdinPipe[0], STDIN_FILENO);
+        close(stdoutPipe[1]);
+        close(stdinPipe[0]);
+
+        std::vector<std::string> storage;
+        auto argv = buildArgv(executable, arguments, storage);
+        execvp(executable.c_str(), argv.data());
+        _exit(127);
+    }
+
+    close(stdoutPipe[1]);
+    close(stdinPipe[0]);
+
+    // 写入 stdin
+    std::ifstream ifs(inputFile);
+    if (ifs.is_open()) {
+        std::string content((std::istreambuf_iterator<char>(ifs)),
+                            std::istreambuf_iterator<char>());
+        ssize_t written = write(stdinPipe[1], content.data(), content.size());
+        (void)written;
+    }
+    close(stdinPipe[1]);
+
+    signal(SIGALRM, alarmHandler);
+    g_alarmFired = 0;
+    alarm((unsigned)(timeoutMs / 1000));
+
+    std::string output;
+    char buf[4096];
+    ssize_t n;
+    while ((n = read(stdoutPipe[0], buf, sizeof(buf))) > 0) {
+        output.append(buf, (size_t)n);
+    }
+    close(stdoutPipe[0]);
+
+    int status = 0;
+    waitpid(pid, &status, 0);
+    alarm(0);
+
+    ProcessResult result{};
+    result.processId = (int64_t)pid;
+    if (g_alarmFired) {
+        kill(pid, SIGKILL);
+        result.timedOut = true;
+    }
+    result.exitCode = WIFEXITED(status) ? WEXITSTATUS(status) : -1;
+    result.output = output;
+    result.hasOutput = !output.empty();
+
+    if (!outputFile.empty()) {
+        std::ofstream ofs(outputFile, std::ios::trunc);
+        if (ofs.is_open()) ofs << output;
+    }
+    result.returnValue = extractReturnValue(output, result.exitCode);
+    return result;
+}
+
+#endif // _WIN32
+
+// ============================================================================
+// 公共辅助函数（跨平台）
+// ============================================================================
+
+inline std::string ProcessRunner::readOutputFileWithRetry(const std::string& filePath,
+                                                          int maxRetries,
+                                                          int retryDelayMs) {
+    for (int i = 0; i < maxRetries; ++i) {
+        std::ifstream infile(filePath);
         if (infile.is_open()) {
             std::stringstream buffer;
             buffer << infile.rdbuf();
-            infile.close();
             return buffer.str();
         }
-        retryCount++;
-        Sleep(retryDelayMs);
+        std::this_thread::sleep_for(std::chrono::milliseconds(retryDelayMs));
     }
-    
     std::cerr << "Failed to read output file after " << maxRetries << " retries" << std::endl;
-    return "无法读取输出文件";
+    return "";
 }
 
-int ProcessRunner::extractReturnValue(const std::string& output, int fallbackValue) {
+inline int ProcessRunner::extractReturnValue(const std::string& output, int fallbackValue) {
     // 查找 "main() return value: "
     size_t pos = output.find("main() return value: ");
     if (pos != std::string::npos) {
-        pos += 21; // "main() return value: " 的长度
+        pos += 21;
         size_t endPos = output.find("\n", pos);
         if (endPos != std::string::npos) {
-            std::string returnValueStr = output.substr(pos, endPos - pos);
             try {
-                return std::stoi(returnValueStr);
-            } catch (const std::exception& e) {
-                // 转换失败，使用fallback
-            }
+                return std::stoi(output.substr(pos, endPos - pos));
+            } catch (const std::exception&) {}
         }
     }
-    
     // 查找 "Return value: "
     pos = output.find("Return value: ");
     if (pos != std::string::npos) {
-        pos += 13; // "Return value: " 的长度
+        pos += 13;
         size_t endPos = output.find("\n", pos);
         if (endPos != std::string::npos) {
-            std::string returnValueStr = output.substr(pos, endPos - pos);
             try {
-                return std::stoi(returnValueStr);
-            } catch (const std::exception& e) {
-                // 转换失败，使用fallback
-            }
+                return std::stoi(output.substr(pos, endPos - pos));
+            } catch (const std::exception&) {}
         }
     }
-    
     return fallbackValue;
 }
 
