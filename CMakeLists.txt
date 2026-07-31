@@ -1,5 +1,94 @@
 cmake_minimum_required (VERSION 3.8)
 
+project(IronCScriptCore)
+
+# ========================================================================
+# Emscripten (WASM) 构建配置
+# ========================================================================
+if(EMSCRIPTEN)
+    message(STATUS "Building for WebAssembly (Emscripten)")
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    set(CMAKE_CXX_EXTENSIONS OFF)
+
+    # Emscripten 链接选项
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s MODULARIZE=1 -s EXPORT_NAME='IronCScriptModule' -s ENVIRONMENT='web,node' -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap','FS','UTF8ToString','UTF8ArrayToString','stringToUTF8','lengthBytesUTF8','callMain','setValue','getValue','allocate','ALLOC_NORMAL'] -s EXPORTED_FUNCTIONS=['_main','_executeScript','_executeFile','_getOutput','_getError','_malloc','_free'] -s NO_DISABLE_EXCEPTION_CATCHING=1")
+    set(CMAKE_EXECUTABLE_SUFFIX ".js")
+
+    add_definitions(-DYY_NO_UNISTD_H)
+    add_definitions(-DUSE_ANTLR)
+    add_definitions(-DANTLR4CPP_STATIC)
+
+    set(ANTLR_INCLUDE_DIR
+        extern/antlr4-runtime/include/antlr4-runtime
+        extern/antlr4-runtime/include/antlr4-runtime/atn
+        extern/antlr4-runtime/include/antlr4-runtime/dfa
+        extern/antlr4-runtime/include/antlr4-runtime/internal
+        extern/antlr4-runtime/include/antlr4-runtime/misc
+        extern/antlr4-runtime/include/antlr4-runtime/support
+        extern/antlr4-runtime/include/antlr4-runtime/tree
+        extern/antlr4-runtime/include/antlr4-runtime/tree/pattern
+        extern/antlr4-runtime/include/antlr4-runtime/tree/xpath
+    )
+    # WASM 构建必须使用 WASM 版本的 ANTLR4 运行时库
+    set(ANTLR_STATIC_LIB "${CMAKE_CURRENT_SOURCE_DIR}/extern/antlr4-runtime-wasm/lib/libantlr4-runtime.a")
+
+    include_directories(src)
+    include_directories(${ANTLR_INCLUDE_DIR})
+
+    set(LIB_SOURCES
+        src/frontend/generated/CScriptParser.cpp
+        src/frontend/generated/CScriptLexer.cpp
+        src/frontend/generated/CScriptBaseListener.cpp
+        src/frontend/generated/CScriptBaseVisitor.cpp
+        src/frontend/generated/CScriptListener.cpp
+        src/frontend/generated/CScriptVisitor.cpp
+        src/ir/IRGenerator.cpp
+        src/ir/Quad.cpp
+        src/ir/IRInterpreter.cpp
+        src/frontend/semantic/SemanticAnalyzer.cpp
+        src/frontend/semantic/SymbolTable.cpp
+        src/IronCScript.cpp
+        src/IronCScriptImpl.cpp
+        src/backend/codegen.cpp
+        src/backend/MemoryManager.cpp
+        src/backend/Architecture.cpp
+        src/backend/BaseCodeGenerator.cpp
+        src/backend/CodeGeneratorFactory.cpp
+        src/backend/CompiledCache.cpp
+        src/backend/FFIRegistry.cpp
+        src/backend/ScriptFunctionRegistry.cpp
+        src/platform/wasm/WasmPlatform.cpp
+        src/module/ModuleManager.cpp
+        src/module/StandardLibraryRegistry.cpp
+        src/backend/x64/X64Code.cpp
+        src/backend/x64/X64CodeOps.cpp
+        src/backend/x64/X64CodeControl.cpp
+        src/backend/x64/X64CodeMemory.cpp
+        src/backend/x64/X64CodeUtils.cpp
+        src/platform/PlatformFactory.cpp
+        src/platform/StandardLibrary.cpp
+        src/platform/PlatformAbstraction.cpp
+    )
+
+    add_subdirectory(src/backend/cache)
+    add_subdirectory(src/bytecode)
+    add_subdirectory(src/exception)
+
+    add_library(IronCScriptCoreLib STATIC ${LIB_SOURCES})
+    target_link_libraries(IronCScriptCoreLib PUBLIC ${ANTLR_STATIC_LIB})
+    target_link_libraries(IronCScriptCoreLib PUBLIC Cache BytecodeModule Exception)
+
+    # WASM CLI 可执行文件（生成 .js + .wasm）
+    add_executable(IronCScriptCLI src/main_cli.cpp)
+    target_link_libraries(IronCScriptCLI PRIVATE IronCScriptCoreLib)
+
+    return()
+endif()
+# ========================================================================
+# 原生平台构建配置（x64 / RISC-V）
+# ========================================================================
+
 if(NOT CMAKE_CROSSCOMPILING)
     add_compile_definitions(WIN32_LEAN_AND_MEAN NOMINMAX)
 
