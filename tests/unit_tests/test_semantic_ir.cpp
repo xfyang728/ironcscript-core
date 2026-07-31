@@ -1,306 +1,199 @@
 #include <gtest/gtest.h>
-#include <iostream>
 #include <string>
+#include <list>
+#include "../common/AstPool.h"
+#include "../common/AstBuilders.h"
 #include "../src/frontend/semantic/SemanticAnalyzer.h"
+#include "../src/frontend/semantic/SymbolTable.h"
 #include "../src/ir/IRGenerator.h"
 #include "../src/ir/Quad.h"
-#include "../src/flex_bison/node.h"
+#include "../src/frontend/parser/node.h"
 
 using namespace cse;
 
-class SemanticIRIntegrationTest : public ::testing::Test {
-protected:
-    void SetUp() override {}
-};
-
-TEST_F(SemanticIRIntegrationTest, TestSymbolTableToQuad) {
-    NBlock* block = new NBlock();
-
-    NVariableDeclaration* varDecl = new NVariableDeclaration();
-    varDecl->type = NIdentifier{"int"};
-    varDecl->name = NIdentifier{"x"};
-    varDecl->assignmentExpr = new NInteger{10};
-    block->statements.push_back(varDecl);
-
-    NReturnStatement* retStmt = new NReturnStatement();
-    retStmt->expression = new NIdentifier{"x"};
-    block->statements.push_back(retStmt);
-
-    NFunctionDeclaration* func = new NFunctionDeclaration();
-    func->returnType = NIdentifier{"int"};
-    func->name = NIdentifier{"main"};
-    func->body = block;
-
-    SemanticAnalyzer semantic;
-    semantic.analyze(func);
-
-    IRGenerator ir;
-    ir.generateIR(*func);
-
-    const std::list<Quad>& quads = ir.getQuadList();
-    EXPECT_GT(quads.size(), 0) << "Should generate IR quads from semantic analysis";
-}
-
-TEST_F(SemanticIRIntegrationTest, TestTypeInferenceToIR) {
-    NInteger* intLit = new NInteger{42};
-
-    IRGenerator ir;
-    std::string result = ir.analyzeExpression(intLit);
-
-    EXPECT_EQ(result, "42") << "Should generate IR for integer expression";
-}
-
-TEST_F(SemanticIRIntegrationTest, TestVariableAssignmentToIR) {
-    NBlock* block = new NBlock();
-
-    NVariableDeclaration* varDecl = new NVariableDeclaration();
-    varDecl->type = NIdentifier{"int"};
-    varDecl->name = NIdentifier{"x"};
-    varDecl->assignmentExpr = new NInteger{100};
-    block->statements.push_back(varDecl);
-
-    NFunctionDeclaration* func = new NFunctionDeclaration();
-    func->returnType = NIdentifier{"int"};
-    func->name = NIdentifier{"main"};
-    func->body = block;
-
-    SemanticAnalyzer semantic;
-    semantic.analyze(func);
-
-    IRGenerator ir;
-    ir.generateIR(*func);
-
-    const std::list<Quad>& quads = ir.getQuadList();
-    bool hasAssign = false;
-    for (const auto& quad : quads) {
-        if (quad.getOp() == OpEnum::ASSIGN) {
-            hasAssign = true;
-            break;
-        }
+/// 辅助：检查 quad 列表中是否存在指定 OpEnum
+static bool hasOp(const std::list<Quad>& quads, OpEnum op) {
+    for (const auto& q : quads) {
+        if (q.getOp() == op) return true;
     }
-    EXPECT_TRUE(hasAssign) << "Should generate ASSIGN quad for variable";
+    return false;
 }
 
-TEST_F(SemanticIRIntegrationTest, TestFunctionReturnToIR) {
-    NBlock* block = new NBlock();
-
-    NReturnStatement* retStmt = new NReturnStatement();
-    retStmt->expression = new NInteger{42};
-    block->statements.push_back(retStmt);
-
-    NFunctionDeclaration* func = new NFunctionDeclaration();
-    func->returnType = NIdentifier{"int"};
-    func->name = NIdentifier{"main"};
-    func->body = block;
-
-    SemanticAnalyzer semantic;
-    semantic.analyze(func);
-
-    IRGenerator ir;
-    ir.generateIR(*func);
-
-    const std::list<Quad>& quads = ir.getQuadList();
-    bool hasReturn = false;
-    for (const auto& quad : quads) {
-        if (quad.getOp() == OpEnum::RET) {
-            hasReturn = true;
-            break;
-        }
-    }
-    EXPECT_TRUE(hasReturn) << "Should generate RET quad for return statement";
+/// 辅助：构造包含 main 函数的顶层 NBlock，main 函数体由 funcBody 提供
+static NBlock* buildProgramWithMain(cse_test::AstPool& pool, NBlock* funcBody) {
+    auto* topBlock = pool.make<NBlock>();
+    auto* func = cse_test::makeFuncDecl(pool, "int", "main", VariableList{}, funcBody);
+    topBlock->statements.push_back(func);
+    return topBlock;
 }
 
-TEST_F(SemanticIRIntegrationTest, TestBinaryOperationToIR) {
-    NBlock* block = new NBlock();
-
-    NVariableDeclaration* varDecl = new NVariableDeclaration();
-    varDecl->type = NIdentifier{"int"};
-    varDecl->name = NIdentifier{"result"};
-    NBinaryOperator* addOp = new NBinaryOperator();
-    addOp->op = '+';
-    addOp->lhs = new NInteger{10};
-    addOp->rhs = new NInteger{20};
-    varDecl->assignmentExpr = addOp;
-    block->statements.push_back(varDecl);
-
-    NFunctionDeclaration* func = new NFunctionDeclaration();
-    func->returnType = NIdentifier{"int"};
-    func->name = NIdentifier{"main"};
-    func->body = block;
-
-    SemanticAnalyzer semantic;
-    semantic.analyze(func);
-
-    IRGenerator ir;
-    ir.generateIR(*func);
-
-    const std::list<Quad>& quads = ir.getQuadList();
-    bool hasAdd = false;
-    for (const auto& quad : quads) {
-        if (quad.getOp() == OpEnum::ADD) {
-            hasAdd = true;
-            break;
-        }
-    }
-    EXPECT_TRUE(hasAdd) << "Should generate ADD quad for binary operation";
+/// 辅助：对顶层 NBlock 执行 semantic.analyze + ir.generateIR，返回 quad 列表引用
+static const std::list<Quad>& analyzeAndGenerate(cse_test::AstPool& pool, NBlock* topBlock,
+                                                  SymbolTable& symtab,
+                                                  SemanticAnalyzer& analyzer,
+                                                  IRGenerator& ir) {
+    analyzer.analyze(*topBlock);
+    ir.generateIR(*topBlock);
+    return ir.getQuadList();
 }
 
-TEST_F(SemanticIRIntegrationTest, TestComparisonToIR) {
-    NBlock* block = new NBlock();
+TEST(SemanticIRIntegrationTest, SymbolTableToQuad) {
+    cse_test::AstPool pool;
+    auto* funcBody = cse_test::makeFuncBody(pool);
+    auto* varDecl = cse_test::makeVarDecl(pool, "int", "x", pool.make<NInteger>(10));
+    funcBody->statements.push_back(varDecl);
+    auto* topBlock = buildProgramWithMain(pool, funcBody);
 
-    NVariableDeclaration* varDecl = new NVariableDeclaration();
-    varDecl->type = NIdentifier{"int"};
-    varDecl->name = NIdentifier{"result"};
-    NBinaryOperator* compOp = new NBinaryOperator();
-    compOp->op = '<';
-    compOp->lhs = new NInteger{5};
-    compOp->rhs = new NInteger{10};
-    varDecl->assignmentExpr = compOp;
-    block->statements.push_back(varDecl);
-
-    NFunctionDeclaration* func = new NFunctionDeclaration();
-    func->returnType = NIdentifier{"int"};
-    func->name = NIdentifier{"main"};
-    func->body = block;
-
-    SemanticAnalyzer semantic;
-    semantic.analyze(func);
-
-    IRGenerator ir;
-    ir.generateIR(*func);
-
-    const std::list<Quad>& quads = ir.getQuadList();
-    bool hasLT = false;
-    for (const auto& quad : quads) {
-        if (quad.getOp() == OpEnum::LT) {
-            hasLT = true;
-            break;
-        }
-    }
-    EXPECT_TRUE(hasLT) << "Should generate LT quad for comparison";
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
+    IRGenerator ir(symtab);
+    const auto& quads = analyzeAndGenerate(pool, topBlock, symtab, analyzer, ir);
+    EXPECT_GT(quads.size(), 0u);
 }
 
-TEST_F(SemanticIRIntegrationTest, TestMultipleStatementsToIR) {
-    NBlock* block = new NBlock();
+TEST(SemanticIRIntegrationTest, VariableAssignmentToIR) {
+    cse_test::AstPool pool;
+    auto* funcBody = cse_test::makeFuncBody(pool);
+    auto* expr = pool.make<NInteger>(100);
+    auto* varDecl = cse_test::makeVarDecl(pool, "int", "x", expr);
+    funcBody->statements.push_back(varDecl);
+    auto* topBlock = buildProgramWithMain(pool, funcBody);
 
-    NVariableDeclaration* var1 = new NVariableDeclaration();
-    var1->type = NIdentifier{"int"};
-    var1->name = NIdentifier{"a"};
-    var1->assignmentExpr = new NInteger{5};
-    block->statements.push_back(var1);
-
-    NVariableDeclaration* var2 = new NVariableDeclaration();
-    var2->type = NIdentifier{"int"};
-    var2->name = NIdentifier{"b"};
-    var2->assignmentExpr = new NInteger{10};
-    block->statements.push_back(var2);
-
-    NReturnStatement* retStmt = new NReturnStatement();
-    NBinaryOperator* addOp = new NBinaryOperator();
-    addOp->op = '+';
-    addOp->lhs = new NIdentifier{"a"};
-    addOp->rhs = new NIdentifier{"b"};
-    retStmt->expression = addOp;
-    block->statements.push_back(retStmt);
-
-    NFunctionDeclaration* func = new NFunctionDeclaration();
-    func->returnType = NIdentifier{"int"};
-    func->name = NIdentifier{"main"};
-    func->body = block;
-
-    SemanticAnalyzer semantic;
-    semantic.analyze(func);
-
-    IRGenerator ir;
-    ir.generateIR(*func);
-
-    const std::list<Quad>& quads = ir.getQuadList();
-    EXPECT_GE(quads.size(), 3) << "Should generate at least 3 quads";
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
+    IRGenerator ir(symtab);
+    const auto& quads = analyzeAndGenerate(pool, topBlock, symtab, analyzer, ir);
+    EXPECT_TRUE(hasOp(quads, OpEnum::ASSIGN));
 }
 
-TEST_F(SemanticIRIntegrationTest, TestFunctionCallToIR) {
-    NBlock* block = new NBlock();
+TEST(SemanticIRIntegrationTest, FunctionReturnToIR) {
+    cse_test::AstPool pool;
+    auto* funcBody = cse_test::makeFuncBody(pool);
+    auto* retExpr = pool.make<NInteger>(42);
+    auto* retStmt = pool.make<NReturnStatement>(*retExpr);
+    funcBody->statements.push_back(retStmt);
+    auto* topBlock = buildProgramWithMain(pool, funcBody);
 
-    NFunctionCall* funcCall = new NFunctionCall();
-    funcCall->callee = NIdentifier{"add"};
-    funcCall->arguments.push_back(new NInteger{5});
-    funcCall->arguments.push_back(new NInteger{3});
-
-    NReturnStatement* retStmt = new NReturnStatement();
-    retStmt->expression = funcCall;
-    block->statements.push_back(retStmt);
-
-    NFunctionDeclaration* func = new NFunctionDeclaration();
-    func->returnType = NIdentifier{"int"};
-    func->name = NIdentifier{"main"};
-    func->body = block;
-
-    SemanticAnalyzer semantic;
-    semantic.analyze(func);
-
-    IRGenerator ir;
-    ir.generateIR(*func);
-
-    const std::list<Quad>& quads = ir.getQuadList();
-    bool hasCall = false;
-    for (const auto& quad : quads) {
-        if (quad.getOp() == OpEnum::CALL) {
-            hasCall = true;
-            break;
-        }
-    }
-    EXPECT_TRUE(hasCall) << "Should generate CALL quad for function call";
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
+    IRGenerator ir(symtab);
+    const auto& quads = analyzeAndGenerate(pool, topBlock, symtab, analyzer, ir);
+    EXPECT_TRUE(hasOp(quads, OpEnum::RET));
 }
 
-TEST_F(SemanticIRIntegrationTest, TestDoubleTypeToIR) {
-    NBlock* block = new NBlock();
+TEST(SemanticIRIntegrationTest, BinaryOperationToIR) {
+    cse_test::AstPool pool;
+    auto* funcBody = cse_test::makeFuncBody(pool);
+    auto* lhs = pool.make<NInteger>(10);
+    auto* rhs = pool.make<NInteger>(20);
+    auto* addOp = pool.make<NBinaryOperator>(*lhs, '+', *rhs);
+    auto* varDecl = cse_test::makeVarDecl(pool, "int", "result", addOp);
+    funcBody->statements.push_back(varDecl);
+    auto* topBlock = buildProgramWithMain(pool, funcBody);
 
-    NVariableDeclaration* varDecl = new NVariableDeclaration();
-    varDecl->type = NIdentifier{"double"};
-    varDecl->name = NIdentifier{"pi"};
-    varDecl->assignmentExpr = new NDouble{3.14159};
-    block->statements.push_back(varDecl);
-
-    NFunctionDeclaration* func = new NFunctionDeclaration();
-    func->returnType = NIdentifier{"int"};
-    func->name = NIdentifier{"main"};
-    func->body = block;
-
-    SemanticAnalyzer semantic;
-    semantic.analyze(func);
-
-    IRGenerator ir;
-    ir.generateIR(*func);
-
-    const std::list<Quad>& quads = ir.getQuadList();
-    EXPECT_GT(quads.size(), 0) << "Should generate quads for double type";
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
+    IRGenerator ir(symtab);
+    const auto& quads = analyzeAndGenerate(pool, topBlock, symtab, analyzer, ir);
+    EXPECT_TRUE(hasOp(quads, OpEnum::ADD));
 }
 
-TEST_F(SemanticIRIntegrationTest, TestCharTypeToIR) {
-    NBlock* block = new NBlock();
+TEST(SemanticIRIntegrationTest, ComparisonToIR) {
+    cse_test::AstPool pool;
+    auto* funcBody = cse_test::makeFuncBody(pool);
+    auto* lhs = pool.make<NInteger>(5);
+    auto* rhs = pool.make<NInteger>(10);
+    auto* compOp = pool.make<NBinaryOperator>(*lhs, '<', *rhs);
+    auto* varDecl = cse_test::makeVarDecl(pool, "int", "result", compOp);
+    funcBody->statements.push_back(varDecl);
+    auto* topBlock = buildProgramWithMain(pool, funcBody);
 
-    NVariableDeclaration* varDecl = new NVariableDeclaration();
-    varDecl->type = NIdentifier{"char"};
-    varDecl->name = NIdentifier{"c"};
-    varDecl->assignmentExpr = new NInteger{'A'};
-    block->statements.push_back(varDecl);
-
-    NFunctionDeclaration* func = new NFunctionDeclaration();
-    func->returnType = NIdentifier{"int"};
-    func->name = NIdentifier{"main"};
-    func->body = block;
-
-    SemanticAnalyzer semantic;
-    semantic.analyze(func);
-
-    IRGenerator ir;
-    ir.generateIR(*func);
-
-    const std::list<Quad>& quads = ir.getQuadList();
-    EXPECT_GT(quads.size(), 0) << "Should generate quads for char type";
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
+    IRGenerator ir(symtab);
+    const auto& quads = analyzeAndGenerate(pool, topBlock, symtab, analyzer, ir);
+    EXPECT_TRUE(hasOp(quads, OpEnum::LT));
 }
 
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+TEST(SemanticIRIntegrationTest, MultipleStatementsToIR) {
+    cse_test::AstPool pool;
+    auto* funcBody = cse_test::makeFuncBody(pool);
+    auto* var1 = cse_test::makeVarDecl(pool, "int", "a", pool.make<NInteger>(5));
+    auto* var2 = cse_test::makeVarDecl(pool, "int", "b", pool.make<NInteger>(10));
+    funcBody->statements.push_back(var1);
+    funcBody->statements.push_back(var2);
+
+    auto& aId = cse_test::makeIdent(pool, "a");
+    auto& bId = cse_test::makeIdent(pool, "b");
+    auto* addOp = pool.make<NBinaryOperator>(aId, '+', bId);
+    auto* retStmt = pool.make<NReturnStatement>(*addOp);
+    funcBody->statements.push_back(retStmt);
+    auto* topBlock = buildProgramWithMain(pool, funcBody);
+
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
+    IRGenerator ir(symtab);
+    const auto& quads = analyzeAndGenerate(pool, topBlock, symtab, analyzer, ir);
+    EXPECT_GE(quads.size(), 3u);
+}
+
+TEST(SemanticIRIntegrationTest, FunctionCallToIR) {
+    cse_test::AstPool pool;
+    auto* topBlock = pool.make<NBlock>();
+
+    // add 函数
+    auto* addBody = cse_test::makeFuncBody(pool);
+    VariableList params;
+    params.push_back(cse_test::makeVarDecl(pool, "int", "a"));
+    params.push_back(cse_test::makeVarDecl(pool, "int", "b"));
+    auto* addFunc = cse_test::makeFuncDecl(pool, "int", "add", params, addBody);
+    topBlock->statements.push_back(addFunc);
+
+    // main 函数：return add(5, 3)
+    auto* mainBody = cse_test::makeFuncBody(pool);
+    auto& callee = cse_test::makeIdent(pool, "add");
+    ExpressionList args;
+    args.push_back(pool.make<NInteger>(5));
+    args.push_back(pool.make<NInteger>(3));
+    auto* methodCall = pool.make<NMethodCall>(callee, args);
+    auto* retStmt = pool.make<NReturnStatement>(*methodCall);
+    mainBody->statements.push_back(retStmt);
+    auto* mainFunc = cse_test::makeFuncDecl(pool, "int", "main", VariableList{}, mainBody);
+    topBlock->statements.push_back(mainFunc);
+
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
+    IRGenerator ir(symtab);
+    const auto& quads = analyzeAndGenerate(pool, topBlock, symtab, analyzer, ir);
+    EXPECT_TRUE(hasOp(quads, OpEnum::CALL));
+}
+
+TEST(SemanticIRIntegrationTest, DoubleTypeToIR) {
+    cse_test::AstPool pool;
+    auto* funcBody = cse_test::makeFuncBody(pool);
+    auto* expr = pool.make<NDouble>(3.14159);
+    auto* varDecl = cse_test::makeVarDecl(pool, "double", "pi", expr);
+    funcBody->statements.push_back(varDecl);
+    auto* topBlock = buildProgramWithMain(pool, funcBody);
+
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
+    IRGenerator ir(symtab);
+    const auto& quads = analyzeAndGenerate(pool, topBlock, symtab, analyzer, ir);
+    EXPECT_GT(quads.size(), 0u);
+}
+
+TEST(SemanticIRIntegrationTest, CharTypeToIR) {
+    cse_test::AstPool pool;
+    auto* funcBody = cse_test::makeFuncBody(pool);
+    auto* expr = pool.make<NInteger>('A');
+    auto* varDecl = cse_test::makeVarDecl(pool, "char", "c", expr);
+    funcBody->statements.push_back(varDecl);
+    auto* topBlock = buildProgramWithMain(pool, funcBody);
+
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
+    IRGenerator ir(symtab);
+    const auto& quads = analyzeAndGenerate(pool, topBlock, symtab, analyzer, ir);
+    EXPECT_GT(quads.size(), 0u);
 }
