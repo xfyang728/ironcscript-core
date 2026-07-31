@@ -1,160 +1,99 @@
 #include <gtest/gtest.h>
-#include <iostream>
-#include <fstream>
 #include <string>
-#include <cstdio>
+#include <vector>
+#include "antlr4-runtime.h"
+#include "../src/frontend/generated/CScriptLexer.h"
+#include "../src/frontend/generated/CScriptParser.h"
 
-#define TIDENTIFIER 258
-#define TINTEGER 259
-#define TDOUBLE 260
-#define TSTRING 261
-#define TCEQ 262
-#define TCNE 263
-#define TCLT 264
-#define TCLE 265
-#define TCGT 266
-#define TCGE 267
-#define TEQUAL 268
-#define TLPAREN 269
-#define TRPAREN 270
-#define TLBRACE 271
-#define TRBRACE 272
-#define TCOMMA 273
-#define TDOT 274
-#define TPLUS 275
-#define TMINUS 276
-#define TMUL 277
-#define TDIV 278
-#define TRETURN 279
-#define TEXTERN 280
-#define TIF 281
-#define TELSE 282
-#define TWHILE 283
-#define TFOR 284
-#define TDO 285
-#define TBRACKETL 286
-#define TBRACKETR 287
-#define TADDRESS 288
-#define TTYPE 289
-#define TSCOLON 290
+using namespace antlr4;
 
-extern int yylex();
-extern FILE* yyin;
-extern FILE* yyout;
-extern void yyerror(const char* s);
+/// 辅助：对输入字符串进行词法分析，返回 token 列表
+static std::vector<Token*> lexString(const std::string& input) {
+    ANTLRInputStream stream(input);
+    CScriptLexer lexer(&stream);
+    CommonTokenStream tokens(&lexer);
+    tokens.fill();
+    return tokens.getTokens();
+}
 
-class LexerTest : public ::testing::Test {
-protected:
-    void SetUp() override {
-        yyin = nullptr;
-        yyout = stdout;
+TEST(LexerTest, IntegerToken) {
+    auto tokens = lexString("123");
+    ASSERT_EQ(tokens.size(), 2u);  // INTEGER + EOF
+    EXPECT_EQ(tokens[0]->getType(), CScriptParser::INTEGER);
+    EXPECT_EQ(tokens[0]->getText(), "123");
+}
+
+TEST(LexerTest, DoubleToken) {
+    auto tokens = lexString("3.14");
+    ASSERT_GE(tokens.size(), 1u);
+    EXPECT_EQ(tokens[0]->getType(), CScriptParser::DOUBLE);
+    EXPECT_EQ(tokens[0]->getText(), "3.14");
+}
+
+TEST(LexerTest, IdentifierToken) {
+    auto tokens = lexString("myVar");
+    ASSERT_GE(tokens.size(), 1u);
+    EXPECT_EQ(tokens[0]->getType(), CScriptParser::IDENTIFIER);
+    EXPECT_EQ(tokens[0]->getText(), "myVar");
+}
+
+TEST(LexerTest, TypeKeywordsAreIdentifiers) {
+    // 类型关键字（int/double/char/bool）在 g4 中通过 type 规则定义，
+    // lexer 将它们识别为 IDENTIFIER token，由 parser 判断文本
+    auto tokens = lexString("int double char bool");
+    ASSERT_GE(tokens.size(), 4u);
+    for (size_t i = 0; i < 4; ++i) {
+        EXPECT_EQ(tokens[i]->getType(), CScriptParser::IDENTIFIER)
+            << "Token " << i << " should be IDENTIFIER";
     }
-    void TearDown() override {}
-
-    int lexString(const char* input) {
-        FILE* tempFile = fopen("temp_test_input.c", "w");
-        if (!tempFile) return -1;
-        fputs(input, tempFile);
-        fclose(tempFile);
-
-        tempFile = fopen("temp_test_input.c", "r");
-        if (!tempFile) return -1;
-
-        yyin = tempFile;
-        int token = yylex();
-        fclose(tempFile);
-
-        remove("temp_test_input.c");
-        return token;
-    }
-};
-
-TEST_F(LexerTest, TestIntegerToken) {
-    int token = lexString("123");
-    EXPECT_EQ(token, TINTEGER) << "Integer token should be TINTEGER";
+    EXPECT_EQ(tokens[0]->getText(), "int");
+    EXPECT_EQ(tokens[1]->getText(), "double");
+    EXPECT_EQ(tokens[2]->getText(), "char");
+    EXPECT_EQ(tokens[3]->getText(), "bool");
 }
 
-TEST_F(LexerTest, TestFloatToken) {
-    int token = lexString("3.14");
-    EXPECT_EQ(token, TDOUBLE) << "Float token should be TDOUBLE";
+TEST(LexerTest, KeywordTokens) {
+    auto tokens = lexString("if else while for return");
+    ASSERT_GE(tokens.size(), 5u);
+    EXPECT_EQ(tokens[0]->getType(), CScriptParser::IF);
+    EXPECT_EQ(tokens[1]->getType(), CScriptParser::ELSE);
+    EXPECT_EQ(tokens[2]->getType(), CScriptParser::WHILE);
+    EXPECT_EQ(tokens[3]->getType(), CScriptParser::FOR);
+    EXPECT_EQ(tokens[4]->getType(), CScriptParser::RETURN);
 }
 
-TEST_F(LexerTest, TestIdentifier) {
-    int token = lexString("myvar");
-    EXPECT_EQ(token, TIDENTIFIER) << "Identifier should be TIDENTIFIER";
+TEST(LexerTest, ArithmeticOperators) {
+    auto tokens = lexString("+ - * /");
+    ASSERT_GE(tokens.size(), 4u);
+    EXPECT_EQ(tokens[0]->getType(), CScriptParser::PLUS);
+    EXPECT_EQ(tokens[1]->getType(), CScriptParser::MINUS);
+    EXPECT_EQ(tokens[2]->getType(), CScriptParser::MUL);
+    EXPECT_EQ(tokens[3]->getType(), CScriptParser::DIV);
 }
 
-TEST_F(LexerTest, TestIntKeyword) {
-    int token = lexString("int");
-    EXPECT_EQ(token, TTYPE) << "int keyword should be TTYPE";
+TEST(LexerTest, ComparisonOperators) {
+    auto tokens = lexString("== < >");
+    ASSERT_GE(tokens.size(), 3u);
+    EXPECT_EQ(tokens[0]->getType(), CScriptParser::EQ);
+    EXPECT_EQ(tokens[1]->getType(), CScriptParser::LT);
+    EXPECT_EQ(tokens[2]->getType(), CScriptParser::GT);
 }
 
-TEST_F(LexerTest, TestDoubleKeyword) {
-    int token = lexString("double");
-    EXPECT_EQ(token, TTYPE) << "double keyword should be TTYPE";
+TEST(LexerTest, AssignmentOperator) {
+    auto tokens = lexString("=");
+    ASSERT_GE(tokens.size(), 1u);
+    EXPECT_EQ(tokens[0]->getType(), CScriptParser::ASSIGN);
 }
 
-TEST_F(LexerTest, TestCharKeyword) {
-    int token = lexString("char");
-    EXPECT_EQ(token, TTYPE) << "char keyword should be TTYPE";
+TEST(LexerTest, StringAndCharLiterals) {
+    auto tokens = lexString("\"hello\" 'A'");
+    ASSERT_GE(tokens.size(), 2u);
+    EXPECT_EQ(tokens[0]->getType(), CScriptParser::STRING);
+    EXPECT_EQ(tokens[1]->getType(), CScriptParser::CHAR);
 }
 
-TEST_F(LexerTest, TestIfKeyword) {
-    int token = lexString("if");
-    EXPECT_EQ(token, TIF) << "if keyword should be TIF";
-}
-
-TEST_F(LexerTest, TestElseKeyword) {
-    int token = lexString("else");
-    EXPECT_EQ(token, TELSE) << "else keyword should be TELSE";
-}
-
-TEST_F(LexerTest, TestWhileKeyword) {
-    int token = lexString("while");
-    EXPECT_EQ(token, TWHILE) << "while keyword should be TWHILE";
-}
-
-TEST_F(LexerTest, TestForKeyword) {
-    int token = lexString("for");
-    EXPECT_EQ(token, TFOR) << "for keyword should be TFOR";
-}
-
-TEST_F(LexerTest, TestReturnKeyword) {
-    int token = lexString("return");
-    EXPECT_EQ(token, TRETURN) << "return keyword should be TRETURN";
-}
-
-TEST_F(LexerTest, TestPlusOperator) {
-    int token = lexString("+");
-    EXPECT_EQ(token, TPLUS) << "Plus operator should be TPLUS";
-}
-
-TEST_F(LexerTest, TestMinusOperator) {
-    int token = lexString("-");
-    EXPECT_EQ(token, TMINUS) << "Minus operator should be TMINUS";
-}
-
-TEST_F(LexerTest, TestMultiplyOperator) {
-    int token = lexString("*");
-    EXPECT_EQ(token, TMUL) << "Multiply operator should be TMUL";
-}
-
-TEST_F(LexerTest, TestDivideOperator) {
-    int token = lexString("/");
-    EXPECT_EQ(token, TDIV) << "Divide operator should be TDIV";
-}
-
-TEST_F(LexerTest, TestEqualOperator) {
-    int token = lexString("==");
-    EXPECT_EQ(token, TEQUAL) << "Equal operator should be TEQUAL";
-}
-
-TEST_F(LexerTest, TestLessThanOperator) {
-    int token = lexString("<");
-    EXPECT_EQ(token, TCLT) << "Less than operator should be TCLT";
-}
-
-TEST_F(LexerTest, TestGreaterThanOperator) {
-    int token = lexString(">");
-    EXPECT_EQ(token, TCGT) << "Greater than operator should be TCGT";
+TEST(LexerTest, EofToken) {
+    auto tokens = lexString("123");
+    ASSERT_GE(tokens.size(), 2u);
+    EXPECT_EQ(tokens.back()->getType(), Token::EOF);
 }
