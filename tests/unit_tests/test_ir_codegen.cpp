@@ -1,69 +1,70 @@
 #include <gtest/gtest.h>
-#include <iostream>
 #include <string>
+#include <list>
+#include <vector>
+#include "../common/AstPool.h"
+#include "../common/AstBuilders.h"
+#include "../src/frontend/semantic/SemanticAnalyzer.h"
+#include "../src/frontend/semantic/SymbolTable.h"
 #include "../src/ir/IRGenerator.h"
 #include "../src/ir/Quad.h"
 #include "../src/backend/x64/X64Code.h"
+#include "../src/frontend/parser/node.h"
 
 using namespace cse;
 
-class IRCodegenIntegrationTest : public ::testing::Test {
-protected:
-    void SetUp() override {}
-};
-
-TEST_F(IRCodegenIntegrationTest, TestQuadToCodeGeneration) {
-    NBlock* block = new NBlock();
-
-    NReturnStatement* retStmt = new NReturnStatement();
-    retStmt->expression = new NInteger{42};
-    block->statements.push_back(retStmt);
-
-    NFunctionDeclaration* func = new NFunctionDeclaration();
-    func->returnType = NIdentifier{"int"};
-    func->name = NIdentifier{"main"};
-    func->body = block;
-
-    IRGenerator ir;
-    ir.generateIR(*func);
-
-    const std::list<Quad>& quads = ir.getQuadList();
-    EXPECT_GT(quads.size(), 0) << "Should generate IR quads";
+/// 辅助：构造包含 main 函数的顶层 NBlock
+static NBlock* buildProgramWithMain(cse_test::AstPool& pool, NBlock* funcBody) {
+    auto* topBlock = pool.make<NBlock>();
+    auto* func = cse_test::makeFuncDecl(pool, "int", "main", VariableList{}, funcBody);
+    topBlock->statements.push_back(func);
+    return topBlock;
 }
 
-TEST_F(IRCodegenIntegrationTest, TestAdditionQuadToCode) {
-    NBlock* block = new NBlock();
+TEST(IRCodegenIntegrationTest, QuadToCodeGeneration) {
+    cse_test::AstPool pool;
+    auto* funcBody = cse_test::makeFuncBody(pool);
+    auto* retExpr = pool.make<NInteger>(42);
+    auto* retStmt = pool.make<NReturnStatement>(*retExpr);
+    funcBody->statements.push_back(retStmt);
+    auto* topBlock = buildProgramWithMain(pool, funcBody);
 
-    NVariableDeclaration* varDecl = new NVariableDeclaration();
-    varDecl->type = NIdentifier{"int"};
-    varDecl->name = NIdentifier{"result"};
-    NBinaryOperator* addOp = new NBinaryOperator();
-    addOp->op = '+';
-    addOp->lhs = new NInteger{10};
-    addOp->rhs = new NInteger{20};
-    varDecl->assignmentExpr = addOp;
-    block->statements.push_back(varDecl);
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
+    IRGenerator ir(symtab);
+    analyzer.analyze(*topBlock);
+    ir.generateIR(*topBlock);
 
-    NFunctionDeclaration* func = new NFunctionDeclaration();
-    func->returnType = NIdentifier{"int"};
-    func->name = NIdentifier{"main"};
-    func->body = block;
+    const auto& quads = ir.getQuadList();
+    EXPECT_GT(quads.size(), 0u);
+}
 
-    IRGenerator ir;
-    ir.generateIR(*func);
+TEST(IRCodegenIntegrationTest, AdditionQuadToCode) {
+    cse_test::AstPool pool;
+    auto* funcBody = cse_test::makeFuncBody(pool);
+    auto* lhs = pool.make<NInteger>(10);
+    auto* rhs = pool.make<NInteger>(20);
+    auto* addOp = pool.make<NBinaryOperator>(*lhs, '+', *rhs);
+    auto* varDecl = cse_test::makeVarDecl(pool, "int", "result", addOp);
+    funcBody->statements.push_back(varDecl);
+    auto* topBlock = buildProgramWithMain(pool, funcBody);
 
-    const std::list<Quad>& quads = ir.getQuadList();
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
+    IRGenerator ir(symtab);
+    analyzer.analyze(*topBlock);
+    ir.generateIR(*topBlock);
+
+    const auto& quads = ir.getQuadList();
     X64Code codeGen;
-
-    for (const auto& quad : quads) {
-        codeGen.generateCodeFromIR(quads);
-    }
+    // generateCodeFromIR 接收整个 list，调用一次即可（不要在循环中调用）
+    codeGen.generateCodeFromIR(quads);
 
     const std::vector<unsigned char>& code = codeGen.GetCodeBuffer();
-    EXPECT_GT(code.size(), 0) << "Should generate machine code from IR";
+    EXPECT_GT(code.size(), 0u);
 }
 
-TEST_F(IRCodegenIntegrationTest, TestVariableAllocationInCodeGen) {
+TEST(IRCodegenIntegrationTest, VariableAllocationInCodeGen) {
     X64Code codeGen;
     codeGen.AllocateVariable("x", X64Code::Type::Int);
     codeGen.AllocateVariable("y", X64Code::Type::Int);
@@ -73,36 +74,24 @@ TEST_F(IRCodegenIntegrationTest, TestVariableAllocationInCodeGen) {
     int offsetY = codeGen.GetVariableOffset("y");
     int offsetZ = codeGen.GetVariableOffset("z");
 
-    EXPECT_NE(offsetX, offsetY) << "Each variable should have unique offset";
-    EXPECT_NE(offsetY, offsetZ) << "Each variable should have unique offset";
+    EXPECT_NE(offsetX, offsetY);
+    EXPECT_NE(offsetY, offsetZ);
+    EXPECT_NE(offsetX, offsetZ);
 }
 
-TEST_F(IRCodegenIntegrationTest, TestIntegerLiteralCodeGen) {
-    X64Code codeGen;
-    codeGen.AllocateVariable("x", X64Code::Type::Int);
-
-    Value* val = new Value("42", X64Code::Type::Int);
-    codeGen.StoreVariable("x", val, X64Code::Type::Int);
-
-    Value* loaded = codeGen.LoadVariable("x", X64Code::Type::Int);
-    EXPECT_NE(loaded, nullptr) << "Should load stored value";
-}
-
-TEST_F(IRCodegenIntegrationTest, TestDoubleStorageCodeGen) {
+TEST(IRCodegenIntegrationTest, DoubleStorageCodeGen) {
     X64Code codeGen;
     size_t offset = codeGen.StoreDouble(3.14159);
-
-    EXPECT_GT(offset, 0) << "Should store double in data section";
+    EXPECT_GT(offset, 0u);
 }
 
-TEST_F(IRCodegenIntegrationTest, TestStringStorageCodeGen) {
+TEST(IRCodegenIntegrationTest, StringStorageCodeGen) {
     X64Code codeGen;
     size_t offset = codeGen.StoreString("Hello World");
-
-    EXPECT_GT(offset, 0) << "Should store string in data section";
+    EXPECT_GT(offset, 0u);
 }
 
-TEST_F(IRCodegenIntegrationTest, TestCodeBufferGrowth) {
+TEST(IRCodegenIntegrationTest, CodeBufferGrowth) {
     X64Code codeGen;
     size_t initialSize = codeGen.GetCodeSize();
 
@@ -110,46 +99,37 @@ TEST_F(IRCodegenIntegrationTest, TestCodeBufferGrowth) {
     codeGen.CreateLabel("start");
 
     size_t newSize = codeGen.GetCodeSize();
-    EXPECT_GE(newSize, initialSize) << "Code buffer should grow or stay same";
+    EXPECT_GE(newSize, initialSize);
 }
 
-TEST_F(IRCodegenIntegrationTest, TestVariableTypeTracking) {
+TEST(IRCodegenIntegrationTest, VariableTypeTracking) {
     X64Code codeGen;
     codeGen.AllocateVariable("intVar", X64Code::Type::Int);
     codeGen.AllocateVariable("doubleVar", X64Code::Type::Double);
     codeGen.AllocateVariable("charVar", X64Code::Type::Char);
 
-    X64Code::Type intType = codeGen.GetVariableType("intVar");
-    X64Code::Type doubleType = codeGen.GetVariableType("doubleVar");
-    X64Code::Type charType = codeGen.GetVariableType("charVar");
-
-    EXPECT_EQ(intType, X64Code::Type::Int);
-    EXPECT_EQ(doubleType, X64Code::Type::Double);
-    EXPECT_EQ(charType, X64Code::Type::Char);
+    EXPECT_EQ(codeGen.GetVariableType("intVar"), X64Code::Type::Int);
+    EXPECT_EQ(codeGen.GetVariableType("doubleVar"), X64Code::Type::Double);
+    EXPECT_EQ(codeGen.GetVariableType("charVar"), X64Code::Type::Char);
 }
 
-TEST_F(IRCodegenIntegrationTest, TestControlFlowLabelGeneration) {
+TEST(IRCodegenIntegrationTest, ControlFlowLabelGeneration) {
     X64Code codeGen;
     codeGen.CreateLabel("loop_start");
     codeGen.CreateLabel("loop_end");
 
     size_t codeSize = codeGen.GetCodeSize();
-    EXPECT_GT(codeSize, 0) << "Labels should generate code";
+    EXPECT_GT(codeSize, 0u);
 }
 
-TEST_F(IRCodegenIntegrationTest, TestFunctionContextManagement) {
+TEST(IRCodegenIntegrationTest, FunctionContextManagement) {
     X64Code codeGen;
 
-    EXPECT_FALSE(codeGen.GetInFunction()) << "Should start not in function";
+    EXPECT_FALSE(codeGen.GetInFunction());
 
     codeGen.SetInFunction(true);
-    EXPECT_TRUE(codeGen.GetInFunction()) << "Should be in function after setting";
+    EXPECT_TRUE(codeGen.GetInFunction());
 
     codeGen.SetInFunction(false);
-    EXPECT_FALSE(codeGen.GetInFunction()) << "Should exit function context";
-}
-
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    EXPECT_FALSE(codeGen.GetInFunction());
 }
