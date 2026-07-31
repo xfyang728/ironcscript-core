@@ -171,7 +171,6 @@ void SemanticAnalyzer::analyzeVariableDeclaration(NVariableDeclaration* decl) {
         }
         if (decl->isConst) {
             symbol.constantValue = evaluateConstExpression(decl->assignmentExpr);
-            std::cout << "[DEBUG] analyzeVariableDeclaration: const " << varName << " = " << symbol.constantValue << std::endl;
         }
     }
 
@@ -249,7 +248,6 @@ void SemanticAnalyzer::analyzeArrayDeclaration(NArrayDeclaration* decl) {
 }
 
 void SemanticAnalyzer::analyzeEnumDeclaration(NEnumDeclaration* decl) {
-    std::cout << "[DEBUG] analyzeEnumDeclaration: name=" << decl->name.name << std::endl;
 
     Symbol typeSymbol;
     typeSymbol.name = decl->name.name;
@@ -258,7 +256,6 @@ void SemanticAnalyzer::analyzeEnumDeclaration(NEnumDeclaration* decl) {
     typeSymbol.isGlobal = (symbolTable.getScopeLevel() == 1);
     typeSymbol.isEnumType = true;
     symbolTable.insertSymbol(typeSymbol);
-    std::cout << "[DEBUG] analyzeEnumDeclaration: registered enum type " << typeSymbol.name << std::endl;
 
     int enumValue = 0;
     for (auto& item : decl->items.statements) {
@@ -277,7 +274,6 @@ void SemanticAnalyzer::analyzeEnumDeclaration(NEnumDeclaration* decl) {
             symbol.constantValue = enumValue;
             symbol.isEnum = true;
             symbolTable.insertSymbol(symbol);
-            std::cout << "[DEBUG] analyzeEnumDeclaration: registered " << symbol.name << " = " << enumValue << std::endl;
 
             enumValue++;
         }
@@ -302,12 +298,9 @@ void SemanticAnalyzer::registerStandardLibraryFunction(const std::string& name,
     }
 
     symbolTable.insertSymbol(symbol);
-    std::cout << "[DEBUG] Registered standard library function: " << name 
-              << " (returns " << returnType << ")" << std::endl;
 }
 
 void SemanticAnalyzer::analyzeFunctionDeclaration(NFunctionDeclaration* decl) {
-    std::cout << "[DEBUG] analyzeFunctionDeclaration: " << decl->id.name << std::endl;
     std::string funcName = decl->id.name;
     std::string returnType = decl->type.name;
 
@@ -336,12 +329,10 @@ void SemanticAnalyzer::analyzeFunctionDeclaration(NFunctionDeclaration* decl) {
     std::string oldReturnType = currentFunctionReturnType;
     currentFunctionReturnType = returnType;
 
-    std::cout << "[DEBUG] analyzeFunctionDeclaration: analyzing " << decl->arguments.size() << " arguments" << std::endl;
     for (auto& param : decl->arguments) {
         analyzeVariableDeclaration(param);
     }
 
-    std::cout << "[DEBUG] analyzeFunctionDeclaration: analyzing body" << std::endl;
     analyzeBlock(decl->block);
 
     currentFunctionReturnType = oldReturnType;
@@ -486,7 +477,6 @@ void SemanticAnalyzer::analyzeIdentifier(NIdentifier* id) {
 }
 
 void SemanticAnalyzer::analyzeBlock(NBlock* block) {
-    std::cout << "[DEBUG] analyzeBlock: processing " << block->statements.size() << " statements" << std::endl;
 
     NBlock* previousBlock = currentBlock;
     currentBlock = block;
@@ -494,7 +484,6 @@ void SemanticAnalyzer::analyzeBlock(NBlock* block) {
     symbolTable.enterScope();
 
     for (auto& statement : block->statements) {
-        std::cout << "[DEBUG] analyzeBlock: processing statement type: " << typeid(*statement).name() << std::endl;
         analyzeStatement(statement);
     }
 
@@ -510,7 +499,6 @@ std::string SemanticAnalyzer::inferType(NExpression* expression) {
             std::string type = symbol->type;
             if (type.find("[]") != std::string::npos) {
                 std::string ptrType = type.substr(0, type.length() - 2) + "*";
-                std::cout << "[DEBUG] inferType: array type, returning " << ptrType << std::endl;
                 return ptrType;
             }
             return type;

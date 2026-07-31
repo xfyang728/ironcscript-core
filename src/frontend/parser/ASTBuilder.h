@@ -256,88 +256,65 @@ public:
     antlrcpp::Any visitProgram(CScriptParser::ProgramContext* ctx) override {
         NBlock* block = new NBlock();
         auto stmts = ctx->stmt();
-        std::cout << "[DEBUG] visitProgram: found " << stmts.size() << " statements" << std::endl;
         for (auto stmt : stmts) {
-            std::cout << "[DEBUG] visitProgram: processing statement" << std::endl;
             auto result = visitStmt(stmt);
-            std::cout << "[DEBUG] visitProgram: result has value: " << result.has_value() << std::endl;
             if (result.has_value()) {
                 NStatement* s = safe_any_cast<NStatement>(result);
-                std::cout << "[DEBUG] visitProgram: s is null: " << (s == nullptr) << std::endl;
                 if (s) {
                     block->statements.push_back(s);
-                    std::cout << "[DEBUG] visitProgram: added statement to block" << std::endl;
                 }
             }
         }
-        std::cout << "[DEBUG] visitProgram: block has " << block->statements.size() << " statements" << std::endl;
         return antlrcpp::Any(block);
     }
 
     antlrcpp::Any visitStmt(CScriptParser::StmtContext* ctx) override {
-        std::cout << "[DEBUG] visitStmt: entered" << std::endl;
         if (ctx->var_decl()) {
-            std::cout << "[DEBUG] visitStmt: found var_decl" << std::endl;
             return visitVar_decl(ctx->var_decl());
         }
         if (ctx->func_decl()) {
-            std::cout << "[DEBUG] visitStmt: found func_decl" << std::endl;
             return visitFunc_decl(ctx->func_decl());
         }
         if (ctx->extern_decl()) {
-            std::cout << "[DEBUG] visitStmt: found extern_decl" << std::endl;
             return visitExtern_decl(ctx->extern_decl());
         }
         if (ctx->struct_decl()) {
-            std::cout << "[DEBUG] visitStmt: found struct_decl" << std::endl;
             return visitStruct_decl(ctx->struct_decl());
         }
         if (ctx->enum_decl()) {
-            std::cout << "[DEBUG] visitStmt: found enum_decl" << std::endl;
             return visitEnum_decl(ctx->enum_decl());
         }
         if (ctx->if_stmt()) {
-            std::cout << "[DEBUG] visitStmt: found if_stmt" << std::endl;
             return visitIf_stmt(ctx->if_stmt());
         }
         if (ctx->while_stmt()) {
-            std::cout << "[DEBUG] visitStmt: found while_stmt" << std::endl;
             return visitWhile_stmt(ctx->while_stmt());
         }
         if (ctx->for_stmt()) {
-            std::cout << "[DEBUG] visitStmt: found for_stmt" << std::endl;
             return visitFor_stmt(ctx->for_stmt());
         }
         if (ctx->switch_stmt()) {
-            std::cout << "[DEBUG] visitStmt: found switch_stmt" << std::endl;
             return visitSwitch_stmt(ctx->switch_stmt());
         }
         if (ctx->do_while_stmt()) {
-            std::cout << "[DEBUG] visitStmt: found do_while_stmt" << std::endl;
             return visitDo_while_stmt(ctx->do_while_stmt());
         }
         if (ctx->try_catch_stmt()) {
-            std::cout << "[DEBUG] visitStmt: found try_catch_stmt" << std::endl;
             return visitTry_catch_stmt(ctx->try_catch_stmt());
         }
         if (ctx->register_callback_stmt()) {
-            std::cout << "[DEBUG] visitStmt: found register_callback_stmt" << std::endl;
             return visitRegister_callback_stmt(ctx->register_callback_stmt());
         }
         if (ctx->import_stmt()) {
-            std::cout << "[DEBUG] visitStmt: found import_stmt" << std::endl;
             return visitImport_stmt(ctx->import_stmt());
         }
         if (ctx->include_stmt()) {
-            std::cout << "[DEBUG] visitStmt: found include_stmt" << std::endl;
             return visitInclude_stmt(ctx->include_stmt());
         }
         if (ctx->export_stmt()) {
-            std::cout << "[DEBUG] visitStmt: found export_stmt" << std::endl;
             return ctx->export_stmt()->accept(this);
         }
         if (ctx->RETURN() && ctx->expr()) {
-            std::cout << "[DEBUG] visitStmt: found return statement" << std::endl;
             auto result = visitExpr(ctx->expr());
             NExpression* expr = safe_any_cast<NExpression>(result);
             if (expr) {
@@ -345,15 +322,12 @@ public:
             }
         }
         if (ctx->BREAK()) {
-            std::cout << "[DEBUG] visitStmt: found break statement" << std::endl;
             return antlrcpp::Any(new NBreakStatement());
         }
         if (ctx->CONTINUE()) {
-            std::cout << "[DEBUG] visitStmt: found continue statement" << std::endl;
             return antlrcpp::Any(new NContinueStatement());
         }
         if (ctx->MUL() && ctx->ident() && ctx->expr()) {
-            std::cout << "[DEBUG] visitStmt: found pointer assignment" << std::endl;
             auto* id = new NIdentifier(ctx->ident()->getText());
             auto result = visitExpr(ctx->expr());
             NExpression* val = safe_any_cast<NExpression>(result);
@@ -362,14 +336,12 @@ public:
             }
         }
         if (ctx->expr()) {
-            std::cout << "[DEBUG] visitStmt: found expression statement" << std::endl;
             auto result = visitExpr(ctx->expr());
             NExpression* expr = safe_any_cast<NExpression>(result);
             if (expr) {
                 return antlrcpp::Any(new NExpressionStatement(*expr));
             }
         }
-        std::cout << "[DEBUG] visitStmt: returning nullptr" << std::endl;
         return antlrcpp::Any(nullptr);
     }
 
@@ -600,7 +572,6 @@ public:
                         }
                     }
                 }
-                std::cout << "[DEBUG] visitPrimary_expr: module call " << fullName << std::endl;
                 return antlrcpp::Any(new NMethodCall(*funcId, args));
             }
             if (ctx->LPAREN()) {
@@ -791,7 +762,6 @@ public:
             }
         }
         if (ctx->THROW() && ctx->expr()) {
-            std::cout << "[DEBUG] visitUnary_expr: found throw expression" << std::endl;
             auto exprResult = visitExpr(ctx->expr());
             NExpression* expr = safe_any_cast<NExpression>(exprResult);
             if (expr) {
@@ -1071,32 +1041,21 @@ public:
     }
 
     antlrcpp::Any visitFunc_decl(CScriptParser::Func_declContext* ctx) override {
-        std::cout << "[DEBUG] visitFunc_decl: entered" << std::endl;
         std::string retType = "int";
         if (ctx->type() && ctx->type()->IDENTIFIER()) {
             retType = ctx->type()->IDENTIFIER()->getText();
-            std::cout << "[DEBUG] visitFunc_decl: retType = " << retType << std::endl;
-        } else {
-            std::cout << "[DEBUG] visitFunc_decl: no type or IDENTIFIER" << std::endl;
         }
         std::string name = "unknown";
         if (ctx->ident() && ctx->ident()->IDENTIFIER()) {
             name = ctx->ident()->IDENTIFIER()->getText();
-            std::cout << "[DEBUG] visitFunc_decl: name = " << name << std::endl;
-        } else {
-            std::cout << "[DEBUG] visitFunc_decl: no ident or IDENTIFIER" << std::endl;
         }
 
         if (ctx->block()) {
-            std::cout << "[DEBUG] visitFunc_decl: found block" << std::endl;
             auto bodyResult = visitBlock(ctx->block());
-            std::cout << "[DEBUG] visitFunc_decl: bodyResult has value: " << bodyResult.has_value() << std::endl;
             NBlock* body = safe_any_cast<NBlock>(bodyResult);
-            std::cout << "[DEBUG] visitFunc_decl: body = " << body << std::endl;
             if (body) {
                 VariableList args;
                 if (ctx->func_decl_args()) {
-                    std::cout << "[DEBUG] visitFunc_decl: found func_decl_args" << std::endl;
                     for (auto vd : ctx->func_decl_args()->var_decl()) {
                         std::string argType = "int";
                         if (vd->type() && vd->type()->IDENTIFIER()) {
@@ -1116,14 +1075,10 @@ public:
                 auto* typeIdPtr = new NIdentifier(retType);
                 auto* nameIdPtr = new NIdentifier(name);
                 NFunctionDeclaration* funcDecl = new NFunctionDeclaration(*typeIdPtr, *nameIdPtr, args, body);
-                std::cout << "[DEBUG] visitFunc_decl: created funcDecl = " << funcDecl << std::endl;
                 return antlrcpp::Any(funcDecl);
             }
-        } else {
-            std::cout << "[DEBUG] visitFunc_decl: no block" << std::endl;
         }
 
-        std::cout << "[DEBUG] visitFunc_decl: returning nullptr" << std::endl;
         return antlrcpp::Any(nullptr);
     }
 
@@ -1313,7 +1268,6 @@ public:
     }
 
     antlrcpp::Any visitImport_stmt(CScriptParser::Import_stmtContext* ctx) override {
-        std::cout << "[DEBUG] visitImport_stmt: entered" << std::endl;
 
         if (ctx->STRING() && ctx->ident().size() > 0) {
             std::string modulePath = ctx->STRING()->getText();
@@ -1321,14 +1275,12 @@ public:
                 modulePath = modulePath.substr(1, modulePath.size() - 2);
             }
             std::string alias = ctx->ident(0)->getText();
-            std::cout << "[DEBUG] visitImport_stmt: modulePath = " << modulePath << ", alias = " << alias << std::endl;
             return antlrcpp::Any(new NImportStatement(modulePath, alias));
         } else if (ctx->STRING() && ctx->ident().empty()) {
             std::string modulePath = ctx->STRING()->getText();
             if (modulePath.size() >= 2) {
                 modulePath = modulePath.substr(1, modulePath.size() - 2);
             }
-            std::cout << "[DEBUG] visitImport_stmt: modulePath = " << modulePath << std::endl;
             return antlrcpp::Any(new NImportStatement(modulePath));
         } else if (ctx->ident().size() > 0 && ctx->STRING()) {
             std::vector<std::string> symbols;
@@ -1339,11 +1291,6 @@ public:
             if (modulePath.size() >= 2) {
                 modulePath = modulePath.substr(1, modulePath.size() - 2);
             }
-            std::cout << "[DEBUG] visitImport_stmt: symbols = ";
-            for (const auto& symbol : symbols) {
-                std::cout << symbol << " ";
-            }
-            std::cout << ", modulePath = " << modulePath << std::endl;
             return antlrcpp::Any(new NImportStatement(symbols, modulePath));
         }
 
@@ -1351,7 +1298,6 @@ public:
     }
 
     antlrcpp::Any visitInclude_stmt(CScriptParser::Include_stmtContext* ctx) override {
-        std::cout << "[DEBUG] visitInclude_stmt: entered" << std::endl;
 
         std::string filePath;
         if (ctx->STRING()) {
@@ -1367,7 +1313,6 @@ public:
         }
 
         if (!filePath.empty()) {
-            std::cout << "[DEBUG] visitInclude_stmt: filePath = " << filePath << std::endl;
             size_t line = ctx->getStart()->getLine();
             size_t col = ctx->getStart()->getCharPositionInLine();
             return antlrcpp::Any(new NIncludeStatement(filePath, currentSourceFile, line, col));
@@ -1377,7 +1322,6 @@ public:
     }
 
     antlrcpp::Any visitExportVarDecl(CScriptParser::ExportVarDeclContext* ctx) override {
-        std::cout << "[DEBUG] visitExportVarDecl: entered" << std::endl;
         auto result = visitVar_decl(ctx->var_decl());
         NStatement* decl = safe_any_cast<NStatement>(result);
         if (decl) {
@@ -1387,7 +1331,6 @@ public:
     }
 
     antlrcpp::Any visitExportFuncDecl(CScriptParser::ExportFuncDeclContext* ctx) override {
-        std::cout << "[DEBUG] visitExportFuncDecl: entered" << std::endl;
         auto result = visitFunc_decl(ctx->func_decl());
         NStatement* decl = safe_any_cast<NStatement>(result);
         if (decl) {
@@ -1397,7 +1340,6 @@ public:
     }
 
     antlrcpp::Any visitExportEnumDecl(CScriptParser::ExportEnumDeclContext* ctx) override {
-        std::cout << "[DEBUG] visitExportEnumDecl: entered" << std::endl;
         auto result = visitEnum_decl(ctx->enum_decl());
         NStatement* decl = safe_any_cast<NStatement>(result);
         if (decl) {
@@ -1407,12 +1349,10 @@ public:
     }
 
     antlrcpp::Any visitTry_catch_stmt(CScriptParser::Try_catch_stmtContext* ctx) override {
-        std::cout << "[DEBUG] visitTry_catch_stmt: entered" << std::endl;
 
         auto tryBlockResult = visitBlock(ctx->block());
         NBlock* tryBlock = safe_any_cast<NBlock>(tryBlockResult);
         if (!tryBlock) {
-            std::cout << "[DEBUG] visitTry_catch_stmt: try block is null" << std::endl;
             return antlrcpp::Any(nullptr);
         }
 
@@ -1426,7 +1366,6 @@ public:
         }
 
         if (catchBlocks.empty()) {
-            std::cout << "[DEBUG] visitTry_catch_stmt: no catch blocks" << std::endl;
             return antlrcpp::Any(nullptr);
         }
 
@@ -1434,17 +1373,14 @@ public:
     }
 
     antlrcpp::Any visitCatch_block(CScriptParser::Catch_blockContext* ctx) override {
-        std::cout << "[DEBUG] visitCatch_block: entered" << std::endl;
 
         if (ctx->ELLIPSIS()) {
-            std::cout << "[DEBUG] visitCatch_block: found ellipsis catch block" << std::endl;
             auto blockResult = visitBlock(ctx->block());
             NBlock* block = safe_any_cast<NBlock>(blockResult);
             if (block) {
                 return antlrcpp::Any(new NCatchBlock(block));
             }
         } else if (ctx->type() && ctx->ident()) {
-            std::cout << "[DEBUG] visitCatch_block: found typed catch block" << std::endl;
             std::string typeStr = ctx->type()->getText();
             std::string idStr = ctx->ident()->getText();
 
@@ -1458,7 +1394,6 @@ public:
             }
         }
 
-        std::cout << "[DEBUG] visitCatch_block: invalid catch block" << std::endl;
         return antlrcpp::Any(nullptr);
     }
 

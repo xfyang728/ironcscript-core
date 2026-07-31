@@ -33,12 +33,15 @@ std::string CompiledCache::platformToString(PlatformType platform) {
         case PlatformType::PLATFORM_X64: return "x64";
         case PlatformType::PLATFORM_RISCV64: return "riscv64";
         case PlatformType::PLATFORM_RISCV64_EMBEDDED: return "riscv64_embedded";
+        case PlatformType::PLATFORM_WASM: return "wasm";
         default: return "unknown";
     }
 }
 
 PlatformType CompiledCache::getCurrentPlatform() {
-#ifdef _WIN32
+#ifdef __EMSCRIPTEN__
+    return PlatformType::PLATFORM_WASM;
+#elif defined(_WIN32)
     return PlatformType::PLATFORM_X64;
 #elif defined(__x86_64__) || defined(_M_X64)
     return PlatformType::PLATFORM_X64;

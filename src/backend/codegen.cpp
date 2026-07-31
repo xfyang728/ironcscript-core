@@ -1,6 +1,9 @@
 #include <iomanip>
 #include <iostream>
+
+#ifndef __EMSCRIPTEN__
 #include <capstone/capstone.h>
+#endif
 
 #include "CodeGeneratorFactory.h"
 #include "codegen.h"
@@ -95,6 +98,10 @@ namespace cse
         
 #ifdef _WIN32
         return VirtualAlloc(NULL, size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+#elif defined(__EMSCRIPTEN__)
+        void* memory = std::malloc(size);
+        if (memory) std::memset(memory, 0, size);
+        return memory;
 #else
         return mmap(NULL, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 #endif
@@ -102,6 +109,7 @@ namespace cse
 
     static void freeExecutableMemory(PlatformAbstraction *platform, void *memory, size_t size)
     {
+        (void)size;
         if (platform)
         {
             platform->freeExecutableMemory(memory, size);
@@ -110,6 +118,8 @@ namespace cse
         
 #ifdef _WIN32
         VirtualFree(memory, 0, MEM_RELEASE);
+#elif defined(__EMSCRIPTEN__)
+        std::free(memory);
 #else
         munmap(memory, size);
 #endif
@@ -117,6 +127,9 @@ namespace cse
 
     static bool setMemoryProtection(PlatformAbstraction *platform, void *memory, size_t size, bool executable)
     {
+        (void)memory;
+        (void)size;
+        (void)executable;
         if (platform)
         {
             return platform->setMemoryProtection(memory, size, executable);
@@ -125,6 +138,8 @@ namespace cse
 #ifdef _WIN32
         DWORD oldProtect;
         return VirtualProtect(memory, size, executable ? PAGE_EXECUTE_READWRITE : PAGE_READWRITE, &oldProtect);
+#elif defined(__EMSCRIPTEN__)
+        return true;
 #else
         int prot = PROT_READ | PROT_WRITE;
         if (executable)
@@ -268,6 +283,7 @@ namespace cse
         std::cout << "Code size: " << codeSize << " bytes" << std::endl;
         std::cout << "----------------------------------------" << std::endl;
 
+#ifndef __EMSCRIPTEN__
         csh handle;
         cs_insn *insn;
         size_t count;
@@ -329,6 +345,9 @@ namespace cse
 
         std::cout << "----------------------------------------" << std::endl;
         std::cout << "Disassembly completed." << std::endl;
+#else
+        std::cout << "[WASM] Capstone disassembler not available in WASM build" << std::endl;
+#endif
 
         int returnValue = 0;
 

@@ -64,7 +64,11 @@ std::string IronCScript::version() {
 }
 
 std::string IronCScript::supportedPlatforms() {
+#ifdef __EMSCRIPTEN__
+    return "wasm";
+#else
     return "x86-64, riscv64";
+#endif
 }
 
 void* IronCScript::getRegisteredCallback(const std::string& name) {

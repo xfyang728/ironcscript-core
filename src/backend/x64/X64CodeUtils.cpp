@@ -3,7 +3,9 @@
 #include <sstream>
 #include <iomanip>
 #include <set>
+#ifndef __EMSCRIPTEN__
 #include <capstone/capstone.h>
+#endif
 #include <cstdlib>
 
 namespace cse
@@ -204,6 +206,7 @@ static std::string to_string_compat(int value) {
             return "";
         }
 
+#ifndef __EMSCRIPTEN__
         csh handle;
         cs_insn* insn;
         size_t count;
@@ -245,6 +248,13 @@ static std::string to_string_compat(int value) {
 
         cs_close(&handle);
         return result;
+#else
+        std::stringstream ss;
+        ss << "0x" << std::hex << std::setw(8) << std::setfill('0') << pos << ": ";
+        ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(m_CodeBuffer[pos]) << " ...";
+        pos++;
+        return ss.str();
+#endif
     }
 
     size_t X64Code::getInstructionLength(size_t pos) const
@@ -254,6 +264,7 @@ static std::string to_string_compat(int value) {
             return 0;
         }
 
+#ifndef __EMSCRIPTEN__
         csh handle;
         cs_insn* insn;
         size_t count;
@@ -276,6 +287,9 @@ static std::string to_string_compat(int value) {
 
         cs_close(&handle);
         return length;
+#else
+        return 1;
+#endif
     }
 
     uint32_t X64Code::readImm32(size_t pos) const
@@ -347,6 +361,7 @@ static std::string to_string_compat(int value) {
     {
         std::cout << "Disassembling code (" << m_CodeBuffer.size() << " bytes):" << std::endl;
 
+#ifndef __EMSCRIPTEN__
         csh handle;
         cs_insn* insn;
         size_t count;
@@ -387,6 +402,15 @@ static std::string to_string_compat(int value) {
         }
 
         cs_close(&handle);
+#else
+        std::cout << "[WASM] Capstone disassembler not available" << std::endl;
+        for (size_t i = 0; i < m_CodeBuffer.size(); i++)
+        {
+            std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(m_CodeBuffer[i]) << " ";
+            if ((i + 1) % 16 == 0) std::cout << std::endl;
+        }
+        std::cout << std::endl;
+#endif
     }
 
 } // namespace cse

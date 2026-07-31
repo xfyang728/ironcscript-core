@@ -3,10 +3,17 @@
 #include "RiscV64Platform.h"
 #include "RiscV64EmbeddedPlatform.h"
 
+#ifdef __EMSCRIPTEN__
+#include "wasm/WasmPlatform.h"
+#endif
+
 namespace cse {
 
 PlatformAbstraction* PlatformFactory::createPlatformAbstraction() {
-#ifdef CSE_EMBEDDED
+#ifdef __EMSCRIPTEN__
+    // WebAssembly 平台
+    return new WasmPlatform();
+#elif defined(CSE_EMBEDDED)
     // RISC-V 嵌入式平台（如 K210）
     return new RiscV64EmbeddedPlatform();
 #elif defined(CSE_RISCV64) || defined(__riscv) || defined(__riscv64)

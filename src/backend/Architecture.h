@@ -7,7 +7,7 @@ namespace cse {
 
 class Architecture {
 public:
-    enum class Type { X86, X64, RISCV64 };
+    enum class Type { X86, X64, RISCV64, WASM };
     
     virtual ~Architecture() = default;
     
@@ -45,6 +45,16 @@ public:
     size_t getRegisterSize() const override { return 8; }
     size_t getStackAlignment() const override { return 16; }
     size_t getPointerSize() const override { return 8; }
+    std::string getRegisterName(int index) const override;
+    std::string getFloatRegisterName(int index) const override;
+};
+
+class WasmArchitecture : public Architecture {
+public:
+    Type getType() const override { return Type::WASM; }
+    size_t getRegisterSize() const override { return 4; }
+    size_t getStackAlignment() const override { return 8; }
+    size_t getPointerSize() const override { return 4; }
     std::string getRegisterName(int index) const override;
     std::string getFloatRegisterName(int index) const override;
 };

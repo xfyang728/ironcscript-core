@@ -10,6 +10,10 @@
 #include "platform/PlatformAbstraction.h"
 #include "module/ModuleManager.h"
 
+#ifdef __EMSCRIPTEN__
+#include "ir/IRInterpreter.h"
+#endif
+
 #include <vector>
 #include <algorithm>
 #include <fstream>
@@ -29,6 +33,9 @@
 #undef ERROR
 #undef CONST
 namespace fs = std::filesystem;
+#elif defined(__EMSCRIPTEN__)
+#include <filesystem>
+namespace fs = std::filesystem;
 #else
 #include <sys/mman.h>
 #include <unistd.h>
@@ -41,12 +48,20 @@ namespace cse {
 static void* allocateExecutableMemory(size_t size) {
 #ifdef _WIN32
     return VirtualAlloc(nullptr, size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+#elif defined(__EMSCRIPTEN__)
+    void* memory = std::malloc(size);
+    if (memory) std::memset(memory, 0, size);
+    return memory;
 #else
     return mmap(nullptr, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 #endif
 }
 
 static void protectMemory(void* addr, size_t size, bool readable, bool executable) {
+    (void)addr;
+    (void)size;
+    (void)readable;
+    (void)executable;
 #ifdef _WIN32
     DWORD oldProtect;
     DWORD newProtect = PAGE_NOACCESS;
@@ -54,7 +69,7 @@ static void protectMemory(void* addr, size_t size, bool readable, bool executabl
     else if (readable) newProtect = PAGE_READONLY;
     else if (executable) newProtect = PAGE_EXECUTE;
     VirtualProtect(addr, size, newProtect, &oldProtect);
-#else
+#elif !defined(__EMSCRIPTEN__)
     int prot = PROT_NONE;
     if (readable && executable) prot = PROT_READ | PROT_WRITE | PROT_EXEC;
     else if (readable) prot = PROT_READ;
@@ -64,9 +79,12 @@ static void protectMemory(void* addr, size_t size, bool readable, bool executabl
 }
 
 static void freeExecutableMemory(void* addr, size_t size) {
+    (void)size;
     if (!addr) return;
 #ifdef _WIN32
     VirtualFree(addr, 0, MEM_RELEASE);
+#elif defined(__EMSCRIPTEN__)
+    std::free(addr);
 #else
     munmap(addr, size);
 #endif
@@ -74,7 +92,11 @@ static void freeExecutableMemory(void* addr, size_t size) {
 
 IronCScriptImpl::IronCScriptImpl()
     : m_LastReturnValue(0)
+#ifdef __EMSCRIPTEN__
+    , m_PlatformName(PLATFORM_WASM)
+#else
     , m_PlatformName(PLATFORM_X86_64)
+#endif
     , m_FFIRegistry(FFIRegistry::instance())
     , m_CacheEnabled(false)
     , m_ForceRecompile(false)
@@ -158,6 +180,19 @@ bool IronCScriptImpl::generateIR(NBlock* programBlock, std::list<Quad>& quadList
 
 bool IronCScriptImpl::generateAndExecuteCode(const std::list<Quad>& quadList) {
     try {
+#ifdef __EMSCRIPTEN__
+        // WASM 环境下使用 IR 解释器执行（WASM 不支持 JIT 执行 x64 机器码）
+        IRInterpreter interpreter;
+        interpreter.setOutputCallback([this](const std::string& msg) {
+            output(msg);
+        });
+        m_LastReturnValue = interpreter.execute(quadList, m_SymbolTable.get());
+        if (m_LastReturnValue < 0) {
+            m_LastError = interpreter.getLastError();
+            return false;
+        }
+        return true;
+#else
         m_CodeGenContext = std::unique_ptr<CodeGenContext>(new CodeGenContext());
 
         BaseCodeGenerator* codeGen = m_CodeGenContext->getCodeGenerator(m_PlatformName);
@@ -188,6 +223,7 @@ bool IronCScriptImpl::generateAndExecuteCode(const std::list<Quad>& quadList) {
         m_LastReturnValue = m_CodeGenContext->runCode();
 
         return true;
+#endif
     } catch (const std::exception& e) {
         m_LastError = std::string("Code execution exception: ") + e.what();
         return false;

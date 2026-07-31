@@ -16,7 +16,8 @@ enum class PlatformType : uint16_t {
     PLATFORM_UNKNOWN = 0,
     PLATFORM_X64 = 1,
     PLATFORM_RISCV64 = 2,
-    PLATFORM_RISCV64_EMBEDDED = 3
+    PLATFORM_RISCV64_EMBEDDED = 3,
+    PLATFORM_WASM = 4
 };
 
 struct CompiledFunction {

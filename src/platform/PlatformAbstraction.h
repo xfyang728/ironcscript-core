@@ -9,6 +9,7 @@ namespace cse {
 // 平台类型常量定义
 const std::string PLATFORM_X86_64 = "x86-64";
 const std::string PLATFORM_RISCV64 = "riscv64";
+const std::string PLATFORM_WASM = "wasm";
 
 class PlatformAbstraction {
 public:

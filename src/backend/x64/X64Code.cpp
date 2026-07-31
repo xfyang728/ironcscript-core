@@ -12,7 +12,9 @@
 #include <set>
 #include <cctype>
 #include <cstring>
+#ifndef __EMSCRIPTEN__
 #include <capstone/capstone.h>
+#endif
 
 namespace cse
 {
@@ -136,12 +138,6 @@ namespace cse
             m_FunctionCalls = newFunctionCalls;
 
             std::vector<RipOffsetInfo> newRipRelativeOffsets;
-            std::cout << "[DEBUG] Before updating m_RipRelativeOffsets:" << std::endl;
-            for (const auto& rip : m_RipRelativeOffsets)
-            {
-                std::cout << "[DEBUG]   instrPos=" << rip.instrPos << ", dataOffset=" << rip.dataOffset 
-                          << ", instrLength=" << rip.instrLength << std::endl;
-            }
             for (const auto& rip : m_RipRelativeOffsets)
             {
                 RipOffsetInfo newRip;
@@ -158,12 +154,6 @@ namespace cse
                 newRipRelativeOffsets.push_back(newRip);
             }
             m_RipRelativeOffsets = newRipRelativeOffsets;
-            std::cout << "[DEBUG] After updating m_RipRelativeOffsets:" << std::endl;
-            for (const auto& rip : m_RipRelativeOffsets)
-            {
-                std::cout << "[DEBUG]   instrPos=" << rip.instrPos << ", dataOffset=" << rip.dataOffset 
-                          << ", instrLength=" << rip.instrLength << std::endl;
-            }
 
             std::map<std::string, size_t> newStackAllocPositions;
             for (const auto& stackAlloc : m_StackAllocPositions)
@@ -219,25 +209,6 @@ namespace cse
         m_CodeBuffer.insert(m_CodeBuffer.end(), m_DataBuffer.begin(), m_DataBuffer.end());
 
         // 4. 处理 RIP 相对偏移
-        std::cout << "formatCode: originalCodeSize=" << originalCodeSize 
-                  << ", entryCodeSize=" << entryCodeSize 
-                  << ", codeSizeAfterEntry=" << codeSizeAfterEntry
-                  << ", dataSize=" << m_DataBuffer.size() << std::endl;
-
-        // 打印 m_CodeBuffer 的内容
-        std::cout << "[DEBUG] Code buffer before writing RIP offsets:" << std::endl;
-        for (size_t i = 0; i < m_CodeBuffer.size(); i++)
-        {
-            if (i % 16 == 0)
-            {
-                std::cout << std::hex << std::setw(8) << std::setfill('0') << i << ": ";
-            }
-            std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(m_CodeBuffer[i]) << " ";
-            if (i % 16 == 15 || i == m_CodeBuffer.size() - 1)
-            {
-                std::cout << std::endl;
-            }
-        }
 
         for (const auto& rip : m_RipRelativeOffsets) {
             size_t instrPos = rip.instrPos;
@@ -256,21 +227,6 @@ namespace cse
                 m_CodeBuffer[offsetPos + 1] = static_cast<unsigned char>((offset >> 8) & 0xFF);
                 m_CodeBuffer[offsetPos + 2] = static_cast<unsigned char>((offset >> 16) & 0xFF);
                 m_CodeBuffer[offsetPos + 3] = static_cast<unsigned char>((offset >> 24) & 0xFF);
-            }
-        }
-
-        // 打印 m_CodeBuffer 的内容
-        std::cout << "[DEBUG] Code buffer after writing RIP offsets:" << std::endl;
-        for (size_t i = 0; i < m_CodeBuffer.size(); i++)
-        {
-            if (i % 16 == 0)
-            {
-                std::cout << std::hex << std::setw(8) << std::setfill('0') << i << ": ";
-            }
-            std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(m_CodeBuffer[i]) << " ";
-            if (i % 16 == 15 || i == m_CodeBuffer.size() - 1)
-            {
-                std::cout << std::endl;
             }
         }
 
@@ -1322,17 +1278,14 @@ namespace cse
 
                         int paramReg = -1;
                         int xmmReg = -1;
-                        std::cout << "[DEBUG] ASSIGN: result=" << result << ", arg1=" << arg1 << std::endl;
                         
                         // 直接检查 result 是否以 "param_" 开头
                         bool isParam = result.rfind("param_", 0) == 0;
-                        std::cout << "[DEBUG] ASSIGN: isParam=" << isParam << std::endl;
                         
                         if (isParam) {
                             // 提取参数索引
                             std::string paramIndexStr = result.substr(6);
                             int paramIndex = std::stoi(paramIndexStr);
-                            std::cout << "[DEBUG] ASSIGN: paramIndex=" << paramIndex << std::endl;
                             
                             Type varType = Int;
                             if (m_VariableTypes.find(arg1) != m_VariableTypes.end()) {
@@ -1365,7 +1318,6 @@ namespace cse
                                 else if (paramIndex == 3) paramReg = 9;  // r9
                                 else paramReg = -1;  // 栈参数
                             }
-                            std::cout << "[DEBUG] ASSIGN: paramReg=" << paramReg << ", xmmReg=" << xmmReg << std::endl;
                         } else if (result == "rcx") {
                             paramReg = 1;
                         } else if (result == "rdx") {
@@ -1378,7 +1330,6 @@ namespace cse
 
                         if (paramReg >= 0 || xmmReg >= 0)
                         {
-                            std::cout << "[DEBUG] ASSIGN: result=" << result << ", arg1=" << arg1 << ", paramReg=" << paramReg << ", xmmReg=" << xmmReg << std::endl;
                             if (paramReg < 0 && xmmReg < 0) {
                                 if (result == "rcx") paramReg = 1;
                                 else if (result == "rdx") paramReg = 2;
@@ -2599,27 +2550,20 @@ namespace cse
     }
 
     void X64Code::generateCodeForTryCatch(NBlock* tryBlock, const std::vector<NCatchBlock*>& catchBlocks) {
-        std::cout << "[DEBUG] generateCodeForTryCatch: entered" << std::endl;
-        
         // 生成try块代码
-        std::cout << "[DEBUG] generateCodeForTryCatch: generating try block" << std::endl;
         // 这里需要实现try块的代码生成
         
         // 生成catch块代码
         for (size_t i = 0; i < catchBlocks.size(); i++) {
-            std::cout << "[DEBUG] generateCodeForTryCatch: generating catch block " << i << std::endl;
             // 这里需要实现catch块的代码生成
         }
     }
 
     void X64Code::generateCodeForThrow(NExpression* expression) {
-        std::cout << "[DEBUG] generateCodeForThrow: entered" << std::endl;
-        
         // 生成抛出异常的代码
         // 这里需要实现throw表达式的代码生成
         
         // 简单实现：抛出一个字符串异常
-        std::cout << "[DEBUG] generateCodeForThrow: generating throw code" << std::endl;
         
         // 1. 加载异常信息
         // 2. 调用异常处理函数

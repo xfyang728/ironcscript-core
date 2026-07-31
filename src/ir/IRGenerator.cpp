@@ -106,18 +106,14 @@ void IRGenerator::analyzeStatement(NStatement* statement) {
         analyzeEnumItem(enumItem);
     } else if (auto* externDecl = dynamic_cast<NExternDeclaration*>(statement)) {
         // extern 声明：生成 EXTERN 四元式
-        std::cerr << "[DEBUG] Generating IR for extern: " << externDecl->id.name << std::endl;
         quadList.push_back(Quad(OpEnum::EXTERN, externDecl->type.name, "", externDecl->id.name));
     } else if (auto* regCallback = dynamic_cast<NRegisterCallbackStatement*>(statement)) {
         // register callback 语句：生成 REGISTER_CALLBACK 四元式
-        std::cerr << "[DEBUG] Generating IR for register callback: " << regCallback->callbackName.name
-                  << " as " << regCallback->targetName.name << std::endl;
         quadList.push_back(Quad(OpEnum::REGISTER_CALLBACK, regCallback->targetName.name, "",
                                 regCallback->callbackName.name));
     } else if (auto* includeStmt = dynamic_cast<NIncludeStatement*>(statement)) {
         // #include <stdio.h> - 处理标准库头文件
         std::string filePath = includeStmt->filePath;
-        std::cerr << "[DEBUG] IR generating include: " << filePath << std::endl;
 
         // Check if this is a standard library header
         std::string headerName = filePath;
@@ -137,7 +133,6 @@ void IRGenerator::analyzeStatement(NStatement* statement) {
             const StdlibHeader* header = StandardLibraryRegistry::findHeader(headerName);
             if (header) {
                 for (const auto& func : header->functions) {
-                    std::cerr << "[DEBUG] Generating EXTERN for stdlib function: " << func.name << std::endl;
                     // EXTERN: type, "", name
                     quadList.push_back(Quad(OpEnum::EXTERN, func.returnType, "", func.name));
                 }
@@ -151,7 +146,6 @@ void IRGenerator::analyzeStatement(NStatement* statement) {
     } else if (auto* importStmt = dynamic_cast<NImportStatement*>(statement)) {
         // import 语句：导入的符号已在语义分析阶段处理
         // IR 生成阶段无需特殊处理（函数调用通过 CALL 四元式完成）
-        std::cerr << "[DEBUG] IR import statement: " << importStmt->modulePath << std::endl;
     } else {
         std::cerr << "[WARNING] Unknown statement type in IRGenerator: " << typeid(*statement).name() << std::endl;
     }
@@ -169,13 +163,10 @@ void IRGenerator::analyzeBlock(NBlock* block) {
         }
     }
 
-    std::cerr << "[DEBUG IR] analyzeBlock: processing " << block->statements.size() << " statements" << std::endl;
     for (size_t i = 0; i < block->statements.size(); ++i) {
         auto& statement = block->statements[i];
         if (!dynamic_cast<NEnumDeclaration*>(statement)) {
-            std::cerr << "[DEBUG IR] analyzeBlock: statement[" << i << "] typeid=" << typeid(*statement).name() << std::endl;
             analyzeStatement(statement);
-            std::cerr << "[DEBUG IR] analyzeBlock: after statement[" << i << "], quadList.size()=" << quadList.size() << std::endl;
         }
     }
 
@@ -265,7 +256,6 @@ void IRGenerator::analyzePointerDeclaration(NPointerDeclaration* decl) {
 }
 
 void IRGenerator::analyzeFunctionDeclaration(NFunctionDeclaration* decl) {
-    std::cerr << "[DEBUG] analyzeFunctionDeclaration: " << decl->id.name << std::endl;
     Symbol funcSymbol;
     funcSymbol.name = decl->id.name;
     funcSymbol.type = decl->type.name;
@@ -362,20 +352,15 @@ void IRGenerator::analyzeWhileStatement(NWhileStatement* stmt) {
     currentLoopEndLabel = endLabel;
     currentLoopIncrementLabel = "";
     
-    std::cerr << "[DEBUG IR] analyzeWhileStatement: startLabel=" << startLabel << " endLabel=" << endLabel << std::endl;
     quadList.push_back(Quad(OpEnum::LABEL, "", "", startLabel));
-    std::cerr << "[DEBUG IR] Emitted LABEL quad for " << startLabel << std::endl;
     
     std::string condition = analyzeExpression(&stmt->condition);
     quadList.push_back(Quad(OpEnum::JMPF, condition, "", endLabel));
-    std::cerr << "[DEBUG IR] Emitted JMPF quad to " << endLabel << std::endl;
     
     analyzeBlock(&stmt->block);
     
     quadList.push_back(Quad(OpEnum::JMP, "", "", startLabel));
-    std::cerr << "[DEBUG IR] Emitted JMP quad to " << startLabel << std::endl;
     quadList.push_back(Quad(OpEnum::LABEL, "", "", endLabel));
-    std::cerr << "[DEBUG IR] Emitted LABEL quad for " << endLabel << std::endl;
     
     currentLoopStartLabel = oldStartLabel;
     currentLoopEndLabel = oldEndLabel;
@@ -383,9 +368,6 @@ void IRGenerator::analyzeWhileStatement(NWhileStatement* stmt) {
 }
 
 void IRGenerator::analyzeForStatement(NForStatement* stmt) {
-    std::cerr << "[DEBUG] analyzeForStatement: condition=" << (stmt->condition ? "present" : "nullptr")
-              << ", increment=" << (stmt->increment ? "present" : "nullptr") << std::endl;
-
     NExpression* actualCondition = stmt->condition;
     NExpression* actualIncrement = stmt->increment;
 
@@ -614,7 +596,6 @@ std::string IRGenerator::analyzeExpression(NExpression* expression) {
     } else if (auto* stringLiteral = dynamic_cast<NString*>(expression)) {
         std::string temp = generateTempVar();
         quadList.push_back(Quad(OpEnum::ASSIGN, stringLiteral->value, "", temp));
-        // 将临时变量标记为字符串
         stringVariables[temp] = true;
         return temp;
     }
@@ -939,17 +920,13 @@ std::string IRGenerator::analyzeUnaryOperator(NUnaryOperator* op) {
 }
 
 std::string IRGenerator::analyzeCastOperator(NCastOperator* op) {
-    std::cerr << "[DEBUG] analyzeCastOperator: targetType=" << op->targetType << std::endl;
     std::string expr = analyzeExpression(&op->expr);
     std::string temp = generateTempVar();
     quadList.push_back(Quad(OpEnum::CAST, op->targetType, expr, temp));
-    std::cerr << "[DEBUG] Cast quad: CAST " << op->targetType << ", " << expr << " -> " << temp << std::endl;
     return temp;
 }
 
 void IRGenerator::analyzeTryCatchStatement(NTryCatchStatement* stmt) {
-    std::cerr << "[DEBUG] analyzeTryCatchStatement: entered" << std::endl;
-    
     // 生成try块代码
     std::string tryLabel = generateTempVar();
     std::string catchLabel = generateTempVar();
@@ -959,7 +936,6 @@ void IRGenerator::analyzeTryCatchStatement(NTryCatchStatement* stmt) {
     quadList.push_back(Quad(OpEnum::LABEL, "", "", tryLabel));
     
     // 分析try块
-    std::cerr << "[DEBUG] analyzeTryCatchStatement: analyzing try block" << std::endl;
     analyzeBlock(stmt->tryBlock);
     
     // 跳转到try-catch结束
@@ -972,10 +948,8 @@ void IRGenerator::analyzeTryCatchStatement(NTryCatchStatement* stmt) {
     for (auto* catchBlock : stmt->catchBlocks) {
         if (catchBlock->isEllipsis) {
             // 捕获所有异常
-            std::cerr << "[DEBUG] analyzeTryCatchStatement: catch (...)" << std::endl;
         } else {
             // 捕获特定类型的异常
-            std::cerr << "[DEBUG] analyzeTryCatchStatement: catch (" << catchBlock->type->name << " " << catchBlock->id->name << ")" << std::endl;
             
             // 为catch块参数分配变量
             Symbol symbol;
@@ -991,7 +965,6 @@ void IRGenerator::analyzeTryCatchStatement(NTryCatchStatement* stmt) {
         }
         
         // 分析catch块内容
-        std::cerr << "[DEBUG] analyzeTryCatchStatement: analyzing catch block" << std::endl;
         analyzeBlock(catchBlock->block);
     }
     
@@ -1000,8 +973,6 @@ void IRGenerator::analyzeTryCatchStatement(NTryCatchStatement* stmt) {
 }
 
 std::string IRGenerator::analyzeThrowExpression(NThrowExpression* expr) {
-    std::cerr << "[DEBUG] analyzeThrowExpression: entered" << std::endl;
-    
     // 分析抛出的表达式
     std::string thrownValue = analyzeExpression(expr->expression);
     

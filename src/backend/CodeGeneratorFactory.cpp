@@ -26,6 +26,13 @@ BaseCodeGenerator* CodeGeneratorFactory::createCodeGenerator(const std::string& 
 #else
         throw std::runtime_error("RISC-V 64 platform not supported in this build");
 #endif
+    } else if (platform == PLATFORM_WASM) {
+#ifdef __EMSCRIPTEN__
+        // WASM 平台使用 x64 代码生成器（在 WASM 中模拟执行）
+        codeGen = new X64Code();
+#else
+        throw std::runtime_error("WASM platform not supported in this build");
+#endif
     } else {
         throw std::runtime_error("Unsupported platform: " + platform);
     }

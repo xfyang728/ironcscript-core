@@ -24,64 +24,61 @@ using namespace cse;
 #include <direct.h>
 #include <io.h>
 #include <windows.h>
+#endif
 
-// Windows平台的文件状态检查函数
-inline bool fileExists(const std::string& path) {
-    DWORD attributes = GetFileAttributesA(path.c_str());
-    return (attributes != INVALID_FILE_ATTRIBUTES);
-}
-
-inline bool isDirectory(const std::string& path) {
-    DWORD attributes = GetFileAttributesA(path.c_str());
-    return (attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY));
-}
-
-inline bool isRegularFile(const std::string& path) {
-    DWORD attributes = GetFileAttributesA(path.c_str());
-    return (attributes != INVALID_FILE_ATTRIBUTES && !(attributes & FILE_ATTRIBUTE_DIRECTORY));
-}
-
-inline std::string getCurrentDirectory() {
-    char buffer[256];
-    if (_getcwd(buffer, sizeof(buffer)) != nullptr) {
-        return std::string(buffer);
-    }
-    return ".";
-}
-#else
+#if !defined(_WIN32) || defined(__EMSCRIPTEN__)
 #include <sys/stat.h>
 #include <unistd.h>
+#endif
 
-// 非Windows平台的文件状态检查函数
+// 文件状态检查函数
 inline bool fileExists(const std::string& path) {
+#if defined(_WIN32) && !defined(__EMSCRIPTEN__)
+    DWORD attributes = GetFileAttributesA(path.c_str());
+    return (attributes != INVALID_FILE_ATTRIBUTES);
+#else
     struct stat buffer;
     return (stat(path.c_str(), &buffer) == 0);
+#endif
 }
 
 inline bool isDirectory(const std::string& path) {
+#if defined(_WIN32) && !defined(__EMSCRIPTEN__)
+    DWORD attributes = GetFileAttributesA(path.c_str());
+    return (attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY));
+#else
     struct stat buffer;
     if (stat(path.c_str(), &buffer) != 0) {
         return false;
     }
     return S_ISDIR(buffer.st_mode);
+#endif
 }
 
 inline bool isRegularFile(const std::string& path) {
+#if defined(_WIN32) && !defined(__EMSCRIPTEN__)
+    DWORD attributes = GetFileAttributesA(path.c_str());
+    return (attributes != INVALID_FILE_ATTRIBUTES && !(attributes & FILE_ATTRIBUTE_DIRECTORY));
+#else
     struct stat buffer;
     if (stat(path.c_str(), &buffer) != 0) {
         return false;
     }
     return S_ISREG(buffer.st_mode);
+#endif
 }
 
 inline std::string getCurrentDirectory() {
     char buffer[256];
+#if defined(_WIN32) && !defined(__EMSCRIPTEN__)
+    if (_getcwd(buffer, sizeof(buffer)) != nullptr) {
+#else
     if (getcwd(buffer, sizeof(buffer)) != nullptr) {
+#endif
         return std::string(buffer);
     }
     return ".";
 }
-#endif
 
 // 不使用filesystem库，改为使用字符串操作和C标准库函数
 
@@ -602,8 +599,13 @@ bool ModuleManager::includeFile(const std::string& filePath, NBlock& block,
         return false;
     }
 
+#ifdef __EMSCRIPTEN__
+    struct stat fileStat;
+    if (stat(resolvedPath.c_str(), &fileStat) != 0) {
+#else
     struct _stat fileStat;
     if (_stat(resolvedPath.c_str(), &fileStat) != 0) {
+#endif
         std::cerr << location << "[MODULE] Cannot stat include file: " << resolvedPath << std::endl;
         ++globalFailedIncludes;
         return false;

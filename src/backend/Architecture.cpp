@@ -58,4 +58,20 @@ std::string RISCV64Architecture::getFloatRegisterName(int index) const {
     return "unknown";
 }
 
+std::string WasmArchitecture::getRegisterName(int index) const {
+    static const char* regNames[] = {"local0", "local1", "local2", "local3", "local4", "local5", "local6", "local7"};
+    if (index >= 0 && index < 8) {
+        return regNames[index];
+    }
+    return "unknown";
+}
+
+std::string WasmArchitecture::getFloatRegisterName(int index) const {
+    static const char* regNames[] = {"flocal0", "flocal1", "flocal2", "flocal3", "flocal4", "flocal5", "flocal6", "flocal7"};
+    if (index >= 0 && index < 8) {
+        return regNames[index];
+    }
+    return "unknown";
+}
+
 } // namespace cse
