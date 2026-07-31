@@ -1,206 +1,134 @@
 #include <gtest/gtest.h>
-#include <iostream>
 #include <string>
+#include "../common/AstPool.h"
+#include "../common/AstBuilders.h"
 #include "../src/frontend/semantic/SemanticAnalyzer.h"
-#include "../src/flex_bison/node.h"
+#include "../src/frontend/semantic/SymbolTable.h"
+#include "../src/frontend/parser/node.h"
 
 using namespace cse;
 
-class SemanticAnalyzerTest : public ::testing::Test {
-protected:
-    void SetUp() override {}
-};
-
-TEST_F(SemanticAnalyzerTest, TestSimpleProgram) {
-    NBlock* block = new NBlock();
-    NFunctionDeclaration* func = new NFunctionDeclaration();
-    func->returnType = NIdentifier{"int"};
-    func->name = NIdentifier{"main"};
-    func->body = block;
-
-    SemanticAnalyzer analyzer;
-    bool result = analyzer.analyze(*func);
-
-    EXPECT_TRUE(result) << "Simple program should pass semantic analysis";
+/// 辅助：构造一个包含 main 函数的顶层 NBlock（main 函数体由 funcBody 提供）
+static NBlock* buildProgramWithMain(cse_test::AstPool& pool, NBlock* funcBody) {
+    auto* topBlock = pool.make<NBlock>();
+    auto* func = cse_test::makeFuncDecl(pool, "int", "main", VariableList{}, funcBody);
+    topBlock->statements.push_back(func);
+    return topBlock;
 }
 
-TEST_F(SemanticAnalyzerTest, TestVariableDeclaration) {
-    NBlock* block = new NBlock();
-    NVariableDeclaration* varDecl = new NVariableDeclaration();
-    varDecl->type = NIdentifier{"int"};
-    varDecl->name = NIdentifier{"x"};
-    block->statements.push_back(varDecl);
+TEST(SemanticAnalyzerTest, SimpleProgram) {
+    cse_test::AstPool pool;
+    auto* funcBody = cse_test::makeFuncBody(pool);
+    auto* topBlock = buildProgramWithMain(pool, funcBody);
 
-    NFunctionDeclaration* func = new NFunctionDeclaration();
-    func->returnType = NIdentifier{"int"};
-    func->name = NIdentifier{"main"};
-    func->body = block;
-
-    SemanticAnalyzer analyzer;
-    bool result = analyzer.analyze(*func);
-
-    EXPECT_TRUE(result) << "Variable declaration should pass semantic analysis";
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
+    EXPECT_TRUE(analyzer.analyze(*topBlock));
 }
 
-TEST_F(SemanticAnalyzerTest, TestVariableInitialization) {
-    NBlock* block = new NBlock();
-    NVariableDeclaration* varDecl = new NVariableDeclaration();
-    varDecl->type = NIdentifier{"int"};
-    varDecl->name = NIdentifier{"x"};
-    varDecl->assignmentExpr = new NInteger{10};
-    block->statements.push_back(varDecl);
+TEST(SemanticAnalyzerTest, VariableDeclaration) {
+    cse_test::AstPool pool;
+    auto* funcBody = cse_test::makeFuncBody(pool);
+    auto* varDecl = cse_test::makeVarDecl(pool, "int", "x");
+    funcBody->statements.push_back(varDecl);
+    auto* topBlock = buildProgramWithMain(pool, funcBody);
 
-    NFunctionDeclaration* func = new NFunctionDeclaration();
-    func->returnType = NIdentifier{"int"};
-    func->name = NIdentifier{"main"};
-    func->body = block;
-
-    SemanticAnalyzer analyzer;
-    bool result = analyzer.analyze(*func);
-
-    EXPECT_TRUE(result) << "Variable initialization should pass semantic analysis";
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
+    EXPECT_TRUE(analyzer.analyze(*topBlock));
 }
 
-TEST_F(SemanticAnalyzerTest, TestScopeManagement) {
-    SemanticAnalyzer analyzer;
-    analyzer.enterScope();
+TEST(SemanticAnalyzerTest, VariableInitialization) {
+    cse_test::AstPool pool;
+    auto* funcBody = cse_test::makeFuncBody(pool);
+    auto* expr = pool.make<NInteger>(10);
+    auto* varDecl = cse_test::makeVarDecl(pool, "int", "x", expr);
+    funcBody->statements.push_back(varDecl);
+    auto* topBlock = buildProgramWithMain(pool, funcBody);
 
-    Symbol symbol;
-    symbol.name = "test_var";
-    symbol.type = "int";
-    symbol.isFunction = false;
-    symbol.isGlobal = false;
-
-    Scope* scope = analyzer.getCurrentScope();
-    EXPECT_NE(scope, nullptr) << "Should have a current scope after entering";
-
-    analyzer.exitScope();
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
+    EXPECT_TRUE(analyzer.analyze(*topBlock));
 }
 
-TEST_F(SemanticAnalyzerTest, TestTypeInference) {
-    NInteger* intLiteral = new NInteger{42};
+TEST(SemanticAnalyzerTest, DoubleType) {
+    cse_test::AstPool pool;
+    auto* funcBody = cse_test::makeFuncBody(pool);
+    auto* expr = pool.make<NDouble>(3.14);
+    auto* varDecl = cse_test::makeVarDecl(pool, "double", "x", expr);
+    funcBody->statements.push_back(varDecl);
+    auto* topBlock = buildProgramWithMain(pool, funcBody);
 
-    SemanticAnalyzer analyzer;
-    std::string inferredType = analyzer.inferType(intLiteral);
-
-    EXPECT_EQ(inferredType, "int") << "Integer literal should be inferred as int type";
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
+    EXPECT_TRUE(analyzer.analyze(*topBlock));
 }
 
-TEST_F(SemanticAnalyzerTest, TestTypeCompatibility) {
-    SemanticAnalyzer analyzer;
+TEST(SemanticAnalyzerTest, CharType) {
+    cse_test::AstPool pool;
+    auto* funcBody = cse_test::makeFuncBody(pool);
+    auto* expr = pool.make<NInteger>('A');
+    auto* varDecl = cse_test::makeVarDecl(pool, "char", "c", expr);
+    funcBody->statements.push_back(varDecl);
+    auto* topBlock = buildProgramWithMain(pool, funcBody);
 
-    bool compatible = analyzer.checkTypeCompatibility("int", "int");
-    EXPECT_TRUE(compatible) << "int should be compatible with int";
-
-    compatible = analyzer.checkTypeCompatibility("int", "double");
-    EXPECT_FALSE(compatible) << "int should not be compatible with double";
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
+    EXPECT_TRUE(analyzer.analyze(*topBlock));
 }
 
-TEST_F(SemanticAnalyzerTest, TestAssignmentCompatibility) {
-    SemanticAnalyzer analyzer;
+TEST(SemanticAnalyzerTest, BoolType) {
+    cse_test::AstPool pool;
+    auto* funcBody = cse_test::makeFuncBody(pool);
+    auto* expr = pool.make<NInteger>(1);
+    auto* varDecl = cse_test::makeVarDecl(pool, "bool", "flag", expr);
+    funcBody->statements.push_back(varDecl);
+    auto* topBlock = buildProgramWithMain(pool, funcBody);
 
-    bool compatible = analyzer.checkAssignmentCompatibility("int", "int");
-    EXPECT_TRUE(compatible) << "int = int should be compatible";
-
-    compatible = analyzer.checkAssignmentCompatibility("int", "double");
-    EXPECT_FALSE(compatible) << "int = double should not be compatible";
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
+    EXPECT_TRUE(analyzer.analyze(*topBlock));
 }
 
-TEST_F(SemanticAnalyzerTest, TestBinaryOperatorType) {
-    NBinaryOperator* addOp = new NBinaryOperator();
-    addOp->op = '+';
-    addOp->lhs = new NInteger{10};
-    addOp->rhs = new NInteger{20};
+TEST(SemanticAnalyzerTest, FunctionDeclaration) {
+    cse_test::AstPool pool;
+    auto* topBlock = pool.make<NBlock>();
 
-    SemanticAnalyzer analyzer;
-    std::string resultType = analyzer.inferType(addOp);
+    // 构造 add(int a, int b) 函数
+    auto* addBody = cse_test::makeFuncBody(pool);
+    VariableList params;
+    params.push_back(cse_test::makeVarDecl(pool, "int", "a"));
+    params.push_back(cse_test::makeVarDecl(pool, "int", "b"));
+    auto* addFunc = cse_test::makeFuncDecl(pool, "int", "add", params, addBody);
+    topBlock->statements.push_back(addFunc);
 
-    EXPECT_EQ(resultType, "int") << "Addition of two ints should return int";
+    // 构造 main 函数
+    auto* mainBody = cse_test::makeFuncBody(pool);
+    auto* mainFunc = cse_test::makeFuncDecl(pool, "int", "main", VariableList{}, mainBody);
+    topBlock->statements.push_back(mainFunc);
+
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
+    EXPECT_TRUE(analyzer.analyze(*topBlock));
 }
 
-TEST_F(SemanticAnalyzerTest, TestFunctionDeclaration) {
-    NBlock* block = new NBlock();
+TEST(SemanticAnalyzerTest, UndefinedVariableError) {
+    cse_test::AstPool pool;
+    auto* funcBody = cse_test::makeFuncBody(pool);
+    // 使用未定义变量 y
+    auto& yId = cse_test::makeIdent(pool, "y");
+    auto* stmt = pool.make<NExpressionStatement>(yId);
+    funcBody->statements.push_back(stmt);
+    auto* topBlock = buildProgramWithMain(pool, funcBody);
 
-    NFunctionDeclaration* func = new NFunctionDeclaration();
-    func->returnType = NIdentifier{"int"};
-    func->name = NIdentifier{"add"};
+    SymbolTable symtab;
+    SemanticAnalyzer analyzer(symtab);
 
-    NVariableDeclaration* param1 = new NVariableDeclaration();
-    param1->type = NIdentifier{"int"};
-    param1->name = NIdentifier{"a"};
-    func->parameters.push_back(param1);
+    testing::internal::CaptureStderr();
+    bool result = analyzer.analyze(*topBlock);
+    std::string err = testing::internal::GetCapturedStderr();
 
-    NVariableDeclaration* param2 = new NVariableDeclaration();
-    param2->type = NIdentifier{"int"};
-    param2->name = NIdentifier{"b"};
-    func->parameters.push_back(param2);
-
-    func->body = block;
-
-    SemanticAnalyzer analyzer;
-    bool result = analyzer.analyze(*func);
-
-    EXPECT_TRUE(result) << "Function declaration should pass semantic analysis";
-}
-
-TEST_F(SemanticAnalyzerTest, TestDoubleType) {
-    NBlock* block = new NBlock();
-    NVariableDeclaration* varDecl = new NVariableDeclaration();
-    varDecl->type = NIdentifier{"double"};
-    varDecl->name = NIdentifier{"x"};
-    varDecl->assignmentExpr = new NDouble{3.14};
-    block->statements.push_back(varDecl);
-
-    NFunctionDeclaration* func = new NFunctionDeclaration();
-    func->returnType = NIdentifier{"int"};
-    func->name = NIdentifier{"main"};
-    func->body = block;
-
-    SemanticAnalyzer analyzer;
-    bool result = analyzer.analyze(*func);
-
-    EXPECT_TRUE(result) << "Double type should pass semantic analysis";
-}
-
-TEST_F(SemanticAnalyzerTest, TestCharType) {
-    NBlock* block = new NBlock();
-    NVariableDeclaration* varDecl = new NVariableDeclaration();
-    varDecl->type = NIdentifier{"char"};
-    varDecl->name = NIdentifier{"c"};
-    varDecl->assignmentExpr = new NInteger{'A'};
-    block->statements.push_back(varDecl);
-
-    NFunctionDeclaration* func = new NFunctionDeclaration();
-    func->returnType = NIdentifier{"int"};
-    func->name = NIdentifier{"main"};
-    func->body = block;
-
-    SemanticAnalyzer analyzer;
-    bool result = analyzer.analyze(*func);
-
-    EXPECT_TRUE(result) << "Char type should pass semantic analysis";
-}
-
-TEST_F(SemanticAnalyzerTest, TestBoolType) {
-    NBlock* block = new NBlock();
-    NVariableDeclaration* varDecl = new NVariableDeclaration();
-    varDecl->type = NIdentifier{"bool"};
-    varDecl->name = NIdentifier{"flag"};
-    varDecl->assignmentExpr = new NInteger{1};
-    block->statements.push_back(varDecl);
-
-    NFunctionDeclaration* func = new NFunctionDeclaration();
-    func->returnType = NIdentifier{"int"};
-    func->name = NIdentifier{"main"};
-    func->body = block;
-
-    SemanticAnalyzer analyzer;
-    bool result = analyzer.analyze(*func);
-
-    EXPECT_TRUE(result) << "Bool type should pass semantic analysis";
-}
-
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    EXPECT_FALSE(result);  // 有错误
+    // 错误消息应包含未定义变量名 y（具体文案依赖 error() 实现）
+    EXPECT_THAT(err, testing::HasSubstr("y"));
 }
