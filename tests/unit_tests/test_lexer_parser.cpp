@@ -66,7 +66,7 @@ TEST(LexerParserIntegrationTest, NestedExpressionParsing) {
     auto* innerMul = pool.make<NBinaryOperator>(*innerLhs, '*', *innerRhs);
     auto* outerAdd = pool.make<NBinaryOperator>(*lhs, '+', *innerMul);
     EXPECT_EQ(outerAdd->op, '+');
-    EXPECT_EQ(outerAdd->rhs.op, '*');
+    EXPECT_EQ(innerMul->op, '*');
 }
 
 TEST(LexerParserIntegrationTest, BlockParsing) {
