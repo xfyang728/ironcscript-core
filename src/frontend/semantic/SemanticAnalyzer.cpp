@@ -55,6 +55,12 @@ void SemanticAnalyzer::analyzeStatement(NStatement* statement) {
         analyzeDoWhileStatement(doWhileStmt);
     } else if (NBlock* block = dynamic_cast<NBlock*>(statement)) {
         analyzeBlock(block);
+    } else if (NBlockStatement* blockStmt = dynamic_cast<NBlockStatement*>(statement)) {
+        analyzeBlock(blockStmt->block);
+    } else if (NLabelStatement* labelStmt = dynamic_cast<NLabelStatement*>(statement)) {
+        functionLabels.insert(labelStmt->name.name);
+    } else if (NGotoStatement* gotoStmt = dynamic_cast<NGotoStatement*>(statement)) {
+        pendingGotos.push_back({gotoStmt->label.name, gotoStmt});
     } else if (NEnumDeclaration* enumDecl = dynamic_cast<NEnumDeclaration*>(statement)) {
         analyzeEnumDeclaration(enumDecl);
     } else if (NExternDeclaration* externDecl = dynamic_cast<NExternDeclaration*>(statement)) {
@@ -131,6 +137,11 @@ void SemanticAnalyzer::analyzeMemberAccess(NMemberAccess* member) {
 void SemanticAnalyzer::analyzeVariableDeclaration(NVariableDeclaration* decl) {
     std::string varName = decl->id.name;
     std::string varType = decl->type.name;
+
+    if (varType == "bool") {
+        error("The Parameters of Function bool is illegal", decl);
+        return;
+    }
 
     Scope* scope = symbolTable.getCurrentScope();
     while (scope) {
@@ -317,6 +328,7 @@ void SemanticAnalyzer::analyzeFunctionDeclaration(NFunctionDeclaration* decl) {
     symbol.isGlobal = (symbolTable.getScopeLevel() == 1);
     symbol.sourceFile = currentSourceFile;
     symbol.isImported = !currentSourceFile.empty();
+    symbol.isVariadic = decl->isVariadic;
 
     for (auto& param : decl->arguments) {
         symbol.paramTypes.push_back(param->type.name);
@@ -326,6 +338,9 @@ void SemanticAnalyzer::analyzeFunctionDeclaration(NFunctionDeclaration* decl) {
 
     symbolTable.enterScope();
 
+    functionLabels.clear();
+    pendingGotos.clear();
+
     std::string oldReturnType = currentFunctionReturnType;
     currentFunctionReturnType = returnType;
 
@@ -334,6 +349,14 @@ void SemanticAnalyzer::analyzeFunctionDeclaration(NFunctionDeclaration* decl) {
     }
 
     analyzeBlock(decl->block);
+
+    for (auto& pending : pendingGotos) {
+        if (functionLabels.find(pending.first) == functionLabels.end()) {
+            error("Undefined label '" + pending.first + "'", pending.second);
+        }
+    }
+    pendingGotos.clear();
+    functionLabels.clear();
 
     currentFunctionReturnType = oldReturnType;
 
@@ -717,6 +740,17 @@ bool SemanticAnalyzer::checkAssignmentCompatibility(const std::string& lhsType, 
 
     // long can be assigned from int
     if ((lhsType == "long" && rhsType == "int") || (lhsType == "int" && rhsType == "long")) {
+        return true;
+    }
+
+    // float/double 字面量与相互赋值（CScript 按 float 处理浮点）
+    if (lhsType == "float" && (rhsType == "double" || rhsType == "int" || rhsType == "long")) {
+        return true;
+    }
+    if (lhsType == "double" && (rhsType == "float" || rhsType == "long")) {
+        return true;
+    }
+    if ((lhsType == "int" || lhsType == "long") && rhsType == "float") {
         return true;
     }
 

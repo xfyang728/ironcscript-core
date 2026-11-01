@@ -35,6 +35,14 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitGoto_stmt(CScriptParser::Goto_stmtContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitLabel_stmt(CScriptParser::Label_stmtContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitExportVarDecl(CScriptParser::ExportVarDeclContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -84,6 +92,10 @@ public:
   }
 
   virtual std::any visitStruct_decl(CScriptParser::Struct_declContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypedef_decl(CScriptParser::Typedef_declContext *ctx) override {
     return visitChildren(ctx);
   }
 

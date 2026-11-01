@@ -90,6 +90,25 @@ namespace cse {
         StatementList statements;
         NBlock() { }
     };
+
+    class NGotoStatement : public NStatement {
+    public:
+        NIdentifier label;
+        NGotoStatement(const NIdentifier& label) : label(label) { }
+    };
+
+    class NLabelStatement : public NStatement {
+    public:
+        NIdentifier name;
+        NLabelStatement(const NIdentifier& name) : name(name) { }
+    };
+
+    // 把多条语句打包成一个语句（用于 struct 定义同时声明变量、typedef 等）
+    class NBlockStatement : public NStatement {
+    public:
+        NBlock* block;
+        NBlockStatement(NBlock* block) : block(block) { }
+    };
     
     class NExpressionStatement : public NStatement {
     public:
@@ -234,9 +253,10 @@ namespace cse {
         const NIdentifier& id;
         VariableList arguments;
         NBlock* block;
+        bool isVariadic;
         NFunctionDeclaration(const NIdentifier& type, const NIdentifier& id,
-            const VariableList& arguments, NBlock* block) :
-            type(type), id(id), arguments(arguments), block(block) { }
+            const VariableList& arguments, NBlock* block, bool isVariadic = false) :
+            type(type), id(id), arguments(arguments), block(block), isVariadic(isVariadic) { }
         ~NFunctionDeclaration() {
             if (block) {
                 for (auto stmt : block->statements) {

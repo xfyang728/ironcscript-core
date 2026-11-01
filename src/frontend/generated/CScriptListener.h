@@ -29,6 +29,12 @@ public:
   virtual void enterRegister_callback_stmt(CScriptParser::Register_callback_stmtContext *ctx) = 0;
   virtual void exitRegister_callback_stmt(CScriptParser::Register_callback_stmtContext *ctx) = 0;
 
+  virtual void enterGoto_stmt(CScriptParser::Goto_stmtContext *ctx) = 0;
+  virtual void exitGoto_stmt(CScriptParser::Goto_stmtContext *ctx) = 0;
+
+  virtual void enterLabel_stmt(CScriptParser::Label_stmtContext *ctx) = 0;
+  virtual void exitLabel_stmt(CScriptParser::Label_stmtContext *ctx) = 0;
+
   virtual void enterExportVarDecl(CScriptParser::ExportVarDeclContext *ctx) = 0;
   virtual void exitExportVarDecl(CScriptParser::ExportVarDeclContext *ctx) = 0;
 
@@ -67,6 +73,9 @@ public:
 
   virtual void enterStruct_decl(CScriptParser::Struct_declContext *ctx) = 0;
   virtual void exitStruct_decl(CScriptParser::Struct_declContext *ctx) = 0;
+
+  virtual void enterTypedef_decl(CScriptParser::Typedef_declContext *ctx) = 0;
+  virtual void exitTypedef_decl(CScriptParser::Typedef_declContext *ctx) = 0;
 
   virtual void enterUnion_decl(CScriptParser::Union_declContext *ctx) = 0;
   virtual void exitUnion_decl(CScriptParser::Union_declContext *ctx) = 0;

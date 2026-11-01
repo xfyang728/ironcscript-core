@@ -12,19 +12,21 @@
 class  CScriptLexer : public antlr4::Lexer {
 public:
   enum {
-    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, RETURN = 7, 
-    IF = 8, ELSE = 9, WHILE = 10, FOR = 11, DO = 12, SWITCH = 13, CASE = 14, 
-    DEFAULT = 15, CONTINUE = 16, BREAK = 17, STRUCT_KW = 18, UNION_KW = 19, 
-    ENUM_KW = 20, CONST_KW = 21, EXTERN_KW = 22, THROW = 23, EXPORT = 24, 
-    IMPORT = 25, INCLUDE = 26, INTEGER = 27, DOUBLE = 28, CHAR = 29, STRING = 30, 
-    ANGLE_STRING = 31, IDENTIFIER = 32, PLUS = 33, MINUS = 34, MUL = 35, 
-    DIV = 36, MOD = 37, EQ = 38, NEQ = 39, LT = 40, LTE = 41, GT = 42, GTE = 43, 
-    AND = 44, OR = 45, NOT = 46, BITAND = 47, BITOR = 48, XOR = 49, NOTBIT = 50, 
-    LSHIFT = 51, RSHIFT = 52, QUESTION = 53, COLON = 54, COMMA = 55, SEMI = 56, 
-    LPAREN = 57, RPAREN = 58, LBRACE = 59, RBRACE = 60, LBRACKET = 61, RBRACKET = 62, 
-    DOT = 63, ASSIGN = 64, PLUS_EQ = 65, MINUS_EQ = 66, MUL_EQ = 67, DIV_EQ = 68, 
-    MOD_EQ = 69, INC = 70, DEC = 71, ELLIPSIS = 72, HASH = 73, COMMENT = 74, 
-    MULTI_LINE_COMMENT = 75, WS = 76
+    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
+    RETURN = 8, IF = 9, ELSE = 10, WHILE = 11, FOR = 12, DO = 13, SWITCH = 14, 
+    CASE = 15, DEFAULT = 16, CONTINUE = 17, BREAK = 18, STRUCT_KW = 19, 
+    UNION_KW = 20, ENUM_KW = 21, CONST_KW = 22, EXTERN_KW = 23, THROW = 24, 
+    EXPORT = 25, IMPORT = 26, INCLUDE = 27, SIZEOF = 28, VOID_KW = 29, GOTO = 30, 
+    INTEGER = 31, HEX_INTEGER = 32, DOUBLE = 33, CHAR = 34, STRING = 35, 
+    ANGLE_STRING = 36, IDENTIFIER = 37, PLUS = 38, MINUS = 39, MUL = 40, 
+    DIV = 41, MOD = 42, EQ = 43, NEQ = 44, LT = 45, LTE = 46, GT = 47, GTE = 48, 
+    AND = 49, OR = 50, NOT = 51, BITAND = 52, BITOR = 53, XOR = 54, NOTBIT = 55, 
+    LSHIFT = 56, RSHIFT = 57, QUESTION = 58, COLON = 59, COMMA = 60, SEMI = 61, 
+    LPAREN = 62, RPAREN = 63, LBRACE = 64, RBRACE = 65, LBRACKET = 66, RBRACKET = 67, 
+    DOT = 68, ASSIGN = 69, PLUS_EQ = 70, MINUS_EQ = 71, MUL_EQ = 72, DIV_EQ = 73, 
+    MOD_EQ = 74, LSHIFT_EQ = 75, RSHIFT_EQ = 76, BITAND_EQ = 77, BITOR_EQ = 78, 
+    XOR_EQ = 79, INC = 80, DEC = 81, ELLIPSIS = 82, HASH = 83, COMMENT = 84, 
+    MULTI_LINE_COMMENT = 85, WS = 86
   };
 
   explicit CScriptLexer(antlr4::CharStream *input);

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include "frontend/parser/node.h"
 #include "frontend/generated/CScriptParser.h"
 #include "SymbolTable.h"
@@ -31,6 +32,8 @@ private:
     std::string currentFunctionReturnType;
     std::string currentSourceFile;
     NBlock* currentBlock;
+    std::set<std::string> functionLabels;
+    std::vector<std::pair<std::string, const Node*>> pendingGotos;
 
     void analyzeExpression(NExpression* expression);
 

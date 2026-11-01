@@ -8,9 +8,9 @@ stmt
     | func_decl
     | extern_decl
     | struct_decl
-    | struct_decl ';'
     | union_decl
     | union_decl ';'
+    | typedef_decl
     | expr ';'
     | '*' ident '=' expr ';'
     | RETURN expr ';'
@@ -23,6 +23,8 @@ stmt
     | 'continue' ';'
     | 'break' ';'
     | register_callback_stmt
+    | goto_stmt
+    | label_stmt
     | import_stmt
     | include_stmt
     | export_stmt
@@ -36,6 +38,10 @@ include_stmt: HASH? INCLUDE (STRING |ANGLE_STRING) ';'?
             ;
 
 register_callback_stmt: 'register' ident 'as' ident '(' func_decl_args? ')' ';' ;
+
+goto_stmt: GOTO ident ';' ;
+
+label_stmt: ident ':' stmt ;
 
 export_stmt
     : EXPORT var_decl  ';'?  #ExportVarDecl
@@ -66,27 +72,36 @@ single_stmt
 
 var_decl
     : type ident ('=' expr)?
-    | type ident '[' expr ']' ('=' '{' init_list '}')?
+    | type ident ('[' expr ']')+ ('=' '{' init_list '}')?
     | type '*' ident ('=' expr)?
     | 'const' type ident ('=' expr)?
     | 'struct' ident ident ('=' expr)?
+    | 'union' ident ident ('=' expr)?
+    | type '(' '*' ident ')' '(' func_decl_args? ')'
     ;
 
 func_decl: type ident '(' func_decl_args? ')' block ;
 
-extern_decl: 'extern' type ident '(' func_decl_args? ')' ';' ;
+extern_decl: 'extern' type ident '(' func_decl_args? ')' ';'
+           | 'extern' type ident ';' ;
 
 func_decl_args
-    : var_decl (',' var_decl)*
+    : VOID_KW
+    | var_decl (',' var_decl)* (',' ELLIPSIS)?
     ;
 
 ident: IDENTIFIER ;
 
-type: IDENTIFIER (MUL)*
+type: (IDENTIFIER | VOID_KW)+ (MUL)*
     | ENUM_KW IDENTIFIER  // 枚举类型
     ;
 
-struct_decl: 'struct' IDENTIFIER '{' struct_members '}' ;
+struct_decl: 'struct' IDENTIFIER '{' struct_members '}' (ident (',' ident)*)? ';'? ;
+
+typedef_decl
+    : 'typedef' type ident ';'
+    | 'typedef' STRUCT_KW IDENTIFIER? '{' struct_members '}' ident ';'
+    ;
 
 union_decl: 'union' IDENTIFIER '{' struct_members '}' ;
 
@@ -105,12 +120,18 @@ expr
     | or_expr QUESTION expr ':' expr
     | primary_expr '.' ident '=' expr
     | ident '[' expr ']' '=' expr
+    | ident '[' expr ']' '[' expr ']' '=' expr
     | ident '=' expr
     | ident '+=' expr
     | ident '-=' expr
     | ident '*=' expr
     | ident '/=' expr
     | ident '%=' expr
+    | ident LSHIFT_EQ expr
+    | ident RSHIFT_EQ expr
+    | ident BITAND_EQ expr
+    | ident BITOR_EQ expr
+    | ident XOR_EQ expr
     | or_expr
     ;
 
@@ -180,6 +201,8 @@ unary_expr
     | '*' unary_expr
     | '-' unary_expr
     | '+' unary_expr
+    | SIZEOF '(' type ')'
+    | SIZEOF '(' STRUCT_KW IDENTIFIER ')'
     | 'throw' expr
     | ident '++'
     | ident '--'
@@ -188,6 +211,8 @@ unary_expr
 primary_expr
     : ident '(' call_args? ')'
     | ident '[' expr ']'
+    | ident '[' expr ']' '[' expr ']'
+    | ident '.' ident '[' expr ']'
     | ident '.' ident '(' call_args? ')'
     | ident '.' ident
     | ident '::' ident
@@ -202,6 +227,7 @@ call_args: expr (',' expr)* ;
 
 numeric
     : INTEGER
+    | HEX_INTEGER
     | DOUBLE
     | CHAR
     | STRING
@@ -251,9 +277,13 @@ THROW: 'throw' ;
 EXPORT: 'export' ;
 IMPORT: 'import' ;
 INCLUDE: 'include' ;
+SIZEOF: 'sizeof' ;
+VOID_KW: 'void' ;
+GOTO: 'goto' ;
 
 // Literals
 INTEGER: [0-9]+ ;
+HEX_INTEGER: '0' [xX] [0-9a-fA-F]+ ;
 DOUBLE: [0-9]+ '.' [0-9]+ ;
 CHAR: '\'' (~['\\\r\n] | '\\' .) '\'' ;
 STRING: '"' ( '\\"' | '\\n' | '\\t' | '\\r' | '\\\\' | ~["\\] )* '"' ;
@@ -298,6 +328,11 @@ MINUS_EQ: '-=' ;
 MUL_EQ: '*=' ;
 DIV_EQ: '/=' ;
 MOD_EQ: '%=' ;
+LSHIFT_EQ: '<<=' ;
+RSHIFT_EQ: '>>=' ;
+BITAND_EQ: '&=' ;
+BITOR_EQ: '|=' ;
+XOR_EQ: '^=' ;
 INC: '++' ;
 DEC: '--' ;
 ELLIPSIS: '...' ;

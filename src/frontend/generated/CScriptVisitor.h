@@ -29,6 +29,10 @@ public:
 
     virtual std::any visitRegister_callback_stmt(CScriptParser::Register_callback_stmtContext *context) = 0;
 
+    virtual std::any visitGoto_stmt(CScriptParser::Goto_stmtContext *context) = 0;
+
+    virtual std::any visitLabel_stmt(CScriptParser::Label_stmtContext *context) = 0;
+
     virtual std::any visitExportVarDecl(CScriptParser::ExportVarDeclContext *context) = 0;
 
     virtual std::any visitExportFuncDecl(CScriptParser::ExportFuncDeclContext *context) = 0;
@@ -54,6 +58,8 @@ public:
     virtual std::any visitType(CScriptParser::TypeContext *context) = 0;
 
     virtual std::any visitStruct_decl(CScriptParser::Struct_declContext *context) = 0;
+
+    virtual std::any visitTypedef_decl(CScriptParser::Typedef_declContext *context) = 0;
 
     virtual std::any visitUnion_decl(CScriptParser::Union_declContext *context) = 0;
 

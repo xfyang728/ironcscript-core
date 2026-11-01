@@ -31,6 +31,12 @@ public:
   virtual void enterRegister_callback_stmt(CScriptParser::Register_callback_stmtContext * /*ctx*/) override { }
   virtual void exitRegister_callback_stmt(CScriptParser::Register_callback_stmtContext * /*ctx*/) override { }
 
+  virtual void enterGoto_stmt(CScriptParser::Goto_stmtContext * /*ctx*/) override { }
+  virtual void exitGoto_stmt(CScriptParser::Goto_stmtContext * /*ctx*/) override { }
+
+  virtual void enterLabel_stmt(CScriptParser::Label_stmtContext * /*ctx*/) override { }
+  virtual void exitLabel_stmt(CScriptParser::Label_stmtContext * /*ctx*/) override { }
+
   virtual void enterExportVarDecl(CScriptParser::ExportVarDeclContext * /*ctx*/) override { }
   virtual void exitExportVarDecl(CScriptParser::ExportVarDeclContext * /*ctx*/) override { }
 
@@ -69,6 +75,9 @@ public:
 
   virtual void enterStruct_decl(CScriptParser::Struct_declContext * /*ctx*/) override { }
   virtual void exitStruct_decl(CScriptParser::Struct_declContext * /*ctx*/) override { }
+
+  virtual void enterTypedef_decl(CScriptParser::Typedef_declContext * /*ctx*/) override { }
+  virtual void exitTypedef_decl(CScriptParser::Typedef_declContext * /*ctx*/) override { }
 
   virtual void enterUnion_decl(CScriptParser::Union_declContext * /*ctx*/) override { }
   virtual void exitUnion_decl(CScriptParser::Union_declContext * /*ctx*/) override { }

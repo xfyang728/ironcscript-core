@@ -98,6 +98,12 @@ void IRGenerator::analyzeStatement(NStatement* statement) {
         analyzeBreakStatement(breakStmt);
     } else if (auto* block = dynamic_cast<NBlock*>(statement)) {
         analyzeBlock(block);
+    } else if (auto* blockStmt = dynamic_cast<NBlockStatement*>(statement)) {
+        analyzeBlock(blockStmt->block);
+    } else if (auto* labelStmt = dynamic_cast<NLabelStatement*>(statement)) {
+        quadList.push_back(Quad(OpEnum::LABEL, "", "", labelStmt->name.name));
+    } else if (auto* gotoStmt = dynamic_cast<NGotoStatement*>(statement)) {
+        quadList.push_back(Quad(OpEnum::JMP, "", "", gotoStmt->label.name));
     } else if (auto* tryCatchStmt = dynamic_cast<NTryCatchStatement*>(statement)) {
         analyzeTryCatchStatement(tryCatchStmt);
     } else if (auto* enumDecl = dynamic_cast<NEnumDeclaration*>(statement)) {

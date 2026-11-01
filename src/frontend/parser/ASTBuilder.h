@@ -7,6 +7,8 @@
 #include "frontend/parser/tokens.h"
 #include <vector>
 #include <string>
+#include <map>
+#include <set>
 #include <memory>
 #include <iostream>
 #include <cstdlib>
@@ -184,6 +186,21 @@ T* safe_any_cast(const antlrcpp::Any& anyVal) {
                 return dynamic_cast<T*>(std::any_cast<NUnionDeclaration*>(anyVal));
             }
         }
+        if (anyVal.type() == typeid(NBlockStatement*)) {
+            if constexpr (std::is_base_of_v<NStatement, T>) {
+                return dynamic_cast<T*>(std::any_cast<NBlockStatement*>(anyVal));
+            }
+        }
+        if (anyVal.type() == typeid(NGotoStatement*)) {
+            if constexpr (std::is_base_of_v<NStatement, T>) {
+                return dynamic_cast<T*>(std::any_cast<NGotoStatement*>(anyVal));
+            }
+        }
+        if (anyVal.type() == typeid(NLabelStatement*)) {
+            if constexpr (std::is_base_of_v<NStatement, T>) {
+                return dynamic_cast<T*>(std::any_cast<NLabelStatement*>(anyVal));
+            }
+        }
         if (anyVal.type() == typeid(NRegisterCallbackStatement*)) {
             if constexpr (std::is_base_of_v<NStatement, T>) {
                 return dynamic_cast<T*>(std::any_cast<NRegisterCallbackStatement*>(anyVal));
@@ -239,6 +256,44 @@ T safe_any_cast_value(const antlrcpp::Any& anyVal) {
 class ASTBuilder : public CScriptVisitor {
 private:
     std::string currentSourceFile;
+    std::map<std::string, int> m_StructSizes;
+    std::map<std::string, std::string> m_Typedefs;
+    std::map<std::string, std::vector<long long>> m_ArrayDims;
+    std::set<std::string> m_FunctionNames;
+    std::map<std::string, std::string> m_FuncPtrAliases;
+
+    // 把 ANTLR 拼接连写的类型文本（如 "unsignedint"、"staticint"）归一化为基础类型。
+    static std::string normalizeTypeText(const std::string& raw) {
+        std::string s = raw;
+        std::string stars;
+        size_t starPos = s.find('*');
+        if (starPos != std::string::npos) {
+            stars = s.substr(starPos);
+            s = s.substr(0, starPos);
+        }
+        static const char* quals[] = {"static", "extern", "volatile", "const",
+                                      "unsigned", "signed", "long", "short"};
+        bool changed = true;
+        while (changed) {
+            changed = false;
+            for (const char* q : quals) {
+                std::string qs(q);
+                if (s.size() > qs.size() && s.compare(0, qs.size(), qs) == 0) {
+                    s = s.substr(qs.size());
+                    changed = true;
+                    break;
+                }
+            }
+        }
+        if (s.empty()) {
+            s = "long";
+        }
+        return s + stars;
+    }
+
+    static bool hasQualifier(const std::string& raw, const std::string& qualifier) {
+        return raw.find(qualifier) != std::string::npos;
+    }
 
 public:
     ASTBuilder() : currentSourceFile("") {}
@@ -305,6 +360,15 @@ public:
         if (ctx->register_callback_stmt()) {
             return visitRegister_callback_stmt(ctx->register_callback_stmt());
         }
+        if (ctx->typedef_decl()) {
+            return visitTypedef_decl(ctx->typedef_decl());
+        }
+        if (ctx->goto_stmt()) {
+            return visitGoto_stmt(ctx->goto_stmt());
+        }
+        if (ctx->label_stmt()) {
+            return visitLabel_stmt(ctx->label_stmt());
+        }
         if (ctx->import_stmt()) {
             return visitImport_stmt(ctx->import_stmt());
         }
@@ -347,22 +411,67 @@ public:
 
     antlrcpp::Any visitVar_decl(CScriptParser::Var_declContext* ctx) override {
         std::string typeStr;
+        std::string rawType;
+        if (ctx->type()) {
+            rawType = ctx->type()->getText();
+        }
         if (ctx->type() && ctx->type()->ENUM_KW()) {
-            typeStr = ctx->type()->IDENTIFIER()->getText();
+            typeStr = ctx->type()->IDENTIFIER(0)->getText();
         } else if (ctx->type()) {
-            typeStr = ctx->type()->getText();
+            typeStr = normalizeTypeText(rawType);
+        }
+        bool isStatic = hasQualifier(rawType, "static");
+        auto typedefIt = m_Typedefs.find(typeStr);
+        if (typedefIt != m_Typedefs.end() && !typeStr.empty() && typeStr.back() != '*') {
+            typeStr = typedefIt->second;
         }
 
-        if (ctx->LBRACKET()) {
+        if (!ctx->LPAREN().empty() && ctx->MUL() && !ctx->ident().empty()) {
+            // 函数指针声明 int (*fp)(); 以 int 变量承载，调用处按已赋值函数名直接调用
+            std::string name;
+            if (ctx->ident(0) && ctx->ident(0)->IDENTIFIER()) {
+                name = ctx->ident(0)->IDENTIFIER()->getText();
+            }
+            auto* typeIdPtr = new NIdentifier("int");
+            auto* nameIdPtr = new NIdentifier(name);
+            return antlrcpp::Any(new NVariableDeclaration(*typeIdPtr, *nameIdPtr));
+        }
+
+        if (!ctx->LBRACKET().empty()) {
             std::string name;
             if (ctx->ident().size() > 0 && ctx->ident(0)->IDENTIFIER()) {
                 name = ctx->ident(0)->IDENTIFIER()->getText();
             }
 
+            std::vector<NExpression*> dims;
+            for (auto* dimCtx : ctx->expr()) {
+                auto dimResult = visitExpr(dimCtx);
+                if (auto* dimExpr = safe_any_cast<NExpression>(dimResult)) {
+                    dims.push_back(dimExpr);
+                }
+            }
+
             NExpression* sizeExpr = nullptr;
-            if (ctx->expr()) {
-                auto sizeResult = visitExpr(ctx->expr());
-                sizeExpr = safe_any_cast<NExpression>(sizeResult);
+            std::vector<long long> dimVals;
+            long long total = 1;
+            bool allConst = !dims.empty();
+            for (auto* dimExpr : dims) {
+                if (auto* n = dynamic_cast<NInteger*>(dimExpr)) {
+                    dimVals.push_back(n->value);
+                    total *= n->value;
+                } else {
+                    allConst = false;
+                }
+            }
+            if (dims.size() == 1) {
+                sizeExpr = dims[0];
+            } else if (allConst) {
+                sizeExpr = new NInteger(total);
+            } else if (!dims.empty()) {
+                sizeExpr = dims[0];
+            }
+            if (allConst && !dims.empty()) {
+                m_ArrayDims[name] = dimVals;
             }
 
             auto* typeIdPtr = new NIdentifier(typeStr);
@@ -384,7 +493,8 @@ public:
             return antlrcpp::Any(arrayDecl);
         }
 
-        if (ctx->STRUCT_KW()) {
+        if (ctx->STRUCT_KW() || ctx->UNION_KW()) {
+            std::string kind = ctx->STRUCT_KW() ? "struct " : "union ";
             std::string structName, varName;
             if (ctx->ident().size() >= 2) {
                 if (ctx->ident(0) && ctx->ident(0)->IDENTIFIER()) {
@@ -395,12 +505,12 @@ public:
                 }
             }
 
-            auto* typeIdPtr = new NIdentifier("struct " + structName);
+            auto* typeIdPtr = new NIdentifier(kind + structName);
             auto* nameIdPtr = new NIdentifier(varName);
 
             NExpression* initExpr = nullptr;
-            if (ctx->expr()) {
-                auto result = visitExpr(ctx->expr());
+            if (!ctx->expr().empty()) {
+                auto result = visitExpr(ctx->expr(0));
                 initExpr = safe_any_cast<NExpression>(result);
             }
 
@@ -427,8 +537,8 @@ public:
 
             auto* pointerDecl = new NPointerDeclaration(*typeIdPtr, *nameIdPtr);
 
-            if (ctx->expr()) {
-                auto result = visitExpr(ctx->expr());
+            if (!ctx->expr().empty()) {
+                auto result = visitExpr(ctx->expr(0));
                 pointerDecl->assignmentExpr = safe_any_cast<NExpression>(result);
             }
 
@@ -449,9 +559,12 @@ public:
             var->isConst = true;
         }
 
-        if (ctx->expr()) {
-            auto result = visitExpr(ctx->expr());
+        if (!ctx->expr().empty()) {
+            auto result = visitExpr(ctx->expr(0));
             var->assignmentExpr = safe_any_cast<NExpression>(result);
+        } else if (isStatic) {
+            // static 局部变量零初始化（单次执行语义）
+            var->assignmentExpr = new NInteger(0);
         }
 
         return antlrcpp::Any(var);
@@ -459,6 +572,31 @@ public:
 
     antlrcpp::Any visitType(CScriptParser::TypeContext* ctx) override {
         return antlrcpp::Any(ctx->getText());
+    }
+
+    // 常量维度的多维数组扁平化为一维下标
+    NExpression* flattenIndices(const std::string& name,
+                                const std::vector<NExpression*>& idxs) {
+        if (idxs.empty()) {
+            return nullptr;
+        }
+        auto it = m_ArrayDims.find(name);
+        if (it == m_ArrayDims.end() || it->second.size() != idxs.size() || idxs.size() < 2) {
+            return idxs[0];
+        }
+        NExpression* result = idxs[0];
+        for (size_t k = 1; k < idxs.size(); k++) {
+            long long factor = 1;
+            for (size_t m = k + 1; m < it->second.size(); m++) {
+                factor *= it->second[m];
+            }
+            NExpression* term = idxs[k];
+            if (factor != 1) {
+                term = new NBinaryOperator(*term, CScriptParser::MUL, *new NInteger(factor));
+            }
+            result = new NBinaryOperator(*result, CScriptParser::PLUS, *term);
+        }
+        return result;
     }
 
     antlrcpp::Any visitExpr(CScriptParser::ExprContext* ctx) override {
@@ -493,11 +631,18 @@ public:
             }
         }
 
-        if (ctx->ident() != nullptr && ctx->LBRACKET() != nullptr && ctx->expr().size() >= 2) {
+        if (ctx->ident() != nullptr && !ctx->LBRACKET().empty() && ctx->expr().size() >= 2) {
             auto* id = new NIdentifier(ctx->ident()->getText());
-            auto indexResult = visitExpr(ctx->expr(0));
-            NExpression* index = safe_any_cast<NExpression>(indexResult);
-            auto valueResult = visitExpr(ctx->expr(1));
+            size_t idxCount = ctx->LBRACKET().size();
+            std::vector<NExpression*> idxs;
+            for (size_t k = 0; k < idxCount && k + 1 < ctx->expr().size(); k++) {
+                auto idxResult = visitExpr(ctx->expr(k));
+                if (auto* idxExpr = safe_any_cast<NExpression>(idxResult)) {
+                    idxs.push_back(idxExpr);
+                }
+            }
+            NExpression* index = flattenIndices(id->name, idxs);
+            auto valueResult = visitExpr(ctx->expr(ctx->expr().size() - 1));
             NExpression* value = safe_any_cast<NExpression>(valueResult);
             if (index && value) {
                 auto* arrayAccess = new NArrayAccess(*id, *index);
@@ -531,6 +676,34 @@ public:
                     if (ctx->MOD_EQ()) {
                         auto* binOp = new NBinaryOperator(*id, CScriptParser::MOD, *val);
                         return antlrcpp::Any(new NAssignment(*id, *binOp));
+                    }
+                    if (ctx->LSHIFT_EQ()) {
+                        auto* binOp = new NBinaryOperator(*id, CScriptParser::LSHIFT, *val);
+                        return antlrcpp::Any(new NAssignment(*id, *binOp));
+                    }
+                    if (ctx->RSHIFT_EQ()) {
+                        auto* binOp = new NBinaryOperator(*id, CScriptParser::RSHIFT, *val);
+                        return antlrcpp::Any(new NAssignment(*id, *binOp));
+                    }
+                    if (ctx->BITAND_EQ()) {
+                        auto* binOp = new NBinaryOperator(*id, CScriptParser::BITAND, *val);
+                        return antlrcpp::Any(new NAssignment(*id, *binOp));
+                    }
+                    if (ctx->BITOR_EQ()) {
+                        auto* binOp = new NBinaryOperator(*id, CScriptParser::BITOR, *val);
+                        return antlrcpp::Any(new NAssignment(*id, *binOp));
+                    }
+                    if (ctx->XOR_EQ()) {
+                        auto* binOp = new NBinaryOperator(*id, CScriptParser::XOR, *val);
+                        return antlrcpp::Any(new NAssignment(*id, *binOp));
+                    }
+                    if (ctx->ASSIGN()) {
+                        if (auto* rhsId = dynamic_cast<NIdentifier*>(val)) {
+                            if (m_FunctionNames.find(rhsId->name) != m_FunctionNames.end()) {
+                                m_FuncPtrAliases[id->name] = rhsId->name;
+                                return antlrcpp::Any(new NAssignment(*id, *new NInteger(0)));
+                            }
+                        }
                     }
                     return antlrcpp::Any(new NAssignment(*id, *val));
                 }
@@ -576,6 +749,10 @@ public:
             }
             if (ctx->LPAREN()) {
                 std::string funcName = ctx->ident(0)->getText();
+                auto aliasIt = m_FuncPtrAliases.find(funcName);
+                if (aliasIt != m_FuncPtrAliases.end()) {
+                    funcName = aliasIt->second;
+                }
                 auto* funcId = new NIdentifier(funcName);
                 ExpressionList args;
                 if (ctx->call_args()) {
@@ -589,10 +766,22 @@ public:
                 }
                 return antlrcpp::Any(new NMethodCall(*funcId, args));
             }
-            if (ctx->LBRACKET() && ctx->expr()) {
-                auto result = visitExpr(ctx->expr());
-                NExpression* index = safe_any_cast<NExpression>(result);
+            if (!ctx->LBRACKET().empty() && !ctx->expr().empty()) {
+                if (ctx->DOT() && ctx->ident().size() >= 2) {
+                    // 成员数组：u.c[k]（联合体成员重叠时等价于 u 的起始地址）
+                    auto* objId = new NIdentifier(ctx->ident(0)->getText());
+                    auto* memberId = new NIdentifier(ctx->ident(1)->getText());
+                    return antlrcpp::Any(new NMemberAccess(*objId, *memberId));
+                }
                 auto* arrId = new NIdentifier(ctx->ident(0)->getText());
+                std::vector<NExpression*> idxs;
+                for (size_t k = 0; k < ctx->LBRACKET().size() && k < ctx->expr().size(); k++) {
+                    auto idxResult = visitExpr(ctx->expr(k));
+                    if (auto* idxExpr = safe_any_cast<NExpression>(idxResult)) {
+                        idxs.push_back(idxExpr);
+                    }
+                }
+                NExpression* index = flattenIndices(arrId->name, idxs);
                 if (index) {
                     return antlrcpp::Any(new NArrayAccess(*arrId, *index));
                 }
@@ -620,8 +809,8 @@ public:
         if (ctx->numeric()) {
             return visitNumeric(ctx->numeric());
         }
-        if (ctx->expr()) {
-            auto result = visitExpr(ctx->expr());
+        if (!ctx->expr().empty()) {
+            auto result = visitExpr(ctx->expr(0));
             NExpression* expr = safe_any_cast<NExpression>(result);
             return antlrcpp::Any(expr);
         }
@@ -654,6 +843,10 @@ public:
         }
         if (ctx->INTEGER()) {
             return antlrcpp::Any(new NInteger(strtoll(ctx->INTEGER()->getText().c_str(), nullptr, 10)));
+        }
+        if (ctx->HEX_INTEGER()) {
+            std::string text = ctx->HEX_INTEGER()->getText();
+            return antlrcpp::Any(new NInteger(strtoll(text.c_str() + 2, nullptr, 16)));
         }
         if (ctx->DOUBLE()) {
             return antlrcpp::Any(new NDouble(strtod(ctx->DOUBLE()->getText().c_str(), nullptr)));
@@ -705,6 +898,29 @@ public:
     }
 
     antlrcpp::Any visitUnary_expr(CScriptParser::Unary_exprContext* ctx) override {
+        if (ctx->SIZEOF() && ctx->STRUCT_KW() && ctx->IDENTIFIER()) {
+            std::string structName = ctx->IDENTIFIER()->getText();
+            int size = 4;
+            auto it = m_StructSizes.find(structName);
+            if (it != m_StructSizes.end()) {
+                size = it->second;
+            }
+            return antlrcpp::Any(new NInteger(size));
+        }
+        if (ctx->SIZEOF() && ctx->type()) {
+            std::string t = normalizeTypeText(ctx->type()->getText());
+            int size = 4;
+            if (t == "char") {
+                size = 1;
+            } else if (t == "short") {
+                size = 2;
+            } else if (t == "double" || t == "float") {
+                size = 8;
+            } else if (!t.empty() && t.back() == '*') {
+                size = 8;
+            }
+            return antlrcpp::Any(new NInteger(size));
+        }
         if (ctx->primary_expr()) {
             auto result = visitPrimary_expr(ctx->primary_expr());
             NExpression* primaryResult = safe_any_cast<NExpression>(result);
@@ -1116,14 +1332,17 @@ public:
 
     antlrcpp::Any visitFunc_decl(CScriptParser::Func_declContext* ctx) override {
         std::string retType = "int";
-        if (ctx->type() && ctx->type()->IDENTIFIER()) {
-            retType = ctx->type()->IDENTIFIER()->getText();
+        if (ctx->type()) {
+            retType = normalizeTypeText(ctx->type()->getText());
         }
         std::string name = "unknown";
         if (ctx->ident() && ctx->ident()->IDENTIFIER()) {
             name = ctx->ident()->IDENTIFIER()->getText();
         }
 
+        if (!name.empty()) {
+            m_FunctionNames.insert(name);
+        }
         if (ctx->block()) {
             auto bodyResult = visitBlock(ctx->block());
             NBlock* body = safe_any_cast<NBlock>(bodyResult);
@@ -1132,8 +1351,8 @@ public:
                 if (ctx->func_decl_args()) {
                     for (auto vd : ctx->func_decl_args()->var_decl()) {
                         std::string argType = "int";
-                        if (vd->type() && vd->type()->IDENTIFIER()) {
-                            argType = vd->type()->IDENTIFIER()->getText();
+                        if (vd->type()) {
+                            argType = normalizeTypeText(vd->type()->getText());
                         }
                         std::string argName = "";
                         if (vd->ident().size() > 0 && vd->ident(0)->IDENTIFIER()) {
@@ -1148,7 +1367,8 @@ public:
 
                 auto* typeIdPtr = new NIdentifier(retType);
                 auto* nameIdPtr = new NIdentifier(name);
-                NFunctionDeclaration* funcDecl = new NFunctionDeclaration(*typeIdPtr, *nameIdPtr, args, body);
+                bool isVariadic = ctx->func_decl_args() && ctx->func_decl_args()->ELLIPSIS() != nullptr;
+                NFunctionDeclaration* funcDecl = new NFunctionDeclaration(*typeIdPtr, *nameIdPtr, args, body, isVariadic);
                 return antlrcpp::Any(funcDecl);
             }
         }
@@ -1168,8 +1388,100 @@ public:
             }
         }
 
+        int totalSize = 0;
+        for (auto* member : members->statements) {
+            if (auto* vd = dynamic_cast<NVariableDeclaration*>(member)) {
+                totalSize += sizeOfType(vd->type.name);
+            } else if (auto* ad = dynamic_cast<NArrayDeclaration*>(member)) {
+                long long count = 1;
+                if (auto* n = dynamic_cast<NInteger*>(ad->size)) {
+                    count = n->value;
+                }
+                totalSize += sizeOfType(ad->type.name) * static_cast<int>(count);
+            }
+        }
+        m_StructSizes[name] = totalSize;
+
         NIdentifier nameId(name);
-        return antlrcpp::Any(new NStructDeclaration(nameId, *members));
+        NStructDeclaration* structDecl = new NStructDeclaration(nameId, *members);
+
+        std::vector<std::string> varNames;
+        for (auto* idCtx : ctx->ident()) {
+            if (idCtx && idCtx->IDENTIFIER()) {
+                varNames.push_back(idCtx->IDENTIFIER()->getText());
+            }
+        }
+        if (varNames.empty()) {
+            return antlrcpp::Any(structDecl);
+        }
+
+        NBlock* stmts = new NBlock();
+        stmts->statements.push_back(structDecl);
+        for (auto& vn : varNames) {
+            auto* t = new NIdentifier("struct " + name);
+            auto* n = new NIdentifier(vn);
+            stmts->statements.push_back(new NVariableDeclaration(*t, *n));
+        }
+        return antlrcpp::Any(new NBlockStatement(stmts));
+    }
+
+    antlrcpp::Any visitTypedef_decl(CScriptParser::Typedef_declContext* ctx) override {
+        NBlock* stmts = new NBlock();
+        if (ctx->STRUCT_KW()) {
+            std::string alias = ctx->ident() && ctx->ident()->IDENTIFIER()
+                                    ? ctx->ident()->IDENTIFIER()->getText()
+                                    : "typedef_anon";
+            std::string structName = ctx->IDENTIFIER() ? ctx->IDENTIFIER()->getText()
+                                                       : ("anon_" + alias);
+
+            NBlock* members = new NBlock();
+            if (ctx->struct_members()) {
+                auto membersResult = visitStruct_members(ctx->struct_members());
+                NBlock* structMembers = safe_any_cast<NBlock>(membersResult);
+                if (structMembers) {
+                    members = structMembers;
+                }
+            }
+            NIdentifier nameId(structName);
+            stmts->statements.push_back(new NStructDeclaration(nameId, *members));
+            m_Typedefs[alias] = "struct " + structName;
+        } else if (ctx->ident() && ctx->ident()->IDENTIFIER()) {
+            m_Typedefs[ctx->ident()->IDENTIFIER()->getText()] =
+                normalizeTypeText(ctx->type()->getText());
+        }
+        return antlrcpp::Any(new NBlockStatement(stmts));
+    }
+
+    static int sizeOfType(const std::string& t) {
+        if (t == "char") return 1;
+        if (t == "short") return 2;
+        if (t == "double" || t == "float") return 8;
+        if (!t.empty() && t.back() == '*') return 8;
+        return 4;
+    }
+
+    antlrcpp::Any visitGoto_stmt(CScriptParser::Goto_stmtContext* ctx) override {
+        std::string label = ctx->ident() && ctx->ident()->IDENTIFIER()
+                                ? ctx->ident()->IDENTIFIER()->getText()
+                                : "";
+        auto* labelId = new NIdentifier(label);
+        return antlrcpp::Any(new NGotoStatement(*labelId));
+    }
+
+    antlrcpp::Any visitLabel_stmt(CScriptParser::Label_stmtContext* ctx) override {
+        std::string name = ctx->ident() && ctx->ident()->IDENTIFIER()
+                               ? ctx->ident()->IDENTIFIER()->getText()
+                               : "";
+        NBlock* block = new NBlock();
+        block->statements.push_back(new NLabelStatement(*new NIdentifier(name)));
+        if (ctx->stmt()) {
+            auto result = visitStmt(ctx->stmt());
+            NStatement* inner = safe_any_cast<NStatement>(result);
+            if (inner) {
+                block->statements.push_back(inner);
+            }
+        }
+        return antlrcpp::Any(new NBlockStatement(block));
     }
 
     antlrcpp::Any visitIdent(CScriptParser::IdentContext* ctx) override {
@@ -1299,8 +1611,8 @@ public:
         if (ctx) {
             for (auto vd : ctx->var_decl()) {
                 std::string argType = "int";
-                if (vd->type() && vd->type()->IDENTIFIER()) {
-                    argType = vd->type()->IDENTIFIER()->getText();
+                if (vd->type()) {
+                    argType = normalizeTypeText(vd->type()->getText());
                 }
                 std::string argName = "";
                 if (vd->ident().size() > 0 && vd->ident(0)->IDENTIFIER()) {
@@ -1317,12 +1629,19 @@ public:
 
     antlrcpp::Any visitExtern_decl(CScriptParser::Extern_declContext* ctx) override {
         std::string retType = "int";
-        if (ctx->type() && ctx->type()->IDENTIFIER()) {
-            retType = ctx->type()->IDENTIFIER()->getText();
+        if (ctx->type()) {
+            retType = normalizeTypeText(ctx->type()->getText());
         }
         std::string name = "unknown";
         if (ctx->ident() && ctx->ident()->IDENTIFIER()) {
             name = ctx->ident()->IDENTIFIER()->getText();
+        }
+
+        // extern 变量声明：extern int a;
+        if (!ctx->LPAREN()) {
+            auto* typeIdPtr = new NIdentifier(retType);
+            auto* nameIdPtr = new NIdentifier(name);
+            return antlrcpp::Any(new NVariableDeclaration(*typeIdPtr, *nameIdPtr));
         }
 
         VariableList args;
