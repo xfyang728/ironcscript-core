@@ -1,5 +1,5 @@
 
-// Generated from D:/MyCode/IronCScript/ironcscript-core/src/frontend/parser/CScript.g4 by ANTLR 4.13.2
+// Generated from src/frontend/parser/CScript.g4 by ANTLR 4.13.2
 
 #pragma once
 
@@ -31,8 +31,23 @@ public:
   virtual void enterRegister_callback_stmt(CScriptParser::Register_callback_stmtContext * /*ctx*/) override { }
   virtual void exitRegister_callback_stmt(CScriptParser::Register_callback_stmtContext * /*ctx*/) override { }
 
+  virtual void enterExportVarDecl(CScriptParser::ExportVarDeclContext * /*ctx*/) override { }
+  virtual void exitExportVarDecl(CScriptParser::ExportVarDeclContext * /*ctx*/) override { }
+
+  virtual void enterExportFuncDecl(CScriptParser::ExportFuncDeclContext * /*ctx*/) override { }
+  virtual void exitExportFuncDecl(CScriptParser::ExportFuncDeclContext * /*ctx*/) override { }
+
+  virtual void enterExportEnumDecl(CScriptParser::ExportEnumDeclContext * /*ctx*/) override { }
+  virtual void exitExportEnumDecl(CScriptParser::ExportEnumDeclContext * /*ctx*/) override { }
+
   virtual void enterBlock(CScriptParser::BlockContext * /*ctx*/) override { }
   virtual void exitBlock(CScriptParser::BlockContext * /*ctx*/) override { }
+
+  virtual void enterBody(CScriptParser::BodyContext * /*ctx*/) override { }
+  virtual void exitBody(CScriptParser::BodyContext * /*ctx*/) override { }
+
+  virtual void enterSingle_stmt(CScriptParser::Single_stmtContext * /*ctx*/) override { }
+  virtual void exitSingle_stmt(CScriptParser::Single_stmtContext * /*ctx*/) override { }
 
   virtual void enterVar_decl(CScriptParser::Var_declContext * /*ctx*/) override { }
   virtual void exitVar_decl(CScriptParser::Var_declContext * /*ctx*/) override { }

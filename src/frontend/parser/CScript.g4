@@ -45,6 +45,25 @@ export_stmt
 
 block: '{' stmt* '}' | '{' '}' ;
 
+// 控制流语句体：允许花括号块，也允许 C 语义的单语句体
+body: block | single_stmt ;
+
+// 单语句（不含声明），用于 if/while/for/do 的无花括号体
+single_stmt
+    : expr ';'
+    | '*' ident '=' expr ';'
+    | RETURN expr ';'
+    | if_stmt
+    | while_stmt
+    | for_stmt
+    | do_while_stmt
+    | switch_stmt
+    | try_catch_stmt
+    | 'continue' ';'
+    | 'break' ';'
+    | register_callback_stmt
+    ;
+
 var_decl
     : type ident ('=' expr)?
     | type ident '[' expr ']' ('=' '{' init_list '}')?
@@ -188,11 +207,11 @@ numeric
     | STRING
     ;
 
-if_stmt: 'if' '(' expr ')' block ('else' block)? ;
+if_stmt: 'if' '(' expr ')' body ('else' body)? ;
 
-while_stmt: 'while' '(' expr ')' block ;
+while_stmt: 'while' '(' expr ')' body ;
 
-for_stmt: 'for' '(' for_init? ';' for_cond? ';' for_incr? ')' block ;
+for_stmt: 'for' '(' for_init? ';' for_cond? ';' for_incr? ')' body ;
 
 for_init: var_decl | expr ;
 
@@ -200,7 +219,7 @@ for_cond: expr ;
 
 for_incr: expr ;
 
-do_while_stmt: 'do' block 'while' '(' expr ')' ;
+do_while_stmt: 'do' body 'while' '(' expr ')' ';'? ;
 
 try_catch_stmt: 'try' block catch_block+ ;
 catch_block: 'catch' '(' type ident ')' block | 'catch' '(' '...' ')' block ;

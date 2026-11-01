@@ -51,6 +51,14 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitBody(CScriptParser::BodyContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitSingle_stmt(CScriptParser::Single_stmtContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitVar_decl(CScriptParser::Var_declContext *ctx) override {
     return visitChildren(ctx);
   }

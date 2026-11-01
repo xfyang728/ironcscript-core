@@ -961,15 +961,89 @@ public:
         return antlrcpp::Any(block);
     }
 
+    antlrcpp::Any visitBody(CScriptParser::BodyContext* ctx) override {
+        if (!ctx) {
+            return antlrcpp::Any((NBlock*)nullptr);
+        }
+        if (ctx->block()) {
+            return visitBlock(ctx->block());
+        }
+        NBlock* block = new NBlock();
+        if (ctx->single_stmt()) {
+            auto result = visitSingle_stmt(ctx->single_stmt());
+            NStatement* s = safe_any_cast<NStatement>(result);
+            if (s) {
+                block->statements.push_back(s);
+            }
+        }
+        return antlrcpp::Any(block);
+    }
+
+    antlrcpp::Any visitSingle_stmt(CScriptParser::Single_stmtContext* ctx) override {
+        if (!ctx) {
+            return antlrcpp::Any((NStatement*)nullptr);
+        }
+        if (ctx->if_stmt()) {
+            return visitIf_stmt(ctx->if_stmt());
+        }
+        if (ctx->while_stmt()) {
+            return visitWhile_stmt(ctx->while_stmt());
+        }
+        if (ctx->for_stmt()) {
+            return visitFor_stmt(ctx->for_stmt());
+        }
+        if (ctx->do_while_stmt()) {
+            return visitDo_while_stmt(ctx->do_while_stmt());
+        }
+        if (ctx->switch_stmt()) {
+            return visitSwitch_stmt(ctx->switch_stmt());
+        }
+        if (ctx->try_catch_stmt()) {
+            return visitTry_catch_stmt(ctx->try_catch_stmt());
+        }
+        if (ctx->register_callback_stmt()) {
+            return visitRegister_callback_stmt(ctx->register_callback_stmt());
+        }
+        if (ctx->RETURN() && ctx->expr()) {
+            auto result = visitExpr(ctx->expr());
+            NExpression* expr = safe_any_cast<NExpression>(result);
+            if (expr) {
+                return antlrcpp::Any(new NReturnStatement(*expr));
+            }
+        }
+        if (ctx->BREAK()) {
+            return antlrcpp::Any(new NBreakStatement());
+        }
+        if (ctx->CONTINUE()) {
+            return antlrcpp::Any(new NContinueStatement());
+        }
+        if (ctx->MUL() && ctx->ident() && ctx->expr()) {
+            auto* id = new NIdentifier(ctx->ident()->getText());
+            auto result = visitExpr(ctx->expr());
+            NExpression* val = safe_any_cast<NExpression>(result);
+            if (val) {
+                return antlrcpp::Any(new NExpressionStatement(*new NAssignment(*new NUnaryOperator(CScriptParser::MUL, *id), *val)));
+            }
+        }
+        if (ctx->expr()) {
+            auto result = visitExpr(ctx->expr());
+            NExpression* expr = safe_any_cast<NExpression>(result);
+            if (expr) {
+                return antlrcpp::Any(new NExpressionStatement(*expr));
+            }
+        }
+        return antlrcpp::Any((NStatement*)nullptr);
+    }
+
     antlrcpp::Any visitIf_stmt(CScriptParser::If_stmtContext* ctx) override {
         auto condResult = visitExpr(ctx->expr());
         NExpression* condition = safe_any_cast<NExpression>(condResult);
-        auto thenResult = visitBlock(ctx->block(0));
+        auto thenResult = visitBody(ctx->body(0));
         NBlock* thenBlock = safe_any_cast<NBlock>(thenResult);
 
         NBlock* elseBlock = nullptr;
-        if (ctx->block().size() > 1) {
-            auto elseResult = visitBlock(ctx->block(1));
+        if (ctx->body().size() > 1) {
+            auto elseResult = visitBody(ctx->body(1));
             elseBlock = safe_any_cast<NBlock>(elseResult);
         }
 
@@ -982,7 +1056,7 @@ public:
     antlrcpp::Any visitWhile_stmt(CScriptParser::While_stmtContext* ctx) override {
         auto condResult = visitExpr(ctx->expr());
         NExpression* condition = safe_any_cast<NExpression>(condResult);
-        auto bodyResult = visitBlock(ctx->block());
+        auto bodyResult = visitBody(ctx->body());
         NBlock* body = safe_any_cast<NBlock>(bodyResult);
 
         if (condition && body) {
@@ -1019,7 +1093,7 @@ public:
             update = safe_any_cast<NExpression>(incrResult);
         }
 
-        auto bodyResult = visitBlock(ctx->block());
+        auto bodyResult = visitBody(ctx->body());
         NBlock* body = safe_any_cast<NBlock>(bodyResult);
 
         if (body) {
@@ -1029,7 +1103,7 @@ public:
     }
 
     antlrcpp::Any visitDo_while_stmt(CScriptParser::Do_while_stmtContext* ctx) override {
-        auto bodyResult = visitBlock(ctx->block());
+        auto bodyResult = visitBody(ctx->body());
         NBlock* body = safe_any_cast<NBlock>(bodyResult);
         auto condResult = visitExpr(ctx->expr());
         NExpression* condition = safe_any_cast<NExpression>(condResult);

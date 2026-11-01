@@ -37,6 +37,10 @@ public:
 
     virtual std::any visitBlock(CScriptParser::BlockContext *context) = 0;
 
+    virtual std::any visitBody(CScriptParser::BodyContext *context) = 0;
+
+    virtual std::any visitSingle_stmt(CScriptParser::Single_stmtContext *context) = 0;
+
     virtual std::any visitVar_decl(CScriptParser::Var_declContext *context) = 0;
 
     virtual std::any visitFunc_decl(CScriptParser::Func_declContext *context) = 0;

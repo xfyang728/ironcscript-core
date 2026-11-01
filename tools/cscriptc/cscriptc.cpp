@@ -1,6 +1,7 @@
 #include "IronCScript.h"
 #include "frontend/parser/ASTBuilder.h"
 #include "frontend/semantic/SemanticAnalyzer.h"
+#include "frontend/preprocessor/Preprocessor.h"
 #include "frontend/generated/CScriptLexer.h"
 #include "frontend/generated/CScriptParser.h"
 #include "ir/IRGenerator.h"
@@ -53,7 +54,8 @@ bool writeFile(const std::string& path, const std::string& content) {
 }
 
 bool compileToBytecode(const std::string& sourceCode, cse::BytecodeModule*& outModule, const std::string& platform = "") {
-    antlr4::ANTLRInputStream input(sourceCode.c_str(), sourceCode.size());
+    std::string preprocessed = cse::preprocessSource(sourceCode);
+    antlr4::ANTLRInputStream input(preprocessed.c_str(), preprocessed.size());
     CScriptLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);
     CScriptParser parser(&tokens);

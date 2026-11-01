@@ -48,6 +48,7 @@ if(EMSCRIPTEN)
         src/ir/IRInterpreter.cpp
         src/frontend/semantic/SemanticAnalyzer.cpp
         src/frontend/semantic/SymbolTable.cpp
+    src/frontend/preprocessor/Preprocessor.cpp
         src/IronCScript.cpp
         src/IronCScriptImpl.cpp
         src/backend/codegen.cpp
@@ -159,6 +160,7 @@ set(LIB_SOURCES
     src/ir/Quad.cpp
     src/frontend/semantic/SemanticAnalyzer.cpp
     src/frontend/semantic/SymbolTable.cpp
+    src/frontend/preprocessor/Preprocessor.cpp
     src/IronCScript.cpp
     src/IronCScriptImpl.cpp
 )

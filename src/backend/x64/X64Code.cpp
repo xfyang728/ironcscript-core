@@ -710,7 +710,9 @@ namespace cse
 
                         int totalSize = arraySize * elementSize;
 
-                        int elementsOffset = m_NextOffset;
+                        // C 语义的升序布局：基址在当前栈槽之下，元素 i 地址 = base + i*elementSize，
+                        // 整个数组落在 [rbp - elementsOffset, rbp - elementsOffset + totalSize)。
+                        int elementsOffset = m_NextOffset + totalSize;
                         m_VariableOffsets[name] = elementsOffset;
                         m_VariableTypes[name] = Pointer;
                         
@@ -722,7 +724,7 @@ namespace cse
                         arrayInfo.elementType = elementType;
                         arrayInfo.elementSize = elementSize;
                         
-                        m_NextOffset += totalSize;
+                        m_NextOffset = elementsOffset + m_Architecture->getRegisterSize();
                         m_LocalVariableSize = m_NextOffset - m_Architecture->getRegisterSize();
 
                         if (!m_CurrentFunction.empty()) {
@@ -741,24 +743,35 @@ namespace cse
                     std::string arrayName = quad.getArg1();
                     std::string index = quad.getArg2();
                     std::string result = quad.getResult();
-                    if (!result.empty()) {
+                    if (!result.empty())
+                    {
                         int elementSize = sizeof(int);
                         std::string elementType = "int";
-                        
+                        bool isArrayVar = false;
+
                         if (!m_CurrentFunction.empty() && m_FunctionArrays.find(m_CurrentFunction) != m_FunctionArrays.end()) {
                             for (const auto& arrayInfo : m_FunctionArrays[m_CurrentFunction]) {
                                 if (arrayInfo.name == arrayName) {
+                                    isArrayVar = true;
                                     elementSize = arrayInfo.elementSize;
                                     elementType = arrayInfo.elementType;
                                     break;
                                 }
                             }
                         }
-                        
+
+                        // 指针下标 p[i]：基址来自指针变量的值，而非栈槽地址
+                        bool isPointerSubscript = !isArrayVar && GetVariableType(arrayName.c_str()) == Pointer;
+                        if (isPointerSubscript) {
+                            auto it = m_PointerElementSizes.find(arrayName);
+                            elementSize = (it != m_PointerElementSizes.end()) ? it->second : (int)sizeof(int);
+                            elementType = (elementSize == 1) ? "char" : "int";
+                        }
+
                         bool isDoubleArray = (elementType == "double" || elementType == "float");
                         Type varType = isDoubleArray ? Double : Int;
                         AllocateVariable(result.c_str(), varType);
-                        
+
                         if (isdigit(index[0]) || (index[0] == '-' && isdigit(index[1]))) {
                             int64_t value = std::stoll(index);
                             m_CodeBuffer.push_back(0x48);
@@ -768,78 +781,53 @@ namespace cse
                         else if (VariableExists(index.c_str())) {
                             loadVariableToRegister(index, 1, Int);
                         }
-                        
+
+                        // rcx = 索引 * 元素大小
+                        if (elementSize == 8) {
+                            m_CodeBuffer.push_back(0x48);
+                            m_CodeBuffer.push_back(0xC1);
+                            m_CodeBuffer.push_back(0xE1);
+                            m_CodeBuffer.push_back(0x03);
+                        } else if (elementSize == 4) {
+                            m_CodeBuffer.push_back(0x48);
+                            m_CodeBuffer.push_back(0xC1);
+                            m_CodeBuffer.push_back(0xE1);
+                            m_CodeBuffer.push_back(0x02);
+                        } else if (elementSize == 2) {
+                            m_CodeBuffer.push_back(0x48);
+                            m_CodeBuffer.push_back(0xC1);
+                            m_CodeBuffer.push_back(0xE1);
+                            m_CodeBuffer.push_back(0x01);
+                        }
+
                         int varOffset = GetVariableOffset(arrayName.c_str());
-                        
-                        if (isDoubleArray) {
-                            // 计算数组元素地址：rbp + offset - rcx*scale
-                            // 栈是向下增长的，数组元素也是向下存储的
-                            // 先将索引乘以元素大小
-                            if (elementSize == 8) {
-                                m_CodeBuffer.push_back(0x48);
-                                m_CodeBuffer.push_back(0xC1);
-                                m_CodeBuffer.push_back(0xE1);
-                                m_CodeBuffer.push_back(0x03); // shl rcx, 3 (乘以 8)
-                            } else if (elementSize == 4) {
-                                m_CodeBuffer.push_back(0x48);
-                                m_CodeBuffer.push_back(0xC1);
-                                m_CodeBuffer.push_back(0xE1);
-                                m_CodeBuffer.push_back(0x02); // shl rcx, 2 (乘以 4)
-                            } else if (elementSize == 2) {
-                                m_CodeBuffer.push_back(0x48);
-                                m_CodeBuffer.push_back(0xC1);
-                                m_CodeBuffer.push_back(0xE1);
-                                m_CodeBuffer.push_back(0x01); // shl rcx, 1 (乘以 2)
-                            }
-                            // 然后计算地址：rbp + offset - rcx
+                        if (isPointerSubscript) {
+                            // mov rax, [rbp + offset]：取出指针值
+                            m_CodeBuffer.push_back(0x48);
+                            m_CodeBuffer.push_back(0x8B);
+                            m_CodeBuffer.push_back(0x85);
+                        } else {
+                            // lea rax, [rbp + offset]：数组基址
                             m_CodeBuffer.push_back(0x48);
                             m_CodeBuffer.push_back(0x8D);
-                            m_CodeBuffer.push_back(0x85); // lea rax, [rbp + offset]
-                            m_CodeBuffer.push_back(static_cast<unsigned char>(varOffset & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 8) & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 16) & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 24) & 0xFF));
-                            m_CodeBuffer.push_back(0x48);
-                            m_CodeBuffer.push_back(0x29);
-                            m_CodeBuffer.push_back(0xC8); // sub rax, rcx
-                            // 然后加载数据
+                            m_CodeBuffer.push_back(0x85);
+                        }
+                        m_CodeBuffer.push_back(static_cast<unsigned char>(varOffset & 0xFF));
+                        m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 8) & 0xFF));
+                        m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 16) & 0xFF));
+                        m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 24) & 0xFF));
+                        // add rax, rcx：数组/指针元素地址（升序，与 C 语义一致）
+                        m_CodeBuffer.push_back(0x48);
+                        m_CodeBuffer.push_back(0x01);
+                        m_CodeBuffer.push_back(0xC8);
+
+                        if (isDoubleArray) {
                             m_CodeBuffer.push_back(0xF2);
                             m_CodeBuffer.push_back(0x0F);
                             m_CodeBuffer.push_back(0x10);
                             m_CodeBuffer.push_back(0x00); // movsd xmm0, [rax]
                             storeRegisterToVariable(0, result, Double);
                         } else {
-                            // 计算数组元素地址：rbp + offset - rcx*scale
-                            // 栈是向下增长的，数组元素也是向下存储的
-                            // 先将索引乘以元素大小
-                            if (elementSize == 8) {
-                                m_CodeBuffer.push_back(0x48);
-                                m_CodeBuffer.push_back(0xC1);
-                                m_CodeBuffer.push_back(0xE1);
-                                m_CodeBuffer.push_back(0x03); // shl rcx, 3 (乘以 8)
-                            } else if (elementSize == 4) {
-                                m_CodeBuffer.push_back(0x48);
-                                m_CodeBuffer.push_back(0xC1);
-                                m_CodeBuffer.push_back(0xE1);
-                                m_CodeBuffer.push_back(0x02); // shl rcx, 2 (乘以 4)
-                            } else if (elementSize == 2) {
-                                m_CodeBuffer.push_back(0x48);
-                                m_CodeBuffer.push_back(0xC1);
-                                m_CodeBuffer.push_back(0xE1);
-                                m_CodeBuffer.push_back(0x01); // shl rcx, 1 (乘以 2)
-                            }
-                            // 然后计算地址：rbp + offset - rcx
-                            m_CodeBuffer.push_back(0x48);
-                            m_CodeBuffer.push_back(0x8D);
-                            m_CodeBuffer.push_back(0x85); // lea rax, [rbp + offset]
-                            m_CodeBuffer.push_back(static_cast<unsigned char>(varOffset & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 8) & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 16) & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 24) & 0xFF));
-                            m_CodeBuffer.push_back(0x48);
-                            m_CodeBuffer.push_back(0x29);
-                            m_CodeBuffer.push_back(0xC8); // sub rax, rcx
-                            // 然后加载数据
                             if (elementSize == 8) {
                                 m_CodeBuffer.push_back(0x48);
                                 m_CodeBuffer.push_back(0x8B);
@@ -848,12 +836,13 @@ namespace cse
                                 m_CodeBuffer.push_back(0x8B);
                                 m_CodeBuffer.push_back(0x00); // mov eax, [rax]
                             } else if (elementSize == 2) {
-                                m_CodeBuffer.push_back(0x66);
-                                m_CodeBuffer.push_back(0x8B);
-                                m_CodeBuffer.push_back(0x00); // mov ax, [rax]
+                                m_CodeBuffer.push_back(0x0F);
+                                m_CodeBuffer.push_back(0xB7);
+                                m_CodeBuffer.push_back(0x00); // movzx eax, word ptr [rax]
                             } else if (elementSize == 1) {
-                                m_CodeBuffer.push_back(0x8A);
-                                m_CodeBuffer.push_back(0x00); // mov al, [rax]
+                                m_CodeBuffer.push_back(0x0F);
+                                m_CodeBuffer.push_back(0xB6);
+                                m_CodeBuffer.push_back(0x00); // movzx eax, byte ptr [rax]
                             }
                             storeRegisterToVariable(0, result, Int);
                         }
@@ -865,22 +854,32 @@ namespace cse
                     std::string value = quad.getArg1();
                     std::string index = quad.getArg2();
                     std::string name = quad.getResult();
-                    if (!name.empty()) {
+                    if (!name.empty())
+                    {
                         int elementSize = sizeof(int);
                         std::string elementType = "int";
-                        
+                        bool isArrayVar = false;
+
                         if (!m_CurrentFunction.empty() && m_FunctionArrays.find(m_CurrentFunction) != m_FunctionArrays.end()) {
                             for (const auto& arrayInfo : m_FunctionArrays[m_CurrentFunction]) {
                                 if (arrayInfo.name == name) {
+                                    isArrayVar = true;
                                     elementSize = arrayInfo.elementSize;
                                     elementType = arrayInfo.elementType;
                                     break;
                                 }
                             }
                         }
-                        
+
+                        bool isPointerSubscript = !isArrayVar && GetVariableType(name.c_str()) == Pointer;
+                        if (isPointerSubscript) {
+                            auto it = m_PointerElementSizes.find(name);
+                            elementSize = (it != m_PointerElementSizes.end()) ? it->second : (int)sizeof(int);
+                            elementType = (elementSize == 1) ? "char" : "int";
+                        }
+
                         bool isDoubleArray = (elementType == "double" || elementType == "float");
-                        
+
                         if (isDoubleArray) {
                             bool isDoubleConst = false;
                             double doubleVal = 0.0;
@@ -891,7 +890,6 @@ namespace cse
                             } catch (...) {
                                 isDoubleConst = false;
                             }
-                            
                             if (isDoubleConst) {
                                 size_t dataOffset = StoreDouble(doubleVal);
                                 size_t instrPos = m_CodeBuffer.size();
@@ -904,42 +902,21 @@ namespace cse
                                 m_CodeBuffer.push_back(0x00);
                                 m_CodeBuffer.push_back(0x00);
                                 AddRipRelativeOffset(instrPos, dataOffset, 8);
-                            }
-                            else if (VariableExists(value.c_str())) {
-                                Type varType = GetVariableType(value.c_str());
-                                if (varType == Double) {
-                                    int offset = GetVariableOffset(value.c_str());
-                                    m_CodeBuffer.push_back(0xF2);
-                                    m_CodeBuffer.push_back(0x0F);
-                                    m_CodeBuffer.push_back(0x10);
-                                    m_CodeBuffer.push_back(0x85);
-                                    m_CodeBuffer.push_back(static_cast<unsigned char>(offset & 0xFF));
-                                    m_CodeBuffer.push_back(static_cast<unsigned char>((offset >> 8) & 0xFF));
-                                    m_CodeBuffer.push_back(static_cast<unsigned char>((offset >> 16) & 0xFF));
-                                    m_CodeBuffer.push_back(static_cast<unsigned char>((offset >> 24) & 0xFF));
-                                } else {
-                                    int offset = GetVariableOffset(value.c_str());
-                                    m_CodeBuffer.push_back(0x48);
-                                    m_CodeBuffer.push_back(0x8B);
-                                    m_CodeBuffer.push_back(0x85);
-                                    m_CodeBuffer.push_back(static_cast<unsigned char>(offset & 0xFF));
-                                    m_CodeBuffer.push_back(static_cast<unsigned char>((offset >> 8) & 0xFF));
-                                    m_CodeBuffer.push_back(static_cast<unsigned char>((offset >> 16) & 0xFF));
-                                    m_CodeBuffer.push_back(static_cast<unsigned char>((offset >> 24) & 0xFF));
-                                }
+                            } else if (VariableExists(value.c_str()) && GetVariableType(value.c_str()) == Double) {
+                                loadVariableToRegister(value, 0, Double);
                             }
                         } else {
+                            // 值放入 rdx（后续按元素宽度取 dl/dx/edx/rdx）
                             if (isdigit(value[0]) || (value[0] == '-' && isdigit(value[1]))) {
                                 int64_t val = std::stoll(value);
                                 m_CodeBuffer.push_back(0x48);
                                 m_CodeBuffer.push_back(0xBA);
                                 m_CodeBuffer.insert(m_CodeBuffer.end(), reinterpret_cast<const unsigned char*>(&val), reinterpret_cast<const unsigned char*>(&val) + 8);
-                            }
-                            else if (VariableExists(value.c_str())) {
-                                loadVariableToRegister(value, 1, Int);
+                            } else if (VariableExists(value.c_str())) {
+                                loadVariableToRegister(value, 2, Int);
                             }
                         }
-                        
+
                         if (isdigit(index[0]) || (index[0] == '-' && isdigit(index[1]))) {
                             int64_t idx = std::stoll(index);
                             m_CodeBuffer.push_back(0x48);
@@ -949,92 +926,65 @@ namespace cse
                         else if (VariableExists(index.c_str())) {
                             loadVariableToRegister(index, 1, Int);
                         }
-                        
+
+                        // rcx = 索引 * 元素大小
+                        if (elementSize == 8) {
+                            m_CodeBuffer.push_back(0x48);
+                            m_CodeBuffer.push_back(0xC1);
+                            m_CodeBuffer.push_back(0xE1);
+                            m_CodeBuffer.push_back(0x03);
+                        } else if (elementSize == 4) {
+                            m_CodeBuffer.push_back(0x48);
+                            m_CodeBuffer.push_back(0xC1);
+                            m_CodeBuffer.push_back(0xE1);
+                            m_CodeBuffer.push_back(0x02);
+                        } else if (elementSize == 2) {
+                            m_CodeBuffer.push_back(0x48);
+                            m_CodeBuffer.push_back(0xC1);
+                            m_CodeBuffer.push_back(0xE1);
+                            m_CodeBuffer.push_back(0x01);
+                        }
+
                         int varOffset = GetVariableOffset(name.c_str());
-                        
-                        if (isDoubleArray) {
-                            // 计算数组元素地址：rbp + offset - rcx*scale
-                            // 栈是向下增长的，数组元素也是向下存储的
-                            // 先将索引乘以元素大小
-                            if (elementSize == 8) {
-                                m_CodeBuffer.push_back(0x48);
-                                m_CodeBuffer.push_back(0xC1);
-                                m_CodeBuffer.push_back(0xE1);
-                                m_CodeBuffer.push_back(0x03); // shl rcx, 3 (乘以 8)
-                            } else if (elementSize == 4) {
-                                m_CodeBuffer.push_back(0x48);
-                                m_CodeBuffer.push_back(0xC1);
-                                m_CodeBuffer.push_back(0xE1);
-                                m_CodeBuffer.push_back(0x02); // shl rcx, 2 (乘以 4)
-                            } else if (elementSize == 2) {
-                                m_CodeBuffer.push_back(0x48);
-                                m_CodeBuffer.push_back(0xC1);
-                                m_CodeBuffer.push_back(0xE1);
-                                m_CodeBuffer.push_back(0x01); // shl rcx, 1 (乘以 2)
-                            }
-                            // 然后计算地址：rbp + offset - rcx
+                        if (isPointerSubscript) {
+                            // mov rax, [rbp + offset]：取出指针值
+                            m_CodeBuffer.push_back(0x48);
+                            m_CodeBuffer.push_back(0x8B);
+                            m_CodeBuffer.push_back(0x85);
+                        } else {
+                            // lea rax, [rbp + offset]：数组基址
                             m_CodeBuffer.push_back(0x48);
                             m_CodeBuffer.push_back(0x8D);
-                            m_CodeBuffer.push_back(0x85); // lea rax, [rbp + offset]
-                            m_CodeBuffer.push_back(static_cast<unsigned char>(varOffset & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 8) & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 16) & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 24) & 0xFF));
-                            m_CodeBuffer.push_back(0x48);
-                            m_CodeBuffer.push_back(0x29);
-                            m_CodeBuffer.push_back(0xC8); // sub rax, rcx
-                            // 然后存储数据
+                            m_CodeBuffer.push_back(0x85);
+                        }
+                        m_CodeBuffer.push_back(static_cast<unsigned char>(varOffset & 0xFF));
+                        m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 8) & 0xFF));
+                        m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 16) & 0xFF));
+                        m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 24) & 0xFF));
+                        // add rax, rcx：数组/指针元素地址（升序）
+                        m_CodeBuffer.push_back(0x48);
+                        m_CodeBuffer.push_back(0x01);
+                        m_CodeBuffer.push_back(0xC8);
+
+                        if (isDoubleArray) {
                             m_CodeBuffer.push_back(0xF2);
                             m_CodeBuffer.push_back(0x0F);
                             m_CodeBuffer.push_back(0x11);
                             m_CodeBuffer.push_back(0x00); // movsd [rax], xmm0
-                        } else {
-                            // 计算数组元素地址：rbp + offset - rcx*scale
-                            // 栈是向下增长的，数组元素也是向下存储的
-                            // 先将索引乘以元素大小
-                            if (elementSize == 8) {
-                                m_CodeBuffer.push_back(0x48);
-                                m_CodeBuffer.push_back(0xC1);
-                                m_CodeBuffer.push_back(0xE1);
-                                m_CodeBuffer.push_back(0x03); // shl rcx, 3 (乘以 8)
-                            } else if (elementSize == 4) {
-                                m_CodeBuffer.push_back(0x48);
-                                m_CodeBuffer.push_back(0xC1);
-                                m_CodeBuffer.push_back(0xE1);
-                                m_CodeBuffer.push_back(0x02); // shl rcx, 2 (乘以 4)
-                            } else if (elementSize == 2) {
-                                m_CodeBuffer.push_back(0x48);
-                                m_CodeBuffer.push_back(0xC1);
-                                m_CodeBuffer.push_back(0xE1);
-                                m_CodeBuffer.push_back(0x01); // shl rcx, 1 (乘以 2)
-                            }
-                            // 然后计算地址：rbp + offset - rcx
+                        } else if (elementSize == 8) {
                             m_CodeBuffer.push_back(0x48);
-                            m_CodeBuffer.push_back(0x8D);
-                            m_CodeBuffer.push_back(0x85); // lea rax, [rbp + offset]
-                            m_CodeBuffer.push_back(static_cast<unsigned char>(varOffset & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 8) & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 16) & 0xFF));
-                            m_CodeBuffer.push_back(static_cast<unsigned char>((varOffset >> 24) & 0xFF));
-                            m_CodeBuffer.push_back(0x48);
-                            m_CodeBuffer.push_back(0x29);
-                            m_CodeBuffer.push_back(0xC8); // sub rax, rcx
-                            // 然后存储数据
-                            if (elementSize == 8) {
-                                m_CodeBuffer.push_back(0x48);
-                                m_CodeBuffer.push_back(0x89);
-                                m_CodeBuffer.push_back(0x10); // mov [rax], rdx
-                            } else if (elementSize == 4) {
-                                m_CodeBuffer.push_back(0x89);
-                                m_CodeBuffer.push_back(0x10); // mov [rax], edx
-                            } else if (elementSize == 2) {
-                                m_CodeBuffer.push_back(0x66);
-                                m_CodeBuffer.push_back(0x89);
-                                m_CodeBuffer.push_back(0x10); // mov [rax], dx
-                            } else if (elementSize == 1) {
-                                m_CodeBuffer.push_back(0x88);
-                                m_CodeBuffer.push_back(0x10); // mov [rax], dl
-                            }
+                            m_CodeBuffer.push_back(0x89);
+                            m_CodeBuffer.push_back(0x10); // mov [rax], rdx
+                        } else if (elementSize == 4) {
+                            m_CodeBuffer.push_back(0x89);
+                            m_CodeBuffer.push_back(0x10); // mov [rax], edx
+                        } else if (elementSize == 2) {
+                            m_CodeBuffer.push_back(0x66);
+                            m_CodeBuffer.push_back(0x89);
+                            m_CodeBuffer.push_back(0x10); // mov [rax], dx
+                        } else if (elementSize == 1) {
+                            m_CodeBuffer.push_back(0x88);
+                            m_CodeBuffer.push_back(0x10); // mov [rax], dl
                         }
                     }
                 }
@@ -1602,7 +1552,33 @@ namespace cse
                             }
                             
                             AllocateVariable(result.c_str(), varType);
-                            
+
+                            // 记录指针变量指向的元素大小，供 p[i] 下标寻址使用
+                            if (varType == Pointer) {
+                                bool fromArray = false;
+                                if (!m_CurrentFunction.empty() && m_FunctionArrays.find(m_CurrentFunction) != m_FunctionArrays.end()) {
+                                    for (const auto& ai : m_FunctionArrays[m_CurrentFunction]) {
+                                        if (ai.name == arg1) {
+                                            m_PointerElementSizes[result] = ai.elementSize;
+                                            fromArray = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (!fromArray) {
+                                    bool argIsNumber = !arg1.empty() && (isdigit(arg1[0]) || (arg1[0] == '-' && isdigit(arg1[1])));
+                                    bool argIsStringLiteral = !arg1.empty() &&
+                                        (arg1[0] == '"' || (!argIsNumber && !VariableExists(arg1.c_str())));
+                                    if (argIsStringLiteral) {
+                                        m_PointerElementSizes[result] = 1; // 字符串字面量指针
+                                    } else if (m_PointerElementSizes.find(arg1) != m_PointerElementSizes.end()) {
+                                        m_PointerElementSizes[result] = m_PointerElementSizes[arg1];
+                                    } else {
+                                        m_PointerElementSizes[result] = (int)sizeof(int);
+                                    }
+                                }
+                            }
+
                             if (!GetInFunction() && m_GlobalVariableOffsets.find(result) != m_GlobalVariableOffsets.end()) {
                                 size_t globalOffset = m_GlobalVariableOffsets[result];
                                 

@@ -79,6 +79,8 @@ private:
         int elementSize;
     };
     std::map<std::string, std::vector<ArrayInfo>> m_FunctionArrays;
+    // 指针变量指向的元素大小（char* = 1，int* = 4 ...），用于 p[i] 下标寻址
+    std::map<std::string, int> m_PointerElementSizes;
     std::unordered_map<std::string, void*> m_RegisteredCallbacks;
     
     int allocateRegister();

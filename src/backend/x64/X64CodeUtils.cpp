@@ -84,7 +84,14 @@ static std::string to_string_compat(int value) {
                     return false;
                 }
 
-                quad = Quad(op, to_string_compat(foldedResult), "", result);
+                // 常量搬运：把折叠结果真正写进目标变量。
+                // 不能保留二元 opcode（会导致调用方跳过发射、目标变量永远没有值）。
+                if (!result.empty())
+                {
+                    AllocateVariable(result.c_str(), Int);
+                    loadIntegerToRegister(foldedResult, 0);
+                    storeRegisterToVariable(0, result, Int);
+                }
                 std::cout << "Constant folding: " << val1 << " " << opToString(op) << " " << val2 << " = " << foldedResult << std::endl;
                 return true;
             }
@@ -98,7 +105,8 @@ static std::string to_string_compat(int value) {
         std::set<std::string> usedVariables;
         std::set<OpEnum> alwaysUsedOps = {OpEnum::RET, OpEnum::CALL, OpEnum::JMP, OpEnum::JMPT,
                                            OpEnum::JMPF, OpEnum::LABEL, OpEnum::FUNC, OpEnum::PARAM,
-                                           OpEnum::MEMBER_STORE};
+                                           OpEnum::MEMBER_STORE, OpEnum::ARRAY_STORE,
+                                           OpEnum::STORE_DEREFERENCE};
 
         bool changed = true;
         int iterations = 0;

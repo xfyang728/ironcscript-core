@@ -5,6 +5,7 @@
 #include "frontend/generated/CScriptParser.h"
 #include "frontend/parser/ASTBuilder.h"
 #include "frontend/semantic/SemanticAnalyzer.h"
+#include "frontend/preprocessor/Preprocessor.h"
 #include "ir/IRGenerator.h"
 #include "ir/Quad.h"
 #include "platform/PlatformAbstraction.h"
@@ -129,7 +130,9 @@ void IronCScriptImpl::error(const std::string& msg) {
 
 bool IronCScriptImpl::parseScript(const std::string& scriptCode, NBlock*& programBlock) {
     try {
-        antlr4::ANTLRInputStream input(scriptCode.c_str(), scriptCode.size());
+        // 源级预处理：#define / #ifdef 等指令在这里展开
+        std::string preprocessed = preprocessSource(scriptCode);
+        antlr4::ANTLRInputStream input(preprocessed.c_str(), preprocessed.size());
         CScriptLexer lexer(&input);
         antlr4::CommonTokenStream tokens(&lexer);
         CScriptParser parser(&tokens);
